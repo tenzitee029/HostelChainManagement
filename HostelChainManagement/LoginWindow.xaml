@@ -1,0 +1,74 @@
+﻿<Window x:Class="QuanLyChuoiNhaTro.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Đăng nhập"
+        Width="420"
+        Height="400"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+
+    <StackPanel Margin="30">
+        <TextBlock Text="QUẢN LÝ CHUỖI NHÀ TRỌ"
+                   FontSize="21"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,24"/>
+
+        <TextBlock Text="Tên đăng nhập"/>
+
+        <TextBox x:Name="txtAccount"
+                 Height="34"
+                 VerticalContentAlignment="Center"
+                 MaxLength="100"
+                 Margin="0,6,0,14"/>
+
+        <TextBlock Text="Mật khẩu"/>
+
+        <Grid Margin="0,6,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+
+            <PasswordBox x:Name="txtPassword"
+                 Grid.Column="0"
+                 Height="34"
+                 VerticalContentAlignment="Center"
+                 MaxLength="128"/>
+
+            <TextBox x:Name="txtVisiblePassword"
+             Grid.Column="0"
+             Height="34"
+             VerticalContentAlignment="Center"
+             MaxLength="128"
+             Visibility="Collapsed"/>
+
+            <Button x:Name="btnTogglePassword"
+            Grid.Column="1"
+            Content="👁"
+            FontFamily="Segoe UI Emoji"
+            ToolTip="Hiện mật khẩu"
+            Click="TogglePassword_Click"/>
+        </Grid>
+
+        <Button x:Name="btnLogin"
+                Content="Đăng nhập"
+                Height="38"
+                IsDefault="True"
+                Click="Login_Click"/>
+
+        <Button x:Name="btnForgotPassword"
+                Content="Quên mật khẩu?"
+                Background="Transparent"
+                BorderThickness="0"
+                Foreground="Blue"
+                HorizontalAlignment="Right"
+                Margin="0,10,0,0"
+                Click="ForgotPassword_Click"/>
+
+        <TextBlock x:Name="txtMessage"
+                   Foreground="Firebrick"
+                   TextWrapping="Wrap"
+                   Margin="0,12,0,0"/>
+    </StackPanel>
+</Window>

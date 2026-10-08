@@ -1,74 +1,288 @@
 ﻿<Window x:Class="QuanLyChuoiNhaTro.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Đăng nhập"
-        Width="420"
-        Height="400"
-        ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen">
+        Title="Đăng nhập — Hệ thống quản lý nhà trọ"
+        Width="1000"
+        Height="600"
+        MinWidth="850"
+        MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True">
 
-    <StackPanel Margin="30">
-        <TextBlock Text="QUẢN LÝ CHUỖI NHÀ TRỌ"
-                   FontSize="21"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"
-                   Margin="0,0,0,24"/>
+    <Window.Resources>
+        <!-- Ô nhập tài khoản và mật khẩu đang hiện -->
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
 
-        <TextBlock Text="Tên đăng nhập"/>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
 
-        <TextBox x:Name="txtAccount"
-                 Height="34"
-                 VerticalContentAlignment="Center"
-                 MaxLength="100"
-                 Margin="0,6,0,14"/>
+        <!-- Nút đăng nhập -->
+        <Style x:Key="LoginButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="3">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
 
-        <TextBlock Text="Mật khẩu"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Background"
+                                        Value="#1D4ED8"/>
+                            </Trigger>
 
-        <Grid Margin="0,6,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="40"/>
-            </Grid.ColumnDefinitions>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Background"
+                                        Value="#1E40AF"/>
+                            </Trigger>
 
-            <PasswordBox x:Name="txtPassword"
-                 Grid.Column="0"
-                 Height="34"
-                 VerticalContentAlignment="Center"
-                 MaxLength="128"/>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <TextBox x:Name="txtVisiblePassword"
-             Grid.Column="0"
-             Height="34"
-             VerticalContentAlignment="Center"
-             MaxLength="128"
-             Visibility="Collapsed"/>
+        <!-- Nút dạng liên kết và nút con mắt -->
+        <Style x:Key="FlatButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
 
-            <Button x:Name="btnTogglePassword"
-            Grid.Column="1"
-            Content="👁"
-            FontFamily="Segoe UI Emoji"
-            ToolTip="Hiện mật khẩu"
-            Click="TogglePassword_Click"/>
-        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground"
+                                        Value="#1E40AF"/>
+                            </Trigger>
 
-        <Button x:Name="btnLogin"
-                Content="Đăng nhập"
-                Height="38"
-                IsDefault="True"
-                Click="Login_Click"/>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-        <Button x:Name="btnForgotPassword"
-                Content="Quên mật khẩu?"
-                Background="Transparent"
-                BorderThickness="0"
-                Foreground="Blue"
-                HorizontalAlignment="Right"
-                Margin="0,10,0,0"
-                Click="ForgotPassword_Click"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="48*"/>
+            <ColumnDefinition Width="52*"/>
+        </Grid.ColumnDefinitions>
 
-        <TextBlock x:Name="txtMessage"
-                   Foreground="Firebrick"
-                   TextWrapping="Wrap"
-                   Margin="0,12,0,0"/>
-    </StackPanel>
+        <!-- Bên trái: giới thiệu hệ thống -->
+        <Border Grid.Column="0" Background="#1E293B">
+            <StackPanel Margin="48,30"
+                        VerticalAlignment="Center">
+
+                <Border Width="48"
+                        Height="48"
+                        Background="#2563EB"
+                        CornerRadius="3"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,24">
+                    <TextBlock Text="NT"
+                               Foreground="White"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <TextBlock Foreground="White"
+                           FontSize="25"
+                           FontWeight="Bold"
+                           Margin="0,0,0,18">
+                    <Run Text="HỆ THỐNG"/>
+                    <LineBreak/>
+                    <Run Text="QUẢN LÝ NHÀ TRỌ"/>
+                </TextBlock>
+
+                <TextBlock
+                    Text="Hỗ trợ quản lý phòng trọ, khách thuê, hợp đồng, hóa đơn và các nghiệp vụ vận hành trong cùng một hệ thống."
+                    Foreground="#CBD5E1"
+                    FontSize="12"
+                    TextWrapping="Wrap"
+                    LineHeight="20"/>
+
+                <Border Width="52"
+                        Height="3"
+                        Background="#2563EB"
+                        HorizontalAlignment="Left"
+                        Margin="0,22,0,18"/>
+
+                <TextBlock Foreground="#CBD5E1"
+                           FontSize="12"
+                           Margin="0,0,0,12">
+                    <Run Text="✓  " Foreground="#93C5FD"/>
+                    <Run Text="Quản lý thông tin tập trung"/>
+                </TextBlock>
+
+                <TextBlock Foreground="#CBD5E1"
+                           FontSize="12"
+                           Margin="0,0,0,12">
+                    <Run Text="✓  " Foreground="#93C5FD"/>
+                    <Run Text="Phân quyền theo từng vai trò"/>
+                </TextBlock>
+
+                <TextBlock Foreground="#CBD5E1"
+                           FontSize="12"
+                           Margin="0,0,0,12">
+                    <Run Text="✓  " Foreground="#93C5FD"/>
+                    <Run Text="Theo dõi phòng, hợp đồng và hóa đơn"/>
+                </TextBlock>
+
+                <TextBlock Foreground="#CBD5E1"
+                           FontSize="12">
+                    <Run Text="✓  " Foreground="#93C5FD"/>
+                    <Run Text="Hỗ trợ quản lý yêu cầu sửa chữa"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- Bên phải: khung đăng nhập -->
+        <Border Grid.Column="1"
+                Width="350"
+                Padding="30"
+                Background="White"
+                BorderBrush="#D1D5DB"
+                BorderThickness="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+
+            <StackPanel>
+                <TextBlock Text="Đăng nhập"
+                           Foreground="#111827"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Margin="0,0,0,24"/>
+
+                <TextBlock Text="Tên đăng nhập"
+                           Foreground="#374151"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,7"/>
+
+                <TextBox x:Name="txtAccount"
+                         MaxLength="50"
+                         Margin="0,0,0,16"
+                         ToolTip="Nhập tên đăng nhập"/>
+
+                <TextBlock Text="Mật khẩu"
+                           Foreground="#374151"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,7"/>
+
+                <Grid>
+                    <PasswordBox x:Name="txtPassword"
+                                 MaxLength="128"
+                                 Padding="12,0,42,0"/>
+
+                    <TextBox x:Name="txtVisiblePassword"
+                             MaxLength="128"
+                             Padding="12,0,42,0"
+                             Visibility="Collapsed"/>
+
+                    <Button x:Name="btnTogglePassword"
+                            Width="38"
+                            Height="38"
+                            Margin="0,0,2,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Foreground="#64748B"
+                            ToolTip="Hiện mật khẩu"
+                            Style="{StaticResource FlatButtonStyle}"
+                            Click="TogglePassword_Click">
+
+                        <!-- Biểu tượng mắt bằng vector -->
+                        <Viewbox Width="18" Height="18">
+                            <Canvas Width="24" Height="24">
+                                <Path
+                                    Data="M 2,12 C 7,4 17,4 22,12 C 17,20 7,20 2,12 Z"
+                                    Stroke="{Binding Foreground,
+                                        RelativeSource={RelativeSource AncestorType=Button}}"
+                                    StrokeThickness="1.7"/>
+
+                                <Ellipse Width="6"
+                                         Height="6"
+                                         Canvas.Left="9"
+                                         Canvas.Top="9"
+                                         Stroke="{Binding Foreground,
+                                             RelativeSource={RelativeSource AncestorType=Button}}"
+                                         StrokeThickness="1.7"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Button>
+                </Grid>
+
+                <Button x:Name="btnForgotPassword"
+                        Content="Quên mật khẩu?"
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Padding="0,5"
+                        HorizontalAlignment="Right"
+                        Margin="0,6,0,16"
+                        Style="{StaticResource FlatButtonStyle}"
+                        Click="ForgotPassword_Click"/>
+
+                <Button x:Name="btnLogin"
+                        Content="ĐĂNG NHẬP"
+                        IsDefault="True"
+                        Style="{StaticResource LoginButtonStyle}"
+                        Click="Login_Click"/>
+
+                <TextBlock x:Name="txtMessage"
+                           Foreground="#DC2626"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>

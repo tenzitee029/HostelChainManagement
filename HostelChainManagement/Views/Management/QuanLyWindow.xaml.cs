@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace QuanLyChuoiNhaTro.Views.Owner
+namespace QuanLyChuoiNhaTro.Views.Management
 {
     /// <summary>
-    /// Interaction logic for TongQuanChuTroWindow.xaml
+    /// Interaction logic for QuanLyWindow.xaml
     /// </summary>
-    public partial class TongQuanChuTroWindow : Window
+    public partial class QuanLyWindow : Window
     {
-        public TongQuanChuTroWindow()
+        public QuanLyWindow()
         {
             InitializeComponent();
         }

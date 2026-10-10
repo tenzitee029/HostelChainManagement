@@ -11,17 +11,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using QuanLyChuoiNhaTro.Services;
-using QuanLyChuoiNhaTro.Views.Auth;
 
 namespace QuanLyChuoiNhaTro.Views.Admin
 {
     /// <summary>
-    /// Interaction logic for TaiKhoanWindow.xaml
+    /// Interaction logic for AdminWindow.xaml
     /// </summary>
-    public partial class TaiKhoanWindow : Window
+    public partial class AdminWindow : Window
     {
-        public TaiKhoanWindow()
+        public AdminWindow()
         {
             InitializeComponent();
         }

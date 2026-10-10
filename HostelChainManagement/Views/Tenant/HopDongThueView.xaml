@@ -1,0 +1,137 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Tenant.HopDongThueView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="22">
+            <TextBlock Text="Hợp đồng thuê"
+                       FontSize="23"
+                       FontWeight="Bold"/>
+
+            <TextBlock Text="Thông tin hợp đồng thuê của bạn."
+                       Foreground="#64748B"
+                       Margin="0,6,0,10"/>
+
+            <TextBlock x:Name="txtStatus"
+                       Foreground="#B45309"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,10"/>
+
+            <TextBlock Text="Chọn hợp đồng"/>
+
+            <ComboBox x:Name="cboHopDong"
+                      DisplayMemberPath="MaHopDong"
+                      Height="36"
+                      Margin="0,6,0,16"
+                      SelectionChanged="Contract_SelectionChanged"/>
+
+            <Border Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="20">
+
+                <StackPanel x:Name="contractDetails"
+                            Visibility="Collapsed">
+                    <TextBlock Text="Thông tin hợp đồng"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,18"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Mã hợp đồng"/>
+                            <TextBox Text="{Binding MaHopDong}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Trạng thái"/>
+                            <TextBox Text="{Binding TrangThai}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Đại diện bên cho thuê"/>
+                    <TextBox Text="Chưa có dữ liệu trong CSDL"/>
+
+                    <TextBlock Text="Thông tin bên thuê"/>
+                    <TextBox Text="{Binding TenKhachThue}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="CCCD"/>
+                            <TextBox Text="{Binding CCCD}"/>
+
+                            <TextBlock Text="Phòng thuê"/>
+                            <TextBox Text="{Binding SoPhong}"/>
+
+                            <TextBlock Text="Ngày ký"/>
+                            <TextBox Text="{Binding NgayKy,
+                                StringFormat={}{0:dd/MM/yyyy}}"/>
+
+                            <TextBlock Text="Ngày kết thúc"/>
+                            <TextBox Text="{Binding NgayKetThuc,
+                                StringFormat={}{0:dd/MM/yyyy}}"/>
+
+                            <TextBlock Text="Tiền cọc"/>
+                            <TextBox Text="{Binding TienCoc,
+                                StringFormat={}{0:N0} VNĐ}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Số điện thoại"/>
+                            <TextBox Text="{Binding SoDienThoai}"/>
+
+                            <TextBlock Text="Dãy trọ"/>
+                            <TextBox Text="{Binding TenDayTro}"/>
+
+                            <TextBlock Text="Ngày bắt đầu"/>
+                            <TextBox Text="{Binding NgayBatDau,
+                                StringFormat={}{0:dd/MM/yyyy}}"/>
+
+                            <TextBlock Text="Ngày đến hạn trong tháng"/>
+                            <TextBox Text="{Binding KyThanhToan}"/>
+
+                            <TextBlock Text="Tiền thuê định kỳ"/>
+                            <TextBox Text="{Binding GiaThue,
+                                StringFormat={}{0:N0} VNĐ/tháng}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Điều khoản sử dụng"/>
+                    <TextBox
+                        Text="Chưa có dữ liệu điều khoản trong CSDL."
+                        TextWrapping="Wrap"
+                        MinHeight="70"/>
+
+                    <!-- Chưa triển khai, bấm không có hành động -->
+                    <Button Content="Tải bản PDF"
+                            Padding="16,8"
+                            HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

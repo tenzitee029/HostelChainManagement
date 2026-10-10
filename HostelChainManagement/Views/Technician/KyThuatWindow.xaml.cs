@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace QuanLyChuoiNhaTro.Views.Technician
 {
     /// <summary>
-    /// Interaction logic for DanhSachCongViecWindow.xaml
+    /// Interaction logic for KyThuatWindow.xaml
     /// </summary>
-    public partial class DanhSachCongViecWindow : Window
+    public partial class KyThuatWindow : Window
     {
-        public DanhSachCongViecWindow()
+        public KyThuatWindow()
         {
             InitializeComponent();
         }

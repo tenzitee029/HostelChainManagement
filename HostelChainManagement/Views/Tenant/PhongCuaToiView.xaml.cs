@@ -1,45 +1,22 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
-using QuanLyChuoiNhaTro.Views.Auth;
 
 namespace QuanLyChuoiNhaTro.Views.Tenant
 {
-    public partial class PhongCuaToiWindow : Window
+    public partial class PhongCuaToiView : UserControl
     {
         private bool _loading;
 
-        public PhongCuaToiWindow()
+        public PhongCuaToiView()
         {
             InitializeComponent();
-
-            var user = UserSession.CurrentUser;
-
-            if (user == null || user.VaiTro != "Khách thuê")
-            {
-                throw new InvalidOperationException(
-                    "Bạn không có quyền mở màn hình Khách thuê.");
-            }
-
-            txtUser.Text = user.HoTen;
         }
 
-        private async void Window_Loaded(
+        private async void View_Loaded(
             object sender, RoutedEventArgs e)
-        {
-            await LoadRoomAsync();
-        }
-
-        private async void Refresh_Click(
-            object sender, RoutedEventArgs e)
-        {
-            await LoadRoomAsync();
-        }
-
-        private async Task LoadRoomAsync()
         {
             if (_loading)
                 return;
@@ -53,7 +30,8 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
                 var room =
                     await KhachThueService.GetPhongCuaToiAsync();
 
-                if (!IsVisible)
+                // View có thể đã bị thay thế khi người dùng chọn menu.
+                if (!IsLoaded)
                     return;
 
                 if (room == null)
@@ -87,7 +65,8 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             catch (SqlException)
             {
                 txtStatus.Text =
-                    "Không tải được dữ liệu. Kiểm tra kết nối SQL Server.";
+                    "Không tải được thông tin phòng. " +
+                    "Vui lòng kiểm tra kết nối SQL Server.";
             }
             catch (Exception ex)
             {
@@ -112,42 +91,6 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
 
             txtEmptyEquipment.Visibility = Visibility.Visible;
             txtEmptyMembers.Visibility = Visibility.Visible;
-        }
-
-        private void PendingFeature_Click(
-            object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                MessageBox.Show(
-                    this,
-                    $"Chức năng “{button.Content}” sẽ được triển khai tiếp.",
-                    "Thông báo",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-        }
-
-        private void Logout_Click(
-            object sender, RoutedEventArgs e)
-        {
-            var answer = MessageBox.Show(
-                this,
-                "Bạn có chắc chắn muốn đăng xuất?",
-                "Xác nhận",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (answer != MessageBoxResult.Yes)
-                return;
-
-            UserSession.SignOut();
-
-            var login = new LoginWindow();
-            Application.Current.MainWindow = login;
-
-            login.Show();
-            Close();
         }
     }
 }

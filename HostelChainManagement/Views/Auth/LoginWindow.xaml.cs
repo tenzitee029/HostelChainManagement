@@ -20,9 +20,7 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             Loaded += (_, _) => txtAccount.Focus();
         }
 
-        private async void Login_Click(
-            object sender,
-            RoutedEventArgs e)
+        private async void Login_Click(object sender, RoutedEventArgs e)
         {
             string account = txtAccount.Text.Trim();
             string password = GetPassword();
@@ -101,19 +99,19 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             return role switch
             {
                 "Admin" =>
-                    new TaiKhoanWindow(),
+                    new AdminWindow(),
 
                 "Chủ nhà trọ" =>
-                    new TongQuanChuTroWindow(),
+                    new ChuTroWindow(),
 
                 "Nhân viên quản lý" =>
-                    new TongQuanQuanLyWindow(),
+                    new QuanLyWindow(),
 
                 "Khách thuê" =>
-                    new PhongCuaToiWindow(),
+                    new KhachThueWindow(),
 
                 "Nhân viên kỹ thuật" =>
-                    new DanhSachCongViecWindow(),
+                    new KyThuatWindow(),
 
                 _ => throw new InvalidOperationException(
                     "Vai trò tài khoản không hợp lệ.")
@@ -153,9 +151,7 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             txtVisiblePassword.Clear();
         }
 
-        private void TogglePassword_Click(
-            object sender,
-            RoutedEventArgs e)
+        private void TogglePassword_Click(object sender, RoutedEventArgs e)
         {
             if (!_isPasswordVisible)
             {
@@ -185,16 +181,9 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             _isPasswordVisible = !_isPasswordVisible;
         }
 
-        private void ForgotPassword_Click(
-            object sender,
-            RoutedEventArgs e)
+        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                this,
-                "Chức năng quên mật khẩu sẽ được triển khai tiếp.",
-                "Thông báo",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            
         }
     }
 }

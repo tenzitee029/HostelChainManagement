@@ -1,0 +1,175 @@
+﻿<Window x:Class="QuanLyChuoiNhaTro.Views.Tenant.KhachThueWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Khách thuê — Quản lý nhà trọ"
+        Width="1200"
+        Height="750"
+        MinWidth="1000"
+        MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="MenuBorder"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="3">
+                            <ContentPresenter/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="MenuBorder"
+                                        Property="Background"
+                                        Value="#334155"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Menu bên trái -->
+        <Border Grid.Column="0" Background="#1E293B">
+            <DockPanel>
+                <Border DockPanel.Dock="Top"
+                        Background="#0F172A"
+                        Padding="16">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="36"
+                                Height="36"
+                                Background="#2563EB"
+                                CornerRadius="3">
+                            <TextBlock Text="NT"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Margin="10,0,0,0"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="QUẢN LÝ NHÀ TRỌ"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="12"/>
+
+                            <TextBlock Text="Hệ thống quản lý"
+                                       Foreground="#94A3B8"
+                                       FontSize="10"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Button DockPanel.Dock="Bottom"
+                        Content="↪  Đăng xuất"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Foreground="#FCA5A5"
+                        Margin="10"
+                        Click="Logout_Click"/>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10,18">
+                        <TextBlock Text="THUÊ TRỌ"
+                                   Foreground="#94A3B8"
+                                   FontSize="10"
+                                   Margin="8,0,0,8"/>
+
+                        <Button x:Name="btnRoom"
+                                Content="Phòng của tôi"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="Room_Click"/>
+
+                        <Button x:Name="btnContract"
+                                Content="Hợp đồng thuê"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="Contract_Click"/>
+
+                        <Button Content="Hóa đơn &amp; Chi phí"
+                                Style="{StaticResource MenuButtonStyle}"/>
+
+                        <Separator Background="#334155"
+                                   Margin="0,12"/>
+
+                        <TextBlock Text="YÊU CẦU"
+                                   Foreground="#94A3B8"
+                                   FontSize="10"
+                                   Margin="8,0,0,8"/>
+
+                        <Button Content="Sửa chữa / bảo trì"
+                                Style="{StaticResource MenuButtonStyle}"/>
+
+                        <Button Content="Yêu cầu trả phòng"
+                                Style="{StaticResource MenuButtonStyle}"/>
+
+                        <Separator Background="#334155"
+                                   Margin="0,12"/>
+
+                        <TextBlock Text="TÀI KHOẢN"
+                                   Foreground="#94A3B8"
+                                   FontSize="10"
+                                   Margin="8,0,0,8"/>
+
+                        <Button Content="Hồ sơ cá nhân"
+                                Style="{StaticResource MenuButtonStyle}"/>
+
+                        <Button Content="Đổi mật khẩu"
+                                Style="{StaticResource MenuButtonStyle}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Thanh thông tin và vùng nội dung -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="White"
+                    BorderBrush="#E2E8F0"
+                    BorderThickness="0,0,0,1"
+                    Padding="22,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right"
+                                VerticalAlignment="Center">
+                        <TextBlock x:Name="txtUser"
+                                   FontWeight="SemiBold"/>
+
+                        <TextBlock Text="Khách thuê"
+                                   Foreground="#64748B"
+                                   FontSize="11"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="txtBreadcrumb"
+                               Foreground="#64748B"
+                               VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+
+            <ContentControl x:Name="contentArea"
+                            Grid.Row="1"/>
+        </Grid>
+    </Grid>
+</Window>

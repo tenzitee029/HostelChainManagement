@@ -8,9 +8,7 @@ namespace QuanLyChuoiNhaTro.Services
 {
     public static class AuthService
     {
-        public static async Task<LoggedInUser> LoginAsync(
-            string account,
-            string password)
+        public static async Task<LoggedInUser> LoginAsync(string account, string password)
         {
             account = account?.Trim() ?? "";
 

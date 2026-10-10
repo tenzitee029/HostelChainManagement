@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace HostelChainManagement
+namespace QuanLyChuoiNhaTro
 {
     /// <summary>
     /// Interaction logic for App.xaml

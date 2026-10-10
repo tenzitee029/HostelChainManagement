@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Data;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Models;
-
 
 namespace QuanLyChuoiNhaTro.Services
 {
     public static class AuthService
     {
         public static async Task<LoggedInUser> LoginAsync(
-            string account, string password)
+            string account,
+            string password)
         {
-            account = account.Trim();
+            account = account?.Trim() ?? "";
 
             if (string.IsNullOrWhiteSpace(account)
                 || string.IsNullOrEmpty(password))
@@ -33,18 +30,21 @@ namespace QuanLyChuoiNhaTro.Services
                     VaiTro,
                     TrangThai
                 FROM dbo.NguoiDung
-                WHERE TenDangNhap = @Account";
+                WHERE TenDangNhap = @TenDangNhap;";
 
             LoggedInUser user;
-            string storedHash;
+            string storedPassword;
             string status;
 
             using (var connection = Database.CreateConnection())
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = sql;
+
                 command.Parameters.Add(
-                    "@Account", SqlDbType.VarChar, 100).Value = account;
+                    "@TenDangNhap",
+                    SqlDbType.VarChar,
+                    50).Value = account;
 
                 await connection.OpenAsync();
 
@@ -56,31 +56,35 @@ namespace QuanLyChuoiNhaTro.Services
                             "Tên đăng nhập hoặc mật khẩu không chính xác.");
                     }
 
+                    storedPassword = reader.GetString(
+                        reader.GetOrdinal("MatKhau"));
+
+                    status = reader.GetString(
+                        reader.GetOrdinal("TrangThai"));
+
                     user = new LoggedInUser
                     {
-                        MaNguoiDung =
-                            reader.GetString(reader.GetOrdinal("MaNguoiDung")),
-                        TenDangNhap =
-                            reader.GetString(reader.GetOrdinal("TenDangNhap")),
-                        HoTen =
-                            reader.GetString(reader.GetOrdinal("HoTen")),
-                        VaiTro =
-                            reader.GetString(reader.GetOrdinal("VaiTro"))
-                    };
+                        MaNguoiDung = reader.GetString(
+                            reader.GetOrdinal("MaNguoiDung")),
 
-                    storedHash =
-                        reader.GetString(reader.GetOrdinal("MatKhau"));
-                    status =
-                        reader.GetString(reader.GetOrdinal("TrangThai"));
+                        TenDangNhap = reader.GetString(
+                            reader.GetOrdinal("TenDangNhap")),
+
+                        HoTen = reader.GetString(
+                            reader.GetOrdinal("HoTen")),
+
+                        VaiTro = reader.GetString(
+                            reader.GetOrdinal("VaiTro"))
+                    };
                 }
             }
 
-            bool validPassword = string.Equals(
+            // So sánh chính xác, phân biệt chữ hoa/chữ thường.
+            // Không Trim mật khẩu.
+            if (!string.Equals(
                 password,
-                storedHash,
-                StringComparison.Ordinal);
-
-            if (!validPassword)
+                storedPassword,
+                StringComparison.Ordinal))
             {
                 throw new InvalidOperationException(
                     "Tên đăng nhập hoặc mật khẩu không chính xác.");
@@ -93,12 +97,14 @@ namespace QuanLyChuoiNhaTro.Services
                     "Vui lòng liên hệ Quản trị viên để được hỗ trợ.");
             }
 
-            if (user.VaiTro is not (
+            bool validRole = user.VaiTro is
                 "Admin"
                 or "Chủ nhà trọ"
                 or "Nhân viên quản lý"
                 or "Nhân viên kỹ thuật"
-                or "Khách thuê"))
+                or "Khách thuê";
+
+            if (!validRole)
             {
                 throw new InvalidOperationException(
                     "Vai trò tài khoản không hợp lệ.");

@@ -102,6 +102,7 @@
                                    Margin="8,0,0,8"/>
 
                         <Button x:Name="btnRooms"
+                                Click="Rooms_Click"
                                 Content="Phòng trọ"
                                 Style="{StaticResource MenuStyle}"/>
                         <Button x:Name="btnTenants"

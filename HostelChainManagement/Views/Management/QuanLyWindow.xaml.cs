@@ -3,8 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using QuanLyChuoiNhaTro.Services;
-using QuanLyChuoiNhaTro.Views.Auth;
 using QuanLyChuoiNhaTro.Views.Account;
+using QuanLyChuoiNhaTro.Views.Auth;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -34,7 +34,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnOverview);
         }
 
-        // Dùng chung khi nối thêm các UserControl sau này.
         private void ShowView(
             UserControl view,
             string title,
@@ -42,10 +41,16 @@ namespace QuanLyChuoiNhaTro.Views.Management
         {
             Button[] buttons =
             {
-                btnOverview, btnRooms, btnTenants,
-                btnContracts, btnInvoices, btnRepairs,
-                btnNotifications, btnReports,
-                btnProfile, btnPassword
+                btnOverview,
+                btnRooms,
+                btnTenants,
+                btnContracts,
+                btnInvoices,
+                btnRepairs,
+                btnNotifications,
+                btnReports,
+                btnProfile,
+                btnPassword
             };
 
             foreach (var button in buttons)
@@ -57,6 +62,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             selectedButton.Background = new SolidColorBrush(
                 Color.FromRgb(37, 99, 235));
+
             selectedButton.Foreground = Brushes.White;
 
             txtBreadcrumb.Text = $"Hệ thống / {title}";
@@ -69,13 +75,24 @@ namespace QuanLyChuoiNhaTro.Views.Management
             ShowOverview();
         }
 
-        private void Profile_Click(object sender, RoutedEventArgs e)
+        private void Rooms_Click(
+            object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new PhongTroView(),
+                "Quản lý phòng",
+                btnRooms);
+        }
+
+        private void Profile_Click(
+            object sender, RoutedEventArgs e)
         {
             var view = new HoSoView();
 
             view.ProfileUpdated += (_, _) =>
             {
-                txtUser.Text = UserSession.CurrentUser?.HoTen ?? "";
+                txtUser.Text =
+                    UserSession.CurrentUser?.HoTen ?? "";
             };
 
             ShowView(view, "Hồ sơ cá nhân", btnProfile);

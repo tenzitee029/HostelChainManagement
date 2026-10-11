@@ -1,0 +1,174 @@
+﻿<Window x:Class="QuanLyChuoiNhaTro.Views.Management.ThemPhongWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thêm phòng trọ"
+        Width="540"
+        Height="650"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F8FAFC">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#334155"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,5,0,14"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,5,0,14"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="20,9"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề: dùng chung cho thêm và sửa phòng -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock x:Name="txtTieuDe"
+                       Text="Thêm phòng trọ"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#0F172A"/>
+
+            <TextBlock x:Name="txtMoTa"
+                       Text="Nhập thông tin phòng mới."
+                       Foreground="#64748B"
+                       Margin="0,6,0,0"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Nội dung nhập thông tin -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,12,0">
+
+                <StackPanel x:Name="pnlThongTin">
+                    <TextBlock Text="Dãy trọ *"/>
+
+                    <ComboBox x:Name="cboDayTro"
+                              DisplayMemberPath="TenDayTro"
+                              SelectedValuePath="MaDayTro"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Mã phòng *"/>
+
+                            <TextBox x:Name="txtMaPhong"
+                                     MaxLength="20"
+                                     ToolTip="Chữ không dấu, số, dấu _ hoặc -"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Số phòng *"/>
+
+                            <TextBox x:Name="txtSoPhong"
+                                     MaxLength="20"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Loại phòng"/>
+
+                    <ComboBox x:Name="cboLoaiPhong"
+                              IsEditable="True"
+                              Text="Phòng đơn">
+                        <ComboBoxItem Content="Phòng đơn"/>
+                        <ComboBoxItem Content="Phòng đôi"/>
+                        <ComboBoxItem Content="Phòng có gác"/>
+                        <ComboBoxItem Content="Phòng không gác"/>
+                    </ComboBox>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Diện tích (m²) *"/>
+
+                            <TextBox x:Name="txtDienTich"
+                                     ToolTip="Ví dụ: 25 hoặc 25,5"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Giá thuê (VNĐ/tháng) *"/>
+
+                            <TextBox x:Name="txtGiaThue"
+                                     ToolTip="Nhập số nguyên, ví dụ: 3000000"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Trạng thái *"/>
+
+                    <ComboBox x:Name="cboTrangThai"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="Trống"/>
+                        <ComboBoxItem Content="Đang sửa chữa"/>
+                    </ComboBox>
+
+                    <TextBlock Text="* Thông tin bắt buộc."
+                               Foreground="#64748B"
+                               FontSize="12"/>
+                </StackPanel>
+
+                <TextBlock x:Name="txtStatus"
+                           Margin="0,12,0,0"
+                           Foreground="#DC2626"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Nút thao tác -->
+        <Border Grid.Row="2"
+                BorderBrush="#E2E8F0"
+                BorderThickness="0,1,0,0"
+                Padding="0,16,0,0"
+                Margin="0,16,0,0">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+
+                <Button x:Name="btnHuy"
+                        Content="Hủy"
+                        Background="White"
+                        Foreground="#334155"
+                        BorderBrush="#CBD5E1"
+                        BorderThickness="1"
+                        Click="Huy_Click"/>
+
+                <Button x:Name="btnSave"
+                        Content="Lưu phòng"
+                        Background="#2563EB"
+                        Foreground="White"
+                        BorderThickness="0"
+                        IsEnabled="False"
+                        Click="Save_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

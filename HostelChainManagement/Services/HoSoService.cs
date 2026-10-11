@@ -20,25 +20,11 @@ namespace QuanLyChuoiNhaTro.Services
             const string sql = @"
                 SELECT
                     n.HoTen,
+                    n.CCCD,
                     n.Email,
                     n.SoDienThoai,
                     n.DiaChi,
-                    n.AnhDaiDien,
-                    CASE
-                        WHEN n.VaiTro = N'Khách thuê' THEN
-                            (SELECT TOP (1) k.CCCD
-                             FROM dbo.KhachThue AS k
-                             WHERE k.MaNguoiDung = n.MaNguoiDung
-                             ORDER BY k.MaKhachThue)
-                        WHEN n.VaiTro IN
-                            (N'Nhân viên quản lý', N'Nhân viên kỹ thuật')
-                        THEN
-                            (SELECT TOP (1) nv.CCCD
-                             FROM dbo.NhanVien AS nv
-                             WHERE nv.MaNguoiDung = n.MaNguoiDung
-                             ORDER BY nv.MaNhanVien)
-                        ELSE NULL
-                    END AS CCCD
+                    n.AnhDaiDien
                 FROM dbo.NguoiDung AS n
                 WHERE n.MaNguoiDung = @MaNguoiDung;";
 
@@ -182,11 +168,9 @@ namespace QuanLyChuoiNhaTro.Services
                         "Không tìm thấy tài khoản để cập nhật.");
             }
             catch (SqlException ex)
-                when (ex.Number is 2601 or 2627)
             {
                 throw new InvalidOperationException(
-                    "Số điện thoại này đã được liên kết " +
-                    "với một tài khoản khác.");
+                    $"Lỗi SQL ({ex.Number}): {ex.Message}", ex);
             }
 
             // Cập nhật tên trong phiên đăng nhập.

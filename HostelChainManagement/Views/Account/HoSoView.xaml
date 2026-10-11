@@ -1,0 +1,115 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Account.HoSoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="16,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="22">
+            <TextBlock Text="Hồ sơ cá nhân"
+                       FontSize="23"
+                       FontWeight="Bold"/>
+
+            <TextBlock Text="Xem và cập nhật thông tin tài khoản của bạn."
+                       Foreground="#64748B"
+                       Margin="0,6,0,18"/>
+
+            <TextBlock x:Name="txtStatus"
+                       TextWrapping="Wrap"
+                       Foreground="#B45309"
+                       Margin="0,0,0,12"/>
+
+            <Border Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="24">
+
+                <Grid x:Name="editorPanel">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="190"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Margin="0,0,24,0">
+                        <Border Width="140"
+                                Height="140"
+                                Background="#EFF6FF"
+                                BorderBrush="#CBD5E1"
+                                BorderThickness="1">
+                            <Grid>
+                                <TextBlock x:Name="txtNoAvatar"
+                                           Text="Chưa có ảnh"
+                                           Foreground="#64748B"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+
+                                <Image x:Name="imgAvatar"
+                                       Stretch="UniformToFill"/>
+                            </Grid>
+                        </Border>
+
+                        <Button Content="Thay ảnh đại diện"
+                                Margin="0,14,0,0"
+                                Click="ChooseAvatar_Click"/>
+
+                        <TextBlock Text="PNG/JPG, tối đa 2 MB"
+                                   Foreground="#64748B"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Họ tên"/>
+                        <TextBox x:Name="txtHoTen" MaxLength="100"/>
+
+                        <TextBlock Text="CCCD"/>
+                        <TextBox x:Name="txtCCCD"
+                                 IsReadOnly="True"
+                                 Background="#F1F5F9"
+                                 ToolTip="Thông tin định danh do quản lý cập nhật."/>
+
+                        <TextBlock Text="Email"/>
+                        <TextBox x:Name="txtEmail" MaxLength="100"/>
+
+                        <TextBlock Text="Số điện thoại"/>
+                        <TextBox x:Name="txtPhone" MaxLength="15"/>
+
+                        <TextBlock Text="Địa chỉ"/>
+                        <TextBox x:Name="txtAddress"
+                                 MaxLength="255"
+                                 MinHeight="75"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"/>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            <Button Content="Hủy thay đổi"
+                                    Margin="0,0,10,0"
+                                    Click="Cancel_Click"/>
+
+                            <Button Content="Cập nhật"
+                                    Background="#2563EB"
+                                    Foreground="White"
+                                    Click="Save_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

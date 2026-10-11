@@ -68,7 +68,7 @@
                     </Grid>
 
                     <TextBlock Text="Đại diện bên cho thuê"/>
-                    <TextBox Text="Chưa có dữ liệu trong CSDL"/>
+                    <TextBox Text="{Binding DaiDienBenChoThue}"/>
 
                     <TextBlock Text="Thông tin bên thuê"/>
                     <TextBox Text="{Binding TenKhachThue}"/>
@@ -121,8 +121,7 @@
                     </Grid>
 
                     <TextBlock Text="Điều khoản sử dụng"/>
-                    <TextBox
-                        Text="Chưa có dữ liệu điều khoản trong CSDL."
+                    <TextBox Text="{Binding DieuKhoan}"
                         TextWrapping="Wrap"
                         MinHeight="70"/>
 

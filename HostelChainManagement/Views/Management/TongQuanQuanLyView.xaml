@@ -1,0 +1,202 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Management.TongQuanQuanLyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+
+        <Style x:Key="ActionStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="MinHeight" Value="58"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ActionBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#D1D5DB"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ActionBorder"
+                                        Property="Background"
+                                        Value="#EFF6FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="MetricTemplate">
+            <Border Style="{StaticResource CardStyle}"
+                    Margin="0,0,10,10"
+                    Padding="14"
+                    MinHeight="100">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Background="{Binding Color}"
+                            Width="36"
+                            Height="36"
+                            CornerRadius="3"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Code}"
+                                   Foreground="#2563EB"
+                                   FontWeight="Bold"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                        <TextBlock Text="{Binding Title}"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding Value}"
+                                   FontSize="24"
+                                   FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Note}"
+                                   Foreground="#64748B"
+                                   FontSize="10"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="22">
+            <TextBlock Text="Tổng quan"
+                       FontSize="23"
+                       FontWeight="Bold"/>
+
+            <TextBlock
+                Text="Theo dõi thông tin quản lý trong phạm vi dãy trọ được phân công."
+                Foreground="#64748B"
+                Margin="0,6,0,12"
+                TextWrapping="Wrap"/>
+
+            <TextBlock x:Name="txtStatus"
+                       Foreground="#B45309"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,10"/>
+
+            <ItemsControl x:Name="itemsMetrics"
+                          ItemTemplate="{StaticResource MetricTemplate}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="3"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <Grid Margin="0,4,10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource CardStyle}"
+                        Padding="16"
+                        Margin="0,0,12,0">
+                    <StackPanel>
+                        <TextBlock Text="Nghiệp vụ quản lý"
+                                   FontSize="15"
+                                   FontWeight="Bold"/>
+                        <TextBlock
+                            Text="Các nhóm chức năng chính của Nhân viên quản lý."
+                            Foreground="#64748B"
+                            FontSize="11"
+                            TextWrapping="Wrap"
+                            Margin="0,4,0,14"/>
+
+                        <ItemsControl x:Name="itemsOperations">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Chưa nối chức năng, không có Click -->
+                                    <Button Style="{StaticResource ActionStyle}">
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap"/>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1"
+                        Style="{StaticResource CardStyle}"
+                        Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Thông tin tổng hợp"
+                                   FontSize="15"
+                                   FontWeight="Bold"/>
+                        <TextBlock
+                            Text="Tổng hợp theo dữ liệu nghiệp vụ đang quản lý."
+                            Foreground="#64748B"
+                            FontSize="11"
+                            TextWrapping="Wrap"
+                            Margin="0,4,0,14"/>
+
+                        <ItemsControl x:Name="itemsSummary">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E5E7EB"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="0,14">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Note}"
+                                                           Foreground="#64748B"
+                                                           FontSize="10"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Value}"
+                                                       FontWeight="Bold"
+                                                       Margin="12,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

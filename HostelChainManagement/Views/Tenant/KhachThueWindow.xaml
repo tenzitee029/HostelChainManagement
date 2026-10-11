@@ -129,8 +129,10 @@
                                    FontSize="10"
                                    Margin="8,0,0,8"/>
 
-                        <Button Content="Hồ sơ cá nhân"
-                                Style="{StaticResource MenuButtonStyle}"/>
+                        <Button x:Name="btnProfile" 
+                                Content="Hồ sơ cá nhân"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="Profile_Click"/>
 
                         <Button Content="Đổi mật khẩu"
                                 Style="{StaticResource MenuButtonStyle}"/>

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using QuanLyChuoiNhaTro.Services;
 using QuanLyChuoiNhaTro.Views.Auth;
+using QuanLyChuoiNhaTro.Views.Account;
 
 namespace QuanLyChuoiNhaTro.Views.Tenant
 {
@@ -53,19 +54,33 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
 
         private void SetSelectedMenu(Button selected)
         {
-            var normalColor = new SolidColorBrush(
-                Color.FromRgb(203, 213, 225));
+            Button[] buttons = { btnRoom, btnContract, btnProfile };
 
-            btnRoom.Background = Brushes.Transparent;
-            btnRoom.Foreground = normalColor;
-
-            btnContract.Background = Brushes.Transparent;
-            btnContract.Foreground = normalColor;
+            foreach (var button in buttons)
+            {
+                button.Background = Brushes.Transparent;
+                button.Foreground = new SolidColorBrush(
+                    Color.FromRgb(203, 213, 225));
+            }
 
             selected.Background = new SolidColorBrush(
                 Color.FromRgb(37, 99, 235));
-
             selected.Foreground = Brushes.White;
+        }
+
+        private void Profile_Click(object sender, RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Hồ sơ cá nhân";
+            SetSelectedMenu(btnProfile);
+
+            var view = new HoSoView();
+
+            view.ProfileUpdated += (_, _) =>
+            {
+                txtUser.Text = UserSession.CurrentUser?.HoTen ?? "";
+            };
+
+            contentArea.Content = view;
         }
 
         private void Logout_Click(

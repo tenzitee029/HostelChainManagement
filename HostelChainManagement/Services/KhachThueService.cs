@@ -175,16 +175,19 @@ namespace QuanLyChuoiNhaTro.Services
             h.MaHopDong,
             h.TrangThai,
             n.HoTen AS TenKhachThue,
-            k.CCCD,
+            n.CCCD,
             n.SoDienThoai,
             p.SoPhong,
             d.TenDayTro,
             h.NgayKy,
+            h.DaiDienBenChoThue,
+            h.DieuKhoan,
             h.NgayBatDau,
             h.NgayKetThuc,
             h.TienCoc,
             h.GiaThue,
             h.KyThanhToan
+
         FROM dbo.HopDongThue AS h
         INNER JOIN dbo.KhachThue AS k
             ON k.MaKhachThue = h.MaKhachThue

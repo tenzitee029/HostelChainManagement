@@ -10,6 +10,27 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
+        private void Invoices_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new QuanLyHoaDonView(),
+                "Hóa đơn",
+                btnInvoices);
+        }
+        private void Contracts_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new QuanLyHopDongView(),
+                "Hợp đồng",
+                btnContracts);
+        }
+        private void Tenants_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new QuanLyKhachThueView(),
+                "Khách thuê",
+                btnTenants);
+        }
         public QuanLyWindow()
         {
             InitializeComponent();

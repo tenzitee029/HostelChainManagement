@@ -1,0 +1,302 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Management.QuanLyHopDongView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1000"
+             d:DesignHeight="650"
+             Background="#F8FAFC">
+
+    <UserControl.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="14,9"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,12"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề -->
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Margin="0,0,16,0">
+                <TextBlock Text="Quản lý hợp đồng"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           Foreground="#0F172A"/>
+
+                <TextBlock Text="Quản lý hợp đồng thuê thuộc dãy trọ được phân công."
+                           Foreground="#64748B"
+                           Margin="0,6,0,0"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Button x:Name="btnLapHopDong"
+                    Grid.Column="1"
+                    Content="+ Lập hợp đồng thuê"
+                    VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Tìm kiếm -->
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#CBD5E1"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="16"
+                Margin="0,0,0,16">
+
+            <StackPanel>
+                <TextBlock Text="Tìm kiếm hợp đồng"
+                           Foreground="#334155"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid>
+                        <TextBox x:Name="txtTimKiem"
+                                 Padding="10,8"
+                                 MinHeight="40"
+                                 BorderBrush="#CBD5E1"
+                                 VerticalContentAlignment="Center"/>
+
+                        <TextBlock
+                            Text="Nhập mã hợp đồng, khách thuê hoặc phòng..."
+                            Margin="11,0,0,0"
+                            Foreground="#94A3B8"
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding Text, ElementName=txtTimKiem}"
+                                            Value="">
+                                            <Setter Property="Visibility"
+                                                    Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    <Button x:Name="btnTimKiem"
+                            Grid.Column="1"
+                            Content="Tìm kiếm"
+                            Margin="12,0,0,0"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Danh sách hợp đồng -->
+        <Border Grid.Row="2"
+                Background="White"
+                BorderBrush="#CBD5E1"
+                BorderThickness="1"
+                CornerRadius="4">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="Danh sách hợp đồng"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="#334155"/>
+
+                        <TextBlock Text="Các hợp đồng thuê phòng trong phạm vi phụ trách."
+                                   Foreground="#64748B"
+                                   Margin="0,5,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <WrapPanel Grid.Column="1"
+                               VerticalAlignment="Center">
+
+                        <Border Background="#DCFCE7"
+                                Padding="8,5"
+                                Margin="4"
+                                CornerRadius="3">
+                            <TextBlock Text="HIỆU LỰC"
+                                       Foreground="#15803D"
+                                       FontSize="10"
+                                       FontWeight="Bold"/>
+                        </Border>
+
+                        <Border Background="#FEF3C7"
+                                Padding="8,5"
+                                Margin="4"
+                                CornerRadius="3">
+                            <TextBlock Text="YÊU CẦU TRẢ PHÒNG"
+                                       Foreground="#B45309"
+                                       FontSize="10"
+                                       FontWeight="Bold"/>
+                        </Border>
+
+                        <Border Background="#F1F5F9"
+                                Padding="8,5"
+                                Margin="4"
+                                CornerRadius="3">
+                            <TextBlock Text="ĐÃ THANH LÝ"
+                                       Foreground="#64748B"
+                                       FontSize="10"
+                                       FontWeight="Bold"/>
+                        </Border>
+                    </WrapPanel>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <DataGrid x:Name="dgHopDong"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E2E8F0"
+                              BorderThickness="0"
+                              Background="White"
+                              AlternatingRowBackground="#F8FAFC"
+                              RowHeight="42">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                                Header="Mã hợp đồng"
+                                Binding="{Binding MaHopDong}"
+                                Width="*"/>
+
+                            <DataGridTextColumn
+                                Header="Khách thuê"
+                                Binding="{Binding TenKhachThue}"
+                                Width="1.5*"/>
+
+                            <DataGridTextColumn
+                                Header="Phòng"
+                                Binding="{Binding SoPhong}"
+                                Width="0.7*"/>
+
+                            <DataGridTextColumn
+                                Header="Dãy trọ"
+                                Binding="{Binding TenDayTro}"
+                                Width="1.2*"/>
+
+                            <DataGridTextColumn
+                                Header="Ngày bắt đầu"
+                                Binding="{Binding NgayBatDau, StringFormat={}{0:dd/MM/yyyy}}"
+                                Width="1.2*"/>
+
+                            <DataGridTextColumn
+                                Header="Ngày kết thúc"
+                                Binding="{Binding NgayKetThuc, StringFormat={}{0:dd/MM/yyyy}}"
+                                Width="1.2*"/>
+
+                            <DataGridTextColumn
+                                Header="Giá thuê"
+                                Binding="{Binding GiaThue, StringFormat={}{0:N0}}"
+                                Width="*"/>
+
+                            <DataGridTextColumn
+                                Header="Trạng thái"
+                                Binding="{Binding TrangThai}"
+                                Width="1.2*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Text="Chưa có dữ liệu hợp đồng để hiển thị."
+                               Foreground="#94A3B8"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,40,0,0"
+                               IsHitTestVisible="False">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding Items.Count, ElementName=dgHopDong}"
+                                        Value="0">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <!-- Nút thao tác -->
+                <Border Grid.Row="2"
+                        BorderBrush="#E2E8F0"
+                        BorderThickness="0,1,0,0"
+                        Padding="14">
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+
+                        <Button x:Name="btnXemHopDong"
+                                Content="Xem"
+                                Background="White"
+                                Foreground="#475569"
+                                BorderBrush="#CBD5E1"
+                                BorderThickness="1"/>
+
+                        <Button x:Name="btnGiaHan"
+                                Content="Gia hạn hợp đồng"/>
+
+                        <Button x:Name="btnThanhLy"
+                                Content="Thanh lý hợp đồng"
+                                Background="White"
+                                Foreground="#DC2626"
+                                BorderBrush="#DC2626"
+                                BorderThickness="1"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

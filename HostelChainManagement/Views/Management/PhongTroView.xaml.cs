@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,6 +27,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             await TaiDanhSachPhongAsync();
         }
 
+        // Tải danh sách phòng từ SQL Server
         private async Task TaiDanhSachPhongAsync()
         {
             if (_loading)
@@ -106,26 +108,47 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
         }
 
-        // Mở cửa sổ thêm phòng.
-        private async void AddRoom_Click(
+        // Hiển thị form Thêm/Sửa trong trang
+        private void HienThiFormPhong(ThemPhongControl control)
+        {
+            control.YeuCauHuy += (s, e) =>
+            {
+                DongFormPhong();
+            };
+
+            control.LuuThanhCong += async (s, e) =>
+            {
+                DongFormPhong();
+                txtSearch.Clear();
+                await TaiDanhSachPhongAsync();
+            };
+
+            DanhSachPhong.Visibility = Visibility.Collapsed;
+
+            NoiDungPhong.Content = control;
+            NoiDungPhong.Visibility = Visibility.Visible;
+        }
+
+        // Quay lại danh sách phòng
+        private void DongFormPhong()
+        {
+            NoiDungPhong.Content = null;
+            NoiDungPhong.Visibility = Visibility.Collapsed;
+
+            DanhSachPhong.Visibility = Visibility.Visible;
+        }
+
+        // Nút thêm phòng
+        private void AddRoom_Click(
             object sender, RoutedEventArgs e)
         {
             if (_loading || _dangXoa)
                 return;
 
-            var dialog = new ThemPhongWindow
-            {
-                Owner = Window.GetWindow(this)
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                txtSearch.Clear();
-                await TaiDanhSachPhongAsync();
-            }
+            HienThiFormPhong(new ThemPhongControl());
         }
 
-        // Tìm phòng theo thông tin nhập.
+        // Nút tìm kiếm
         private void Search_Click(
             object sender, RoutedEventArgs e)
         {
@@ -135,6 +158,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             ApplySearch();
         }
 
+        // Lọc danh sách phòng
         private void ApplySearch()
         {
             if (_rooms == null)
@@ -180,13 +204,14 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 : $"Hiển thị {results.Rows.Count} phòng.";
         }
 
-        // Bật nút sửa và xóa khi chọn phòng.
+        // Khi chọn một phòng
         private void dgPhong_SelectionChanged(
             object sender, SelectionChangedEventArgs e)
         {
             CapNhatNutThaoTac();
         }
 
+        // Cập nhật trạng thái nút Sửa/Xóa
         private void CapNhatNutThaoTac()
         {
             bool choPhep =
@@ -198,8 +223,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             btnXoa.IsEnabled = choPhep;
         }
 
-        // Mở cửa sổ sửa phòng.
-        private async void SuaPhong_Click(
+        // Nút sửa phòng
+        private void SuaPhong_Click(
             object sender, RoutedEventArgs e)
         {
             if (_loading || _dangXoa)
@@ -208,18 +233,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (dgPhong.SelectedItem is not DataRowView phong)
                 return;
 
-            var dialog = new ThemPhongWindow(phong)
-            {
-                Owner = Window.GetWindow(this)
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                await TaiDanhSachPhongAsync();
-            }
+            HienThiFormPhong(new ThemPhongControl(phong));
         }
 
-        // Xóa phòng sau khi xác nhận.
+        // Nút xóa phòng
         private async void XoaPhong_Click(
             object sender, RoutedEventArgs e)
         {

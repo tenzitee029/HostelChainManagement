@@ -1,14 +1,10 @@
-﻿<Window x:Class="QuanLyChuoiNhaTro.Views.Management.ThemPhongWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Thêm / Cập nhật phòng"
-        Width="1000" Height="650"
-        MinWidth="800" MinHeight="580"
-        WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResize"
-        Background="#F8FAFC">
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Management.ThemPhongControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="600"
+             Background="#F8FAFC">
 
-    <Window.Resources>
+    <UserControl.Resources>
         <Style x:Key="NhanTruong" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#475569"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -41,30 +37,38 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
-    </Window.Resources>
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
+                  HorizontalScrollBarVisibility="Disabled" Width="912">
         <Grid Margin="28">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <!-- Tiêu đề -->
             <StackPanel Margin="0,0,0,20">
                 <TextBlock x:Name="txtTieuDe"
                            Text="Thêm phòng"
-                           FontSize="24" FontWeight="Bold"
+                           FontSize="24"
+                           FontWeight="Bold"
                            Foreground="#0F172A"/>
+
                 <TextBlock x:Name="txtMoTa"
                            Text="Nhập thông tin phòng thuộc dãy trọ được phân công."
                            Foreground="#64748B"
-                           Margin="0,6,0,0" TextWrapping="Wrap"/>
+                           Margin="0,6,0,0"
+                           TextWrapping="Wrap"/>
             </StackPanel>
 
-            <Border Grid.Row="1" Background="White"
-                    BorderBrush="#CBD5E1" BorderThickness="1"
+            <!-- Form thông tin phòng -->
+            <Border Grid.Row="1"
+                    Background="White"
+                    BorderBrush="#CBD5E1"
+                    BorderThickness="1"
                     CornerRadius="4">
+
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -72,55 +76,74 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- Tiêu đề form -->
                     <Border BorderBrush="#E2E8F0"
-                            BorderThickness="0,0,0,1" Padding="20,16">
+                            BorderThickness="0,0,0,1"
+                            Padding="20,16">
                         <StackPanel>
                             <TextBlock Text="Thông tin phòng trọ"
-                                       FontSize="16" FontWeight="SemiBold"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
                                        Foreground="#334155"/>
+
                             <TextBlock
                                 Text="Cập nhật thông tin phòng theo phạm vi dãy trọ được phân công."
                                 Foreground="#64748B"
-                                Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                Margin="0,5,0,0"
+                                TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
+                    <!-- Các trường nhập liệu -->
                     <StackPanel Grid.Row="1" Margin="20">
+
                         <Grid x:Name="pnlThongTin">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="20"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
+
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Grid.Column="0"
+                            <!-- Số phòng -->
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="0"
                                         Margin="0,0,0,18">
                                 <TextBlock Text="Số phòng *"
                                            Style="{StaticResource NhanTruong}"/>
-                                <TextBox x:Name="txtSoPhong" MaxLength="20"
+
+                                <TextBox x:Name="txtSoPhong"
+                                         MaxLength="20"
                                          ToolTip="Ví dụ: 105"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="0" Grid.Column="2"
+                            <!-- Dãy trọ -->
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="2"
                                         Margin="0,0,0,18">
                                 <TextBlock Text="Dãy trọ *"
                                            Style="{StaticResource NhanTruong}"/>
+
                                 <ComboBox x:Name="cboDayTro"
                                           DisplayMemberPath="TenDayTro"
                                           SelectedValuePath="MaDayTro"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="1" Grid.Column="0"
+                            <!-- Loại phòng -->
+                            <StackPanel Grid.Row="1"
+                                        Grid.Column="0"
                                         Margin="0,0,0,18">
                                 <TextBlock Text="Loại phòng"
                                            Style="{StaticResource NhanTruong}"/>
+
                                 <ComboBox x:Name="cboLoaiPhong"
-                                          IsEditable="True" Text="Phòng đơn">
+                                          IsEditable="True"
+                                          Text="Phòng đơn">
                                     <ComboBoxItem Content="Phòng đơn"/>
                                     <ComboBoxItem Content="Phòng đôi"/>
                                     <ComboBoxItem Content="Phòng có gác"/>
@@ -128,54 +151,79 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="1" Grid.Column="2"
+                            <!-- Diện tích -->
+                            <StackPanel Grid.Row="1"
+                                        Grid.Column="2"
                                         Margin="0,0,0,18">
                                 <TextBlock Text="Diện tích (m²) *"
                                            Style="{StaticResource NhanTruong}"/>
+
                                 <TextBox x:Name="txtDienTich"
                                          ToolTip="Ví dụ: 25 hoặc 25,5"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="2" Grid.Column="0">
+                            <!-- Giá thuê -->
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="0">
                                 <TextBlock Text="Giá thuê (VNĐ/tháng) *"
                                            Style="{StaticResource NhanTruong}"/>
+
                                 <TextBox x:Name="txtGiaThue"
                                          ToolTip="Ví dụ: 3000000, không dùng dấu phân cách hàng nghìn"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="2" Grid.Column="2">
+                            <!-- Trạng thái -->
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="2">
                                 <TextBlock Text="Trạng thái *"
                                            Style="{StaticResource NhanTruong}"/>
-                                <ComboBox x:Name="cboTrangThai" SelectedIndex="0">
+
+                                <ComboBox x:Name="cboTrangThai"
+                                          SelectedIndex="0">
                                     <ComboBoxItem Content="Trống"/>
                                     <ComboBoxItem Content="Đang sửa chữa"/>
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
 
+                        <!-- Ghi chú -->
                         <Border Background="#EFF6FF"
-                                BorderBrush="#BFDBFE" BorderThickness="1"
-                                CornerRadius="3" Padding="16"
+                                BorderBrush="#BFDBFE"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="16"
                                 Margin="0,20,0,0">
+
                             <TextBlock x:Name="txtGhiChu"
                                        Text="Phòng được quản lý trong phạm vi dãy trọ được phân công."
                                        Foreground="#1D4ED8"
                                        TextWrapping="Wrap"/>
                         </Border>
 
+                        <!-- Thông báo lỗi -->
                         <TextBlock x:Name="txtStatus"
                                    Foreground="#DC2626"
-                                   Margin="0,12,0,0" TextWrapping="Wrap"/>
+                                   Margin="0,12,0,0"
+                                   TextWrapping="Wrap"/>
                     </StackPanel>
 
-                    <Border Grid.Row="2" BorderBrush="#E2E8F0"
-                            BorderThickness="0,1,0,0" Padding="20,16">
+                    <!-- Các nút chức năng -->
+                    <Border Grid.Row="2"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="0,1,0,0"
+                            Padding="20,16">
+
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Right">
-                            <Button x:Name="btnHuy" Content="Hủy"
-                                    Background="White" Foreground="#475569"
-                                    BorderBrush="#CBD5E1" BorderThickness="1"
+
+                            <Button x:Name="btnHuy"
+                                    Content="Hủy"
+                                    Background="White"
+                                    Foreground="#475569"
+                                    BorderBrush="#CBD5E1"
+                                    BorderThickness="1"
                                     Click="Huy_Click"/>
+
                             <Button x:Name="btnSave"
                                     Content="Lưu thông tin"
                                     IsEnabled="False"
@@ -186,4 +234,4 @@
             </Border>
         </Grid>
     </ScrollViewer>
-</Window>
+</UserControl>

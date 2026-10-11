@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Data;
 using System.Globalization;
 using System.Windows;
@@ -10,8 +9,11 @@ using QuanLyChuoiNhaTro.Services;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
-    public partial class ThemPhongWindow : Window
+    public partial class ThemPhongControl : UserControl
     {
+        public event EventHandler? LuuThanhCong;
+        public event EventHandler? YeuCauHuy;
+
         private bool _dangLuu;
         private bool _sanSang;
         private bool _phongDangThue;
@@ -21,27 +23,24 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private string _maDayTroCu = "";
 
         // Thêm phòng mới.
-        public ThemPhongWindow()
+        public ThemPhongControl()
         {
             InitializeComponent();
 
             _maPhong = TaoMaPhong();
 
-            Title = "Thêm phòng trọ";
             txtTieuDe.Text = "Thêm phòng";
             pnlThongTin.IsEnabled = false;
 
-            Loaded += Window_Loaded;
-            Closing += Window_Closing;
+            Loaded += Control_Loaded;
         }
 
         // Sửa phòng được chọn trong danh sách.
-        public ThemPhongWindow(DataRowView phong) : this()
+        public ThemPhongControl(DataRowView phong) : this()
         {
             _laCheDoSua = true;
             _maPhong = Convert.ToString(phong["MaPhong"]) ?? "";
 
-            Title = "Cập nhật phòng trọ";
             txtTieuDe.Text = "Cập nhật phòng";
             txtMoTa.Text = "Chỉnh sửa thông tin phòng đã chọn.";
 
@@ -62,7 +61,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 .Substring(0, 19).ToUpperInvariant();
         }
 
-        private async void Window_Loaded(
+        private async void Control_Loaded(
             object sender, RoutedEventArgs e)
         {
             var user = UserSession.CurrentUser;
@@ -457,7 +456,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (thanhCong)
             {
                 MessageBox.Show(
-                    this,
                     _laCheDoSua
                         ? "Cập nhật phòng trọ thành công!"
                         : "Thêm phòng trọ thành công!",
@@ -465,7 +463,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                DialogResult = true;
+                LuuThanhCong?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -485,14 +483,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private void Huy_Click(object sender, RoutedEventArgs e)
         {
             if (!_dangLuu)
-                DialogResult = false;
+                YeuCauHuy?.Invoke(this, EventArgs.Empty);
         }
 
-        private void Window_Closing(
-            object? sender, CancelEventArgs e)
-        {
-            if (_dangLuu)
-                e.Cancel = true;
-        }
+
     }
 }

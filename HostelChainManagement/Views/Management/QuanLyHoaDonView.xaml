@@ -48,11 +48,10 @@
             </StackPanel>
 
             <Button x:Name="btnTaoHoaDon"
-                    Grid.Column="1"
-                    Content="+ Tạo hóa đơn hàng tháng"
-                    VerticalAlignment="Center"
-                    IsEnabled="False"
-                    ToolTip="Chưa nối form tạo hóa đơn"/>
+        Grid.Column="1"
+        Content="+ Tạo hóa đơn hàng tháng"
+        VerticalAlignment="Center"
+        Click="TaoHoaDon_Click"/>
         </Grid>
 
         <Border Grid.Row="1" Background="White"

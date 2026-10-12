@@ -11,6 +11,46 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
+        private void HienThiXacNhanThanhToan(string maHoaDon)
+        {
+            var form = new XacNhanThanhToanView(maHoaDon);
+
+            form.QuayLai += HienThiHoaDon;
+            form.DaLuu += HienThiHoaDon;
+
+            ShowView(
+                form,
+                "Hóa đơn / Xác nhận thanh toán",
+                btnInvoices);
+        }
+        private void Invoices_Click(
+            object sender, RoutedEventArgs e)
+        {
+            HienThiHoaDon();
+        }
+
+        private void HienThiHoaDon()
+        {
+            var view = new QuanLyHoaDonView();
+
+            view.MoTaoHoaDon += HienThiTaoHoaDon;
+            view.MoThanhToan += HienThiXacNhanThanhToan;
+
+            ShowView(view, "Hóa đơn", btnInvoices);
+        }
+
+        private void HienThiTaoHoaDon()
+        {
+            var form = new TaoHoaDonView();
+
+            form.QuayLai += HienThiHoaDon;
+            form.DaLuu += HienThiHoaDon;
+
+            ShowView(
+                form,
+                "Hóa đơn / Tạo hóa đơn hàng tháng",
+                btnInvoices);
+        }
         public QuanLyWindow()
         {
             InitializeComponent();
@@ -179,16 +219,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 form,
                 "Hợp đồng / Thanh lý hợp đồng",
                 btnContracts);
-        }
-
-        // Hóa đơn.
-        private void Invoices_Click(
-            object sender, RoutedEventArgs e)
-        {
-            ShowView(
-                new QuanLyHoaDonView(),
-                "Hóa đơn",
-                btnInvoices);
         }
 
         // Sửa chữa.

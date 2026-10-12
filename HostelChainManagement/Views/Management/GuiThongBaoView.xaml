@@ -6,6 +6,7 @@
              Background="#F8FAFC" d:DesignWidth="938.216">
 
     <UserControl.Resources>
+        
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="Foreground" Value="#475569"/>
         </Style>

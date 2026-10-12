@@ -1,12 +1,174 @@
-﻿<Window x:Class="QuanLyChuoiNhaTro.Views.Admin.NhatKyHeThongView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:QuanLyChuoiNhaTro.Views.Admin"
-        mc:Ignorable="d"
-        Title="NhatKyHeThongView" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
-</Window>
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Admin.NhatKyHeThongView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8F9FB"
+             Loaded="View_Loaded">
+
+  <UserControl.Resources>
+    <Style TargetType="Button">
+      <Setter Property="Padding" Value="14,8"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader">
+      <Setter Property="Background" Value="#F3F4F6"/>
+      <Setter Property="Foreground" Value="#475569"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Padding" Value="8,12"/>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid x:Name="editorPanel">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <DockPanel Margin="0,0,0,12">
+      <StackPanel DockPanel.Dock="Right"
+                  Orientation="Horizontal">
+        <Button Content="Xuất file text"
+                Foreground="#2563EB"
+                Click="ExportText_Click"
+                Margin="0,0,8,0"/>
+        <Button Content="Xuất Excel"
+                Foreground="#2563EB"
+                Click="ExportExcel_Click"/>
+      </StackPanel>
+
+      <StackPanel>
+        <TextBlock Text="Xem nhật ký hệ thống"
+                   FontSize="22"
+                   FontWeight="SemiBold"/>
+        <TextBlock Text="Theo dõi log truy cập và log lỗi runtime của hệ thống."
+                   Foreground="#7C8798"
+                   Margin="0,4,0,0"/>
+      </StackPanel>
+    </DockPanel>
+
+    <TextBlock x:Name="txtStatus"
+               Grid.Row="1"
+               Foreground="#B45309"
+               TextWrapping="Wrap"
+               Margin="0,0,0,12"/>
+
+    <Border Grid.Row="2"
+            Background="White"
+            BorderBrush="#D1D7E0"
+            BorderThickness="1"
+            CornerRadius="3"
+            Padding="14,12"
+            Margin="0,0,0,12">
+      <StackPanel>
+        <TextBlock Text="Loại nhật ký"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,6"/>
+
+        <ComboBox x:Name="cboLogType"
+                  Width="260"
+                  Height="34"
+                  HorizontalAlignment="Left"
+                  Padding="8,5"
+                  SelectionChanged="LogFilter_Changed">
+          <ComboBoxItem Content="Log truy cập"
+                        IsSelected="True"/>
+          <ComboBoxItem Content="Log lỗi runtime"/>
+          <ComboBoxItem Content="Quản trị"/>
+          <ComboBoxItem Content="Tất cả"/>
+        </ComboBox>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="3"
+            Background="White"
+            BorderBrush="#D1D7E0"
+            BorderThickness="1"
+            CornerRadius="3">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Padding="14,11"
+                BorderBrush="#E1E5EC"
+                BorderThickness="0,0,0,1">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right"
+                        Orientation="Horizontal">
+              <Border Background="#DBEAFE"
+                      BorderBrush="#93C5FD"
+                      BorderThickness="1"
+                      Padding="7,4"
+                      Margin="0,0,6,0">
+                <TextBlock Text="LOG TRUY CẬP"
+                           Foreground="#2563EB"
+                           FontSize="9"
+                           FontWeight="SemiBold"/>
+              </Border>
+
+              <Border Background="#FEE2E2"
+                      BorderBrush="#FCA5A5"
+                      BorderThickness="1"
+                      Padding="7,4">
+                <TextBlock Text="LOG LỖI RUNTIME"
+                           Foreground="#B91C1C"
+                           FontSize="9"
+                           FontWeight="SemiBold"/>
+              </Border>
+            </StackPanel>
+
+            <StackPanel>
+              <TextBlock Text="Danh sách nhật ký"
+                         FontWeight="SemiBold"/>
+              <TextBlock Text="Nhật ký truy cập và lỗi runtime được ghi nhận trong hệ thống."
+                         Foreground="#94A3B8"
+                         FontSize="10"
+                         Margin="0,3,0,0"/>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
+        <DataGrid x:Name="logsGrid"
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  RowHeight="38"
+                  Background="White"
+                  BorderThickness="0">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Loại nhật ký"
+                                Binding="{Binding LoaiNhatKy}"
+                                Width="165"/>
+            <DataGridTextColumn Header="Nội dung nhật ký"
+                                Binding="{Binding NoiDung}"
+                                Width="*"/>
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock x:Name="txtNoLogs"
+                   Grid.Row="1"
+                   Text="—"
+                   Foreground="#94A3B8"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   IsHitTestVisible="False"/>
+
+        <Border Grid.Row="2"
+                BorderBrush="#E1E5EC"
+                BorderThickness="0,1,0,0"
+                Padding="14">
+          <TextBlock Text="Nhật ký hệ thống thuộc chức năng bảo trì hệ thống."
+                     Foreground="#94A3B8"
+                     FontSize="10"/>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

@@ -9,854 +9,208 @@
         WindowStartupLocation="CenterScreen"
         Background="#F8F9FB"
         FontFamily="Segoe UI"
-        Foreground="#182132"
-        Loaded="Window_Loaded">
+        Foreground="#182132">
 
-    <Window.Resources>
-        <Style x:Key="NavButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#CBD5E1"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="Margin" Value="8,3"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Cursor" Value="Hand"/>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="2"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#CFD6E1"/>
-            <Setter Property="Foreground" Value="#475569"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-
-        <Style x:Key="PrimaryButton"
-               TargetType="Button"
-               BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Background" Value="#2563EB"/>
-            <Setter Property="BorderBrush" Value="#2563EB"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="10,7"/>
-            <Setter Property="BorderBrush" Value="#D1D7E0"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="ReadField"
-               TargetType="TextBox"
-               BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="Background" Value="#F8F9FB"/>
-            <Setter Property="Foreground" Value="#64748B"/>
-        </Style>
-
-        <Style x:Key="Label" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#475569"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
-        </Style>
-
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#D1D7E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="3"/>
-        </Style>
-
-        <Style x:Key="CardHeader" TargetType="Border">
-            <Setter Property="Padding" Value="14,11"/>
-            <Setter Property="BorderBrush" Value="#E1E5EC"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        </Style>
-
-        <Style TargetType="DataGrid">
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="CanUserDeleteRows" Value="False"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="SelectionUnit" Value="FullRow"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="RowHeight" Value="38"/>
-        </Style>
-
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F3F4F6"/>
-            <Setter Property="Foreground" Value="#475569"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Padding" Value="8,12"/>
-            <Setter Property="BorderBrush" Value="#D1D7E0"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        </Style>
-
-        <Style TargetType="DataGridCell">
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-    </Window.Resources>
-
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="192"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- THANH BÊN -->
-        <Border Background="#1E293B">
-            <DockPanel>
-                <Border DockPanel.Dock="Top"
-                        Background="#0F172A"
-                        Height="60"
-                        Padding="15,10">
-
-                    <StackPanel Orientation="Horizontal">
-                        <Border Background="#2563EB"
-                                Width="34"
-                                Height="34"
-                                CornerRadius="3">
-                            <TextBlock Text="NT"
-                                       Foreground="White"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <StackPanel Margin="9,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="QUẢN LÝ NHÀ TRỌ"
-                                       Foreground="White"
-                                       FontSize="11"
-                                       FontWeight="Bold"/>
-
-                            <TextBlock Text="Hệ thống quản lý"
-                                       Foreground="#94A3B8"
-                                       FontSize="9"
-                                       Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <Border DockPanel.Dock="Bottom"
-                        BorderBrush="#334155"
-                        BorderThickness="0,1,0,0"
-                        Padding="0,10">
-                    <Button Content="↪   Đăng xuất"
-                            Foreground="#FCA5A5"
-                            Style="{StaticResource NavButton}"
-                            Click="Logout_Click"/>
-                </Border>
-
-                <StackPanel x:Name="navPanel"
-                            Margin="0,18,0,0">
-                    <TextBlock Text="CÔNG VIỆC"
-                               Foreground="#94A3B8"
-                               FontSize="9"
-                               FontWeight="SemiBold"
-                               Margin="17,0,0,5"/>
-
-                    <Button x:Name="btnJobs"
-                            Content="Danh sách công việc"
-                            Background="#2563EB"
-                            Foreground="White"
-                            Style="{StaticResource NavButton}"
-                            Click="Jobs_Click"/>
-
-                    <Border Height="1"
-                            Background="#334155"
-                            Margin="8,12"/>
-
-                    <TextBlock Text="TÀI KHOẢN"
-                               Foreground="#94A3B8"
-                               FontSize="9"
-                               FontWeight="SemiBold"
-                               Margin="17,0,0,5"/>
-
-                    <Button x:Name="btnProfile"
-                            Content="Hồ sơ cá nhân"
-                            Style="{StaticResource NavButton}"
-                            Click="Profile_Click"/>
-
-                    <Button x:Name="btnPassword"
-                            Content="Đổi mật khẩu"
-                            Style="{StaticResource NavButton}"
-                            Click="Password_Click"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="60"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- THANH ĐẦU TRANG -->
-            <Border Background="White"
-                    BorderBrush="#E1E5EC"
-                    BorderThickness="0,0,0,1"
-                    Padding="20,0">
-
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Right"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center">
-
-                        <Button x:Name="btnNotifications"
-                                Content="🔔"
-                                ToolTip="Thông báo"
-                                Padding="7,5"
-                                Click="Notifications_Click"
-                                Margin="0,0,12,0"/>
-
-                        <Border Background="#DBEAFE"
-                                Width="30"
-                                Height="30"
-                                CornerRadius="15"
-                                Margin="0,0,8,0">
-                            <TextBlock Text="KT"
-                                       Foreground="#2563EB"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="txtUser"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"/>
-
-                            <TextBlock Text="Nhân viên kỹ thuật"
-                                       FontSize="9"
-                                       Foreground="#94A3B8"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <TextBlock x:Name="txtBreadcrumb"
-                               Text="Hệ thống / Danh sách công việc"
-                               Foreground="#64748B"
-                               FontSize="11"
-                               VerticalAlignment="Center"/>
-                </DockPanel>
+  <Window.Resources>
+    <Style x:Key="NavButton" TargetType="Button">
+      <Setter Property="Foreground" Value="#CBD5E1"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Padding" Value="12,10"/>
+      <Setter Property="Margin" Value="8,3"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ButtonBorder"
+                    Background="{TemplateBinding Background}"
+                    Padding="{TemplateBinding Padding}"
+                    CornerRadius="3">
+              <ContentPresenter
+                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                  VerticalAlignment="Center"/>
             </Border>
 
-            <Grid Grid.Row="1"
-                  x:Name="contentPanel"
-                  Margin="20,18,20,20">
-
-                <!-- HÌNH 87: DANH SÁCH CÔNG VIỆC -->
-                <Grid x:Name="listPanel">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Margin="0,0,0,12">
-                        <TextBlock Text="Danh sách công việc"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"/>
-
-                        <TextBlock Text="Các yêu cầu sửa chữa được phân công cho nhân viên kỹ thuật."
-                                   Foreground="#7C8798"
-                                   FontSize="11"
-                                   Margin="0,4,0,0"/>
-                    </StackPanel>
-
-                    <Border Grid.Row="1"
-                            Style="{StaticResource Card}"
-                            Margin="0,0,0,14">
-                        <StackPanel>
-                            <Border Style="{StaticResource CardHeader}">
-                                <TextBlock Text="Bộ lọc"
-                                           FontWeight="SemiBold"/>
-                            </Border>
-
-                            <Grid Margin="14,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Margin="0,0,10,0">
-                                    <TextBlock Text="Dãy trọ"
-                                               Style="{StaticResource Label}"/>
-
-                                    <ComboBox x:Name="cboDay"
-                                              Height="34"
-                                              Padding="8,5"
-                                              BorderBrush="#D1D7E0"
-                                              SelectionChanged="Filter_Changed"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1"
-                                            Margin="0,0,10,0">
-                                    <TextBlock Text="Số phòng"
-                                               Style="{StaticResource Label}"/>
-
-                                    <TextBox x:Name="txtRoom"
-                                             Height="34"
-                                             ToolTip="Nhập số phòng"
-                                             TextChanged="Room_Changed"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Ngày giao việc"
-                                               Style="{StaticResource Label}"/>
-
-                                    <DatePicker x:Name="dpDate"
-                                                Height="34"
-                                                BorderBrush="#D1D7E0"
-                                                SelectedDateChanged="Date_Changed"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Row="2"
-                            Style="{StaticResource Card}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <Border Style="{StaticResource CardHeader}">
-                                <TextBlock Text="Yêu cầu sửa chữa được phân công"
-                                           FontWeight="SemiBold"/>
-                            </Border>
-
-                            <DataGrid Grid.Row="1"
-                                      x:Name="jobsGrid"
-                                      MouseDoubleClick="Jobs_DoubleClick"
-                                      SelectionChanged="Jobs_SelectionChanged">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Mã yêu cầu"
-                                                        Binding="{Binding MaSuCo}"
-                                                        Width="100"/>
-
-                                    <DataGridTextColumn Header="Phòng"
-                                                        Binding="{Binding SoPhong}"
-                                                        Width="65"/>
-
-                                    <DataGridTextColumn Header="Nội dung sự cố"
-                                                        Binding="{Binding NoiDungSuCo}"
-                                                        Width="*"/>
-
-                                    <DataGridTextColumn Header="Mức độ ưu tiên"
-                                                        Binding="{Binding MucDoUuTien}"
-                                                        Width="100"/>
-
-                                    <DataGridTextColumn Header="Nhân viên kỹ thuật"
-                                                        Binding="{Binding TenNhanVien}"
-                                                        Width="145"/>
-
-                                    <DataGridTextColumn Header="Tiến độ"
-                                                        Binding="{Binding TienDo}"
-                                                        Width="110"/>
-
-                                    <DataGridTextColumn Header="Trạng thái"
-                                                        Binding="{Binding TrangThai}"
-                                                        Width="115"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-
-                            <TextBlock Grid.Row="1"
-                                       x:Name="txtEmpty"
-                                       Text="Hiện tại bạn không có yêu cầu sửa chữa nào cần xử lý"
-                                       Foreground="#94A3B8"
-                                       FontSize="11"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-
-                <!-- HÌNH 89: CHI TIẾT CÔNG VIỆC -->
-                <ScrollViewer x:Name="detailPanel"
-                              Visibility="Collapsed"
-                              VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
-                        <DockPanel Margin="0,0,0,12">
-                            <Button DockPanel.Dock="Right"
-                                    x:Name="btnGoComplete"
-                                    Content="Xác nhận hoàn thành sửa chữa"
-                                    Foreground="#2563EB"
-                                    BorderBrush="#93B4F9"
-                                    Click="GoComplete_Click"
-                                    VerticalAlignment="Top"/>
-
-                            <StackPanel>
-                                <TextBlock Text="Chi tiết công việc"
-                                           FontSize="22"
-                                           FontWeight="SemiBold"/>
-
-                                <TextBlock Text="Thông tin yêu cầu sửa chữa được phân công."
-                                           Foreground="#7C8798"
-                                           FontSize="11"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
-                        </DockPanel>
-
-                        <Border Style="{StaticResource Card}"
-                                Margin="0,0,0,12">
-                            <StackPanel>
-                                <Border Style="{StaticResource CardHeader}">
-                                    <TextBlock Text="Thông tin phiếu sửa chữa"
-                                               FontWeight="SemiBold"/>
-                                </Border>
-
-                                <Grid Margin="14,16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <StackPanel Margin="0,0,12,16">
-                                        <TextBlock Text="Mã yêu cầu"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtRequestId"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="1"
-                                                Margin="0,0,12,16">
-                                        <TextBlock Text="Số phòng"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtDetailRoom"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="2"
-                                                Margin="0,0,0,16">
-                                        <TextBlock Text="Vị trí hư hỏng"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtLocation"
-                                                 Text="—"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="1"
-                                                Margin="0,0,12,16">
-                                        <TextBlock Text="Mức độ ưu tiên"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtPriority"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="1"
-                                                Grid.Column="1"
-                                                Margin="0,0,12,16">
-                                        <TextBlock Text="Tiến độ"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtProgress"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="1"
-                                                Grid.Column="2"
-                                                Margin="0,0,0,16">
-                                        <TextBlock Text="Trạng thái"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtJobStatus"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="2"
-                                                Margin="0,0,12,16">
-                                        <TextBlock Text="Số điện thoại liên hệ"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtPhone"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="2"
-                                                Grid.Column="1"
-                                                Margin="0,0,12,16">
-                                        <TextBlock Text="Nhân viên kỹ thuật"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtTechnician"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="3"
-                                                Grid.ColumnSpan="3"
-                                                Margin="0,0,0,16">
-                                        <TextBlock Text="Nội dung mô tả của khách"
-                                                   Style="{StaticResource Label}"/>
-
-                                        <TextBox x:Name="txtDescription"
-                                                 Height="65"
-                                                 Style="{StaticResource ReadField}"
-                                                 TextWrapping="Wrap"
-                                                 VerticalContentAlignment="Top"
-                                                 VerticalScrollBarVisibility="Auto"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="4"
-                                                Grid.ColumnSpan="3">
-                                        <TextBlock Text="Hình ảnh / video đính kèm"
-                                                   Style="{StaticResource Label}"/>
-
-                                        <Border Background="#F8F9FB"
-                                                BorderBrush="#D1D7E0"
-                                                BorderThickness="1"
-                                                MinHeight="70">
-                                            <Grid>
-                                                <Image x:Name="imgAttachment"
-                                                       MaxHeight="160"
-                                                       Stretch="Uniform"
-                                                       Margin="5"/>
-
-                                                <Button x:Name="btnAttachment"
-                                                        Content="—"
-                                                        Background="Transparent"
-                                                        BorderThickness="0"
-                                                        Click="OpenAttachment_Click"
-                                                        HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource Card}">
-                            <StackPanel>
-                                <Border Style="{StaticResource CardHeader}">
-                                    <StackPanel>
-                                        <TextBlock Text="Cập nhật tiến độ"
-                                                   FontWeight="SemiBold"/>
-
-                                        <TextBlock Text="Cập nhật tình trạng thực tế trong quá trình xử lý."
-                                                   Foreground="#94A3B8"
-                                                   FontSize="10"
-                                                   Margin="0,3,0,0"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <Grid x:Name="progressEditor"
-                                      Margin="14,12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="1.8*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Margin="0,0,14,0">
-                                        <TextBlock Text="Trạng thái hiện tại"
-                                                   Style="{StaticResource Label}"/>
-
-                                        <ComboBox x:Name="cboProgress"
-                                                  Height="34"
-                                                  Padding="8,5">
-                                            <ComboBoxItem Content="Đang kiểm tra"/>
-                                            <ComboBoxItem Content="Chờ linh kiện"/>
-                                            <ComboBoxItem Content="Đang sửa"/>
-                                        </ComboBox>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="Ghi chú tình hình thực tế"
-                                                   Style="{StaticResource Label}"/>
-
-                                        <TextBox x:Name="txtNote"
-                                                 MaxLength="500"
-                                                 Height="65"
-                                                 AcceptsReturn="True"
-                                                 TextWrapping="Wrap"
-                                                 VerticalContentAlignment="Top"/>
-                                    </StackPanel>
-                                </Grid>
-
-                                <Border BorderBrush="#E1E5EC"
-                                        BorderThickness="0,1,0,0"
-                                        Padding="14,10">
-                                    <StackPanel Orientation="Horizontal"
-                                                HorizontalAlignment="Right">
-                                        <Button Content="Danh sách công việc"
-                                                Click="Jobs_Click"
-                                                Margin="0,0,8,0"/>
-
-                                        <Button x:Name="btnSaveProgress"
-                                                Content="Lưu tiến độ"
-                                                Style="{StaticResource PrimaryButton}"
-                                                Click="SaveProgress_Click"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <!-- HÌNH 91: XÁC NHẬN HOÀN THÀNH SỬA CHỮA -->
-                <ScrollViewer x:Name="completePanel"
-                              Visibility="Collapsed"
-                              VerticalScrollBarVisibility="Auto">
-                    <StackPanel Width="{Binding ActualWidth, ElementName=contentPanel}"
-                                MaxWidth="850"
-                                HorizontalAlignment="Left">
-
-                        <StackPanel Margin="0,0,0,12">
-                            <TextBlock Text="Xác nhận hoàn thành sửa chữa"
-                                       FontSize="22"
-                                       FontWeight="SemiBold"/>
-
-                            <TextBlock Text="Ghi nhận kết quả sau khi hoàn tất công việc sửa chữa."
-                                       Foreground="#7C8798"
-                                       FontSize="11"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-
-                        <Border Style="{StaticResource Card}"
-                                Margin="0,0,0,14">
-                            <StackPanel>
-                                <Border Style="{StaticResource CardHeader}">
-                                    <TextBlock Text="Công việc đang nghiệm thu"
-                                               FontWeight="SemiBold"/>
-                                </Border>
-
-                                <Grid Margin="16,20">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Margin="0,0,14,0">
-                                        <TextBlock Text="Mã yêu cầu"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtCompleteId"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="Phòng"
-                                                   Style="{StaticResource Label}"/>
-                                        <TextBox x:Name="txtCompleteRoom"
-                                                 Style="{StaticResource ReadField}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource Card}">
-                            <StackPanel>
-                                <Border Style="{StaticResource CardHeader}">
-                                    <TextBlock Text="Biểu mẫu nghiệm thu"
-                                               FontWeight="SemiBold"/>
-                                </Border>
-
-                                <StackPanel x:Name="completionEditor"
-                                            Margin="16,16">
-                                    <TextBlock Text="Ghi chú cách khắc phục"
-                                               Style="{StaticResource Label}"/>
-
-                                    <TextBox x:Name="txtResolution"
-                                             MaxLength="500"
-                                             Height="100"
-                                             AcceptsReturn="True"
-                                             TextWrapping="Wrap"
-                                             VerticalContentAlignment="Top"
-                                             Margin="0,0,0,16"/>
-
-                                    <Grid Margin="0,0,0,14">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <StackPanel Margin="0,0,14,0">
-                                            <TextBlock Text="Tên linh kiện"
-                                                       Style="{StaticResource Label}"/>
-                                            <TextBox x:Name="txtMaterialName"
-                                                     MaxLength="100"/>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="1"
-                                                    Margin="0,0,14,0">
-                                            <TextBlock Text="Số lượng"
-                                                       Style="{StaticResource Label}"/>
-                                            <TextBox x:Name="txtQuantity"
-                                                     Text="1"/>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Chi phí"
-                                                       Style="{StaticResource Label}"/>
-                                            <TextBox x:Name="txtCost"
-                                                     Text="0"
-                                                     ToolTip="Đơn giá mỗi linh kiện, tính bằng VND"/>
-                                        </StackPanel>
-                                    </Grid>
-
-                                    <TextBlock Text="Ảnh hiện trường sau khi sửa xong"
-                                               Style="{StaticResource Label}"/>
-
-                                    <Border BorderBrush="#D1D7E0"
-                                            BorderThickness="1"
-                                            Padding="6">
-                                        <DockPanel>
-                                            <Button DockPanel.Dock="Left"
-                                                    Content="Chọn tệp"
-                                                    Click="ChoosePhoto_Click"
-                                                    Padding="8,3"
-                                                    Margin="0,0,8,0"/>
-
-                                            <TextBlock x:Name="txtPhoto"
-                                                       Text="Chưa chọn tệp"
-                                                       Foreground="#64748B"
-                                                       VerticalAlignment="Center"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </DockPanel>
-                                    </Border>
-                                </StackPanel>
-
-                                <Border BorderBrush="#E1E5EC"
-                                        BorderThickness="0,1,0,0"
-                                        Padding="14,12">
-                                    <Button x:Name="btnComplete"
-                                            Content="Xác nhận hoàn tất"
-                                            Style="{StaticResource PrimaryButton}"
-                                            Click="Complete_Click"
-                                            HorizontalAlignment="Right"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-
-                <!-- THÔNG BÁO: MỞ TỪ CHUÔNG TRÊN THANH ĐẦU TRANG -->
-                <Grid x:Name="notificationPanel"
-                      Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="240"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <DockPanel Margin="0,0,0,12">
-                        <Button DockPanel.Dock="Right"
-                                Content="Tải lại"
-                                Click="Notifications_Click"/>
-
-                        <TextBlock Text="Thông báo"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"/>
-                    </DockPanel>
-
-                    <DataGrid Grid.Row="1"
-                              x:Name="notificationsGrid"
-                              SelectionChanged="Notification_SelectionChanged">
-                        <DataGrid.Columns>
-                            <DataGridCheckBoxColumn Header="Đã đọc"
-                                                    Binding="{Binding DaDoc}"
-                                                    Width="65"/>
-
-                            <DataGridTextColumn Header="Tiêu đề"
-                                                Binding="{Binding TieuDe}"
-                                                Width="*"/>
-
-                            <DataGridTextColumn Header="Người gửi"
-                                                Binding="{Binding NguoiGui}"
-                                                Width="180"/>
-
-                            <DataGridTextColumn Header="Thời điểm"
-                                                Binding="{Binding NgayGui, StringFormat=dd/MM/yyyy HH:mm}"
-                                                Width="150"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <TextBox Grid.Row="2"
-                             x:Name="txtNotification"
-                             IsReadOnly="True"
-                             TextWrapping="Wrap"
-                             VerticalScrollBarVisibility="Auto"
-                             Margin="0,12,0,0"/>
-                </Grid>
-
-                <!-- HỒ SƠ CÁ NHÂN -->
-                <ContentControl x:Name="profilePanel"
-                                Visibility="Collapsed"/>
-
-                <!-- ĐỔI MẬT KHẨU -->
-                <StackPanel x:Name="passwordPanel"
-                            Visibility="Collapsed"
-                            Width="400"
-                            HorizontalAlignment="Left">
-
-                    <TextBlock Text="Đổi mật khẩu"
-                               FontSize="22"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,20"/>
-
-                    <TextBlock Text="Mật khẩu hiện tại"
-                               Style="{StaticResource Label}"/>
-
-                    <PasswordBox x:Name="oldPassword"
-                                 Padding="8"
-                                 Margin="0,0,0,16"/>
-
-                    <TextBlock Text="Mật khẩu mới"
-                               Style="{StaticResource Label}"/>
-
-                    <PasswordBox x:Name="newPassword"
-                                 Padding="8"
-                                 Margin="0,0,0,16"/>
-
-                    <TextBlock Text="Nhập lại mật khẩu mới"
-                               Style="{StaticResource Label}"/>
-
-                    <PasswordBox x:Name="confirmPassword"
-                                 Padding="8"
-                                 Margin="0,0,0,16"/>
-
-                    <Button Content="Lưu mật khẩu"
-                            Style="{StaticResource PrimaryButton}"
-                            Click="ChangePassword_Click"
-                            HorizontalAlignment="Left"/>
-                </StackPanel>
-            </Grid>
-
-            <TextBlock Grid.Row="2"
-                       x:Name="txtStatus"
-                       Foreground="#1D4ED8"
-                       TextWrapping="Wrap"
-                       Margin="20,0,20,12"/>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ButtonBorder"
+                        Property="Opacity"
+                        Value="0.85"/>
+              </Trigger>
+
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="ButtonBorder"
+                        Property="Opacity"
+                        Value="0.5"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="HeaderButton" TargetType="Button">
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="Background" Value="White"/>
+      <Setter Property="Foreground" Value="#475569"/>
+      <Setter Property="BorderBrush" Value="#E1E5EC"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+  </Window.Resources>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="192"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <!-- Menu bên trái -->
+    <Border Grid.Column="0" Background="#1E293B">
+      <DockPanel LastChildFill="True">
+        <Border DockPanel.Dock="Top"
+                Height="60"
+                Background="#0F172A"
+                Padding="15,10">
+          <StackPanel Orientation="Horizontal">
+            <Border Width="34"
+                    Height="34"
+                    Background="#2563EB"
+                    CornerRadius="3">
+              <TextBlock Text="NT"
+                         Foreground="White"
+                         FontWeight="Bold"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Margin="9,0,0,0"
+                        VerticalAlignment="Center">
+              <TextBlock Text="QUẢN LÝ NHÀ TRỌ"
+                         Foreground="White"
+                         FontSize="11"
+                         FontWeight="Bold"/>
+
+              <TextBlock Text="Hệ thống quản lý"
+                         Foreground="#94A3B8"
+                         FontSize="9"
+                         Margin="0,3,0,0"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom"
+                BorderBrush="#334155"
+                BorderThickness="0,1,0,0"
+                Padding="0,10">
+          <Button Content="Đăng xuất"
+                  Foreground="#FCA5A5"
+                  Style="{StaticResource NavButton}"
+                  Click="Logout_Click"/>
+        </Border>
+
+        <StackPanel x:Name="navPanel"
+                    Margin="0,18,0,0">
+          <TextBlock Text="CÔNG VIỆC"
+                     Foreground="#94A3B8"
+                     FontSize="9"
+                     FontWeight="SemiBold"
+                     Margin="17,0,0,5"/>
+
+          <Button x:Name="btnJobs"
+                  Content="Danh sách công việc"
+                  Style="{StaticResource NavButton}"
+                  Click="Jobs_Click"/>
+
+          <Border Height="1"
+                  Background="#334155"
+                  Margin="8,12"/>
+
+          <TextBlock Text="TÀI KHOẢN"
+                     Foreground="#94A3B8"
+                     FontSize="9"
+                     FontWeight="SemiBold"
+                     Margin="17,0,0,5"/>
+
+          <Button x:Name="btnProfile"
+                  Content="Hồ sơ cá nhân"
+                  Style="{StaticResource NavButton}"
+                  Click="Profile_Click"/>
+
+          <Button x:Name="btnPassword"
+                  Content="Đổi mật khẩu"
+                  Style="{StaticResource NavButton}"
+                  Click="Password_Click"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Column="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="60"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!-- Thanh đầu trang -->
+      <Border Grid.Row="0"
+              Background="White"
+              BorderBrush="#E1E5EC"
+              BorderThickness="0,0,0,1"
+              Padding="20,0">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <TextBlock x:Name="txtBreadcrumb"
+                     Grid.Column="0"
+                     Foreground="#64748B"
+                     FontSize="11"
+                     VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis"
+                     Margin="0,0,15,0"/>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      VerticalAlignment="Center">
+            <Button x:Name="btnNotifications"
+                    Content="Thông báo"
+                    Style="{StaticResource HeaderButton}"
+                    Click="Notifications_Click"
+                    Margin="0,0,12,0"/>
+
+            <Border Width="30"
+                    Height="30"
+                    Background="#DBEAFE"
+                    CornerRadius="15"
+                    Margin="0,0,8,0">
+              <TextBlock Text="KT"
+                         Foreground="#2563EB"
+                         FontSize="11"
+                         FontWeight="SemiBold"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock x:Name="txtUser"
+                         FontSize="11"
+                         FontWeight="SemiBold"/>
+
+              <TextBlock Text="Nhân viên kỹ thuật"
+                         FontSize="9"
+                         Foreground="#94A3B8"/>
+            </StackPanel>
+          </StackPanel>
         </Grid>
+      </Border>
+
+      <!-- Vùng hiển thị UserControl -->
+      <ContentControl x:Name="contentArea"
+                      Grid.Row="1"
+                      Margin="20,18,20,20"
+                      HorizontalContentAlignment="Stretch"
+                      VerticalContentAlignment="Stretch"/>
     </Grid>
+  </Grid>
 </Window>

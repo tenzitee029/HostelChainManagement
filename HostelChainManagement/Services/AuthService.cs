@@ -108,6 +108,11 @@ namespace QuanLyChuoiNhaTro.Services
                     "Vai trò tài khoản không hợp lệ.");
             }
 
+            await SystemLogService.TryWriteAsync(
+                user.MaNguoiDung,
+                "Log truy cập",
+                "Đăng nhập thành công: " + user.TenDangNhap);
+
             return user;
         }
     }

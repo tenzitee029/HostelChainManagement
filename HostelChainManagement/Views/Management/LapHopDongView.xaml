@@ -1,0 +1,189 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="QuanLyChuoiNhaTro.Views.Management.LapHopDongView"
+             Loaded="View_Loaded"
+             Background="#F8FAFC" d:DesignHeight="962.636" d:DesignWidth="1056.165">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#475569"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style TargetType="{x:Type ComboBox}">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+        </Style>
+
+        <Style TargetType="{x:Type DatePicker}">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+            <Setter Property="SelectedDateFormat" Value="Short"/>
+        </Style>
+
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="24">
+            <TextBlock Text="Lập hợp đồng thuê"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="#0F172A"/>
+
+            <TextBlock Text="Tạo hợp đồng thuê phòng mới cho khách thuê."
+                       Margin="0,6,0,20"/>
+
+            <Border Background="White"
+                    BorderBrush="#CBD5E1"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                <StackPanel>
+                    <Border Padding="18,14"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="0,0,0,1">
+                        <StackPanel>
+                            <TextBlock Text="Thông tin hợp đồng"
+                                       FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="Chọn phòng trống và khách thuê đại diện ký hợp đồng."
+                                       Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel x:Name="pnlThongTin" Margin="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Mã hợp đồng"/>
+                                <TextBox x:Name="txtMaHopDong"
+                                         IsReadOnly="True"
+                                         Background="#F1F5F9"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Phòng *"/>
+                                <ComboBox x:Name="cboPhong"
+                                          DisplayMemberPath="TenHienThi"
+                                          SelectedValuePath="MaPhong"
+                                          SelectionChanged="Phong_Changed"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1">
+                                <TextBlock Text="Khách thuê *"/>
+                                <ComboBox x:Name="cboKhach"
+                                          DisplayMemberPath="TenHienThi"
+                                          SelectedValuePath="MaKhachThue"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="2">
+                                <TextBlock Text="Dãy trọ"/>
+                                <TextBox x:Name="txtDayTro"
+                                         IsReadOnly="True"
+                                         Background="#F1F5F9"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2">
+                                <TextBlock Text="Ngày bắt đầu *"/>
+                                <DatePicker x:Name="dpBatDau"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="Ngày kết thúc *"/>
+                                <DatePicker x:Name="dpKetThuc"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="3">
+                                <TextBlock Text="Giá thuê (VNĐ/tháng)"/>
+                                <TextBox x:Name="txtGiaThue"
+                                         IsReadOnly="True"
+                                         Background="#F1F5F9"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="3" Grid.Column="2">
+                                <TextBlock Text="Tiền đặt cọc (VNĐ) *"/>
+                                <TextBox x:Name="txtTienCoc"
+                                         Text="0"
+                                         ToolTip="Ví dụ: 3000000, không dùng dấu phân cách hàng nghìn"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Ngày thanh toán hàng tháng (1–31) *"/>
+                        <TextBox x:Name="txtKyThanhToan"
+                                 Text="5" MaxLength="2"/>
+
+                        <TextBlock Text="Đại diện bên cho thuê *"/>
+                        <TextBox x:Name="txtDaiDien" MaxLength="100"/>
+
+                        <TextBlock Text="Điều khoản"/>
+                        <TextBox x:Name="txtDieuKhoan"
+                                 MinHeight="80"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"/>
+
+                        <Border Background="#EFF6FF"
+                                BorderBrush="#BFDBFE"
+                                BorderThickness="1"
+                                Padding="14">
+                            <TextBlock
+                                Text="Hợp đồng được tạo với trạng thái Hiệu lực. Phòng chuyển sang Đang thuê nếu thời gian thuê bao gồm hôm nay. Hợp đồng bắt đầu trong tương lai được kiểm tra trùng lịch trước khi lưu."
+                                Foreground="#1D4ED8"
+                                TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+
+                    <TextBlock x:Name="txtThongBao"
+                               Margin="18,0,18,16"
+                               Foreground="#DC2626"
+                               TextWrapping="Wrap"/>
+
+                    <Border BorderBrush="#E2E8F0"
+                            BorderThickness="0,1,0,0"
+                            Padding="16">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            <Button x:Name="btnQuayLai"
+                                    Content="Quay lại"
+                                    Background="#64748B"
+                                    Click="QuayLai_Click"/>
+
+                            <Button Content="In hợp đồng"
+                                    IsEnabled="False"
+                                    ToolTip="Chưa nối chức năng in"/>
+
+                            <Button x:Name="btnLuu"
+                                    Content="Xác nhận tạo hợp đồng"
+                                    IsEnabled="False"
+                                    Click="Luu_Click"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

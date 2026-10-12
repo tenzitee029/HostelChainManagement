@@ -1,0 +1,215 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Admin.QuanLyTaiKhoanView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8F9FB"
+             Loaded="View_Loaded">
+
+  <UserControl.Resources>
+    <Style TargetType="Button">
+      <Setter Property="Padding" Value="14,8"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+      <Setter Property="Padding" Value="10,7"/>
+      <Setter Property="BorderBrush" Value="#D1D7E0"/>
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader">
+      <Setter Property="Background" Value="#F3F4F6"/>
+      <Setter Property="Foreground" Value="#475569"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Padding" Value="8,12"/>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid x:Name="editorPanel">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <DockPanel Margin="0,0,0,12">
+      <Button DockPanel.Dock="Right"
+              Content="Tạo tài khoản mới"
+              Background="#2563EB"
+              Foreground="White"
+              Click="NewAccount_Click"
+              VerticalAlignment="Top"/>
+
+      <StackPanel>
+        <TextBlock Text="Quản lý tài khoản"
+                   FontSize="22"
+                   FontWeight="SemiBold"/>
+        <TextBlock Text="Quản lý thông tin, vai trò và trạng thái tài khoản người dùng."
+                   Foreground="#7C8798"
+                   Margin="0,4,0,0"/>
+      </StackPanel>
+    </DockPanel>
+
+    <TextBlock x:Name="txtStatus"
+               Grid.Row="1"
+               Foreground="#B45309"
+               TextWrapping="Wrap"
+               Margin="0,0,0,12"/>
+
+    <Border Grid.Row="2"
+            Background="White"
+            BorderBrush="#D1D7E0"
+            BorderThickness="1"
+            CornerRadius="3"
+            Margin="0,0,0,14">
+      <StackPanel>
+        <Border Padding="14,11"
+                BorderBrush="#E1E5EC"
+                BorderThickness="0,0,0,1">
+          <TextBlock Text="Bộ lọc"
+                     FontWeight="SemiBold"/>
+        </Border>
+
+        <Grid Margin="14,12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.2*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Margin="0,0,12,0">
+            <TextBlock Text="Tên đăng nhập"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,6"/>
+            <TextBox x:Name="txtSearch"
+                     TextChanged="AccountSearch_Changed"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Margin="0,0,12,0">
+            <TextBlock Text="Vai trò"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,6"/>
+            <ComboBox x:Name="cboRoleFilter"
+                      Height="34"
+                      Padding="8,5"
+                      SelectionChanged="AccountFilter_Changed"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="2">
+            <TextBlock Text="Trạng thái"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,6"/>
+            <ComboBox x:Name="cboStatus"
+                      Height="34"
+                      Padding="8,5"
+                      SelectionChanged="AccountFilter_Changed">
+              <ComboBoxItem Content="Tất cả trạng thái"
+                            IsSelected="True"/>
+              <ComboBoxItem Content="Hoạt động"/>
+              <ComboBoxItem Content="Khóa"/>
+              <ComboBoxItem Content="Ngừng sử dụng"/>
+            </ComboBox>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="3"
+            Background="White"
+            BorderBrush="#D1D7E0"
+            BorderThickness="1"
+            CornerRadius="3">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Padding="14,11"
+                BorderBrush="#E1E5EC"
+                BorderThickness="0,0,0,1">
+          <TextBlock Text="Danh sách tài khoản"
+                     FontWeight="SemiBold"/>
+        </Border>
+
+        <DataGrid x:Name="accountsGrid"
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  HeadersVisibility="Column"
+                  RowHeight="38"
+                  Background="White"
+                  BorderThickness="0">
+
+          <DataGrid.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Cập nhật vai trò"
+                        Click="ChangeRole_Click"/>
+            </ContextMenu>
+          </DataGrid.ContextMenu>
+
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Tên tài khoản"
+                                Binding="{Binding TenDangNhap}"
+                                Width="*"/>
+            <DataGridTextColumn Header="Người sử dụng"
+                                Binding="{Binding HoTen}"
+                                Width="*"/>
+            <DataGridTextColumn Header="Vai trò"
+                                Binding="{Binding VaiTro}"
+                                Width="155"/>
+            <DataGridTextColumn Header="Trạng thái"
+                                Binding="{Binding TrangThai}"
+                                Width="115"/>
+
+            <DataGridTemplateColumn Header="Khóa / Mở khóa"
+                                    Width="125">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <Button Click="ToggleStatus_Click"
+                          Padding="8,3"
+                          Margin="4">
+                    <Button.Style>
+                      <Style TargetType="Button">
+                        <Setter Property="Content"
+                                Value="Khóa"/>
+                        <Setter Property="Cursor"
+                                Value="Hand"/>
+
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding TrangThai}"
+                                       Value="Khóa">
+                            <Setter Property="Content"
+                                    Value="Mở khóa"/>
+                          </DataTrigger>
+
+                          <DataTrigger Binding="{Binding TrangThai}"
+                                       Value="Ngừng sử dụng">
+                            <Setter Property="Content"
+                                    Value="Mở khóa"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </Button.Style>
+                  </Button>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock x:Name="txtNoAccounts"
+                   Grid.Row="1"
+                   Text="—"
+                   Foreground="#94A3B8"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   IsHitTestVisible="False"/>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

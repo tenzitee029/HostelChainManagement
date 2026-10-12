@@ -1,0 +1,276 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Technician.ChiTietCongViecView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8F9FB"
+             Loaded="View_Loaded">
+
+  <UserControl.Resources>
+    <Style TargetType="Button">
+      <Setter Property="Padding" Value="14,8"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <Style TargetType="TextBox">
+      <Setter Property="Padding" Value="10,7"/>
+      <Setter Property="BorderBrush" Value="#D1D7E0"/>
+    </Style>
+
+    <Style x:Key="ReadField"
+           TargetType="TextBox"
+           BasedOn="{StaticResource {x:Type TextBox}}">
+      <Setter Property="IsReadOnly" Value="True"/>
+      <Setter Property="Background" Value="#F8F9FB"/>
+      <Setter Property="Foreground" Value="#64748B"/>
+    </Style>
+
+    <Style x:Key="Label" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Foreground" Value="#475569"/>
+      <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background" Value="White"/>
+      <Setter Property="BorderBrush" Value="#D1D7E0"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="3"/>
+    </Style>
+
+    <Style x:Key="CardHeader" TargetType="Border">
+      <Setter Property="Padding" Value="14,11"/>
+      <Setter Property="BorderBrush" Value="#E1E5EC"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid x:Name="editorPanel">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <StackPanel>
+        <DockPanel Margin="0,0,0,12">
+          <Button DockPanel.Dock="Right"
+                  Content="Xác nhận hoàn thành sửa chữa"
+                  Foreground="#2563EB"
+                  Click="GoComplete_Click"
+                  VerticalAlignment="Top"/>
+
+          <StackPanel>
+            <TextBlock Text="Chi tiết công việc"
+                       FontSize="22"
+                       FontWeight="SemiBold"/>
+
+            <TextBlock Text="Thông tin yêu cầu sửa chữa được phân công."
+                       Foreground="#7C8798"
+                       Margin="0,4,0,0"/>
+          </StackPanel>
+        </DockPanel>
+
+        <Border Style="{StaticResource Card}"
+                Margin="0,0,0,12">
+          <StackPanel>
+            <Border Style="{StaticResource CardHeader}">
+              <TextBlock Text="Thông tin phiếu sửa chữa"
+                         FontWeight="SemiBold"/>
+            </Border>
+
+            <Grid Margin="14,16">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+              </Grid.ColumnDefinitions>
+
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <StackPanel Margin="0,0,12,16">
+                <TextBlock Text="Mã yêu cầu"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtRequestId"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Column="1"
+                          Margin="0,0,12,16">
+                <TextBlock Text="Số phòng"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtDetailRoom"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Column="2"
+                          Margin="0,0,0,16">
+                <TextBlock Text="Vị trí hư hỏng"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtLocation"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
+                          Margin="0,0,12,16">
+                <TextBlock Text="Mức độ ưu tiên"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtPriority"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
+                          Grid.Column="1"
+                          Margin="0,0,12,16">
+                <TextBlock Text="Tiến độ"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtProgress"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
+                          Grid.Column="2"
+                          Margin="0,0,0,16">
+                <TextBlock Text="Trạng thái"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtJobStatus"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="2"
+                          Margin="0,0,12,16">
+                <TextBlock Text="Số điện thoại liên hệ"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtPhone"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="2"
+                          Grid.Column="1"
+                          Margin="0,0,12,16">
+                <TextBlock Text="Nhân viên kỹ thuật"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtTechnician"
+                         Style="{StaticResource ReadField}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="3"
+                          Grid.ColumnSpan="3"
+                          Margin="0,0,0,16">
+                <TextBlock Text="Nội dung mô tả của khách"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtDescription"
+                         Style="{StaticResource ReadField}"
+                         Height="65"
+                         TextWrapping="Wrap"
+                         VerticalContentAlignment="Top"
+                         VerticalScrollBarVisibility="Auto"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="4"
+                          Grid.ColumnSpan="3">
+                <TextBlock Text="Hình ảnh / video đính kèm"
+                           Style="{StaticResource Label}"/>
+
+                <Border Background="#F8F9FB"
+                        BorderBrush="#D1D7E0"
+                        BorderThickness="1"
+                        MinHeight="70">
+                  <Grid>
+                    <Image x:Name="imgAttachment"
+                           MaxHeight="160"
+                           Stretch="Uniform"
+                           Margin="5"/>
+
+                    <Button x:Name="btnAttachment"
+                            Content="—"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Click="OpenAttachment_Click"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <Border Style="{StaticResource CardHeader}">
+              <StackPanel>
+                <TextBlock Text="Cập nhật tiến độ"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="Cập nhật tình trạng thực tế trong quá trình xử lý."
+                           Foreground="#94A3B8"
+                           FontSize="10"
+                           Margin="0,3,0,0"/>
+              </StackPanel>
+            </Border>
+
+            <Grid x:Name="progressEditor"
+                  Margin="14,12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1.8*"/>
+              </Grid.ColumnDefinitions>
+
+              <StackPanel Margin="0,0,14,0">
+                <TextBlock Text="Trạng thái hiện tại"
+                           Style="{StaticResource Label}"/>
+
+                <ComboBox x:Name="cboProgress"
+                          Height="34"
+                          Padding="8,5">
+                  <ComboBoxItem Content="Đang kiểm tra"/>
+                  <ComboBoxItem Content="Chờ linh kiện"/>
+                  <ComboBoxItem Content="Đang sửa"/>
+                </ComboBox>
+              </StackPanel>
+
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="Ghi chú tình hình thực tế"
+                           Style="{StaticResource Label}"/>
+                <TextBox x:Name="txtNote"
+                         MaxLength="500"
+                         Height="65"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalContentAlignment="Top"/>
+              </StackPanel>
+            </Grid>
+
+            <Border BorderBrush="#E1E5EC"
+                    BorderThickness="0,1,0,0"
+                    Padding="14,10">
+              <StackPanel Orientation="Horizontal"
+                          HorizontalAlignment="Right">
+                <Button Content="Danh sách công việc"
+                        Click="Jobs_Click"
+                        Margin="0,0,8,0"/>
+
+                <Button x:Name="btnSaveProgress"
+                        Content="Lưu tiến độ"
+                        Background="#2563EB"
+                        Foreground="White"
+                        Click="SaveProgress_Click"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <TextBlock x:Name="txtStatus"
+               Grid.Row="1"
+               Foreground="#B45309"
+               TextWrapping="Wrap"
+               Margin="0,12,0,0"/>
+  </Grid>
+</UserControl>

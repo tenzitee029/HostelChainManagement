@@ -118,24 +118,61 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             contentArea.Content = new YeuCauTraPhongView();
         }
 
-        private void SetSelectedMenu(Button selected)
+        private void Repair_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Sửa chữa & Bảo trì";
+
+            SetSelectedMenu(btnRepair);
+
+            contentArea.Content = new SuaChuaBaoTriView();
+        }
+
+        private void Password_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Đổi mật khẩu";
+
+            SetSelectedMenu(btnPassword);
+
+            contentArea.Content = new DoiMatKhauView();
+        }
+
+        private void Notifications_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Thông báo";
+
+            SetSelectedMenu(null);
+
+            contentArea.Content = new ThongBaoKhachThueView();
+        }
+
+        private void SetSelectedMenu(Button? selected)
         {
             Button[] buttons =
             {
                 btnRoom,
                 btnContract,
                 btnInvoices,
+                btnRepair,
                 btnReturnRoom,
-                btnProfile
+                btnProfile,
+                btnPassword
             };
 
             foreach (var button in buttons)
             {
                 button.Background = Brushes.Transparent;
-
                 button.Foreground = new SolidColorBrush(
                     Color.FromRgb(203, 213, 225));
             }
+
+            if (selected == null)
+                return;
 
             selected.Background = new SolidColorBrush(
                 Color.FromRgb(37, 99, 235));

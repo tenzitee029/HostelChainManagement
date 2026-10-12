@@ -1,15 +1,11 @@
-﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Management.QuanLyHoaDonView"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DesignWidth="1000"
-             d:DesignHeight="660"
-             Background="#F8FAFC">
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="QuanLyChuoiNhaTro.Views.Management.QuanLyHoaDonView"
+             Background="#F8FAFC" d:DesignHeight="961.928" d:DesignWidth="1589.417">
 
     <UserControl.Resources>
-        <Style TargetType="Button">
+        <Style TargetType="{x:Type Button}">
             <Setter Property="Padding" Value="14,9"/>
             <Setter Property="Margin" Value="6,0,0,0"/>
             <Setter Property="Background" Value="#2563EB"/>
@@ -19,13 +15,11 @@
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
 
-        <Style TargetType="DataGridColumnHeader">
+        <Style TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="Background" Value="#F1F5F9"/>
             <Setter Property="Foreground" Value="#475569"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="12"/>
-            <Setter Property="BorderBrush" Value="#CBD5E1"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
         </Style>
     </UserControl.Resources>
 
@@ -34,9 +28,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Tiêu đề -->
         <Grid Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -45,37 +39,29 @@
 
             <StackPanel Margin="0,0,16,0">
                 <TextBlock Text="Quản lý hóa đơn &amp; thanh toán"
-                           FontSize="24"
-                           FontWeight="Bold"
+                           FontSize="24" FontWeight="Bold"
                            Foreground="#0F172A"/>
-
                 <TextBlock
-                    Text="Theo dõi và xử lý hóa đơn trong phạm vi dãy trọ được phân công."
-                    Foreground="#64748B"
-                    Margin="0,6,0,0"
+                    Text="Theo dõi hóa đơn trong phạm vi dãy trọ được phân công."
+                    Margin="0,6,0,0" Foreground="#64748B"
                     TextWrapping="Wrap"/>
             </StackPanel>
 
             <Button x:Name="btnTaoHoaDon"
                     Grid.Column="1"
                     Content="+ Tạo hóa đơn hàng tháng"
-                    VerticalAlignment="Center"/>
+                    VerticalAlignment="Center"
+                    IsEnabled="False"
+                    ToolTip="Chưa nối form tạo hóa đơn"/>
         </Grid>
 
-        <!-- Tìm kiếm -->
-        <Border Grid.Row="1"
-                Background="White"
-                BorderBrush="#CBD5E1"
-                BorderThickness="1"
-                CornerRadius="4"
-                Padding="16"
-                Margin="0,0,0,16">
-
+        <Border Grid.Row="1" Background="White"
+                BorderBrush="#CBD5E1" BorderThickness="1"
+                CornerRadius="4" Padding="16" Margin="0,0,0,16">
             <StackPanel>
                 <TextBlock Text="Tìm hóa đơn"
                            FontWeight="SemiBold"
-                           Foreground="#334155"
-                           Margin="0,0,0,8"/>
+                           Foreground="#334155" Margin="0,0,0,8"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -83,50 +69,22 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Grid>
-                        <TextBox x:Name="txtTimKiem"
-                                 Padding="10,8"
-                                 MinHeight="40"
-                                 BorderBrush="#CBD5E1"
-                                 VerticalContentAlignment="Center"/>
-
-                        <TextBlock Text="Nhập số phòng hoặc tên khách thuê..."
-                                   Margin="11,0,0,0"
-                                   Foreground="#94A3B8"
-                                   VerticalAlignment="Center"
-                                   IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility"
-                                            Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding Text, ElementName=txtTimKiem}"
-                                            Value="">
-                                            <Setter Property="Visibility"
-                                                    Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Grid>
+                    <TextBox x:Name="txtTimKiem"
+                             MinHeight="40" Padding="10,8"
+                             BorderBrush="#CBD5E1"
+                             VerticalContentAlignment="Center"
+                             ToolTip="Nhập mã hóa đơn, phòng hoặc tên khách thuê"/>
 
                     <Button x:Name="btnTimKiem"
-                            Grid.Column="1"
-                            Content="Tìm kiếm"
+                            Grid.Column="1" Content="Tìm kiếm"
                             Margin="12,0,0,0"/>
                 </Grid>
             </StackPanel>
         </Border>
 
-        <!-- Danh sách hóa đơn -->
-        <Border Grid.Row="2"
-                Background="White"
-                BorderBrush="#CBD5E1"
-                BorderThickness="1"
+        <Border Grid.Row="2" Background="White"
+                BorderBrush="#CBD5E1" BorderThickness="1"
                 CornerRadius="4">
-
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -134,37 +92,14 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Margin="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Margin="0,0,12,0">
-                        <TextBlock Text="Danh sách hóa đơn chưa thanh toán"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Foreground="#334155"/>
-
-                        <TextBlock Text="Chọn hóa đơn cần xác nhận thanh toán."
-                                   Margin="0,5,0,0"
-                                   Foreground="#64748B"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <Border Grid.Column="1"
-                            Background="#FEF3C7"
-                            BorderBrush="#FCD34D"
-                            BorderThickness="1"
-                            CornerRadius="3"
-                            Padding="10,5"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="CHƯA THANH TOÁN"
-                                   Foreground="#B45309"
-                                   FontSize="10"
-                                   FontWeight="Bold"/>
-                    </Border>
-                </Grid>
+                <StackPanel Margin="16">
+                    <TextBlock Text="Danh sách hóa đơn chưa thanh toán / còn nợ"
+                               FontSize="16" FontWeight="SemiBold"
+                               Foreground="#334155"/>
+                    <TextBlock Text="Chọn hóa đơn để xem chi tiết hoặc ghi nhận tiền đã nhận."
+                               Margin="0,5,0,0" Foreground="#64748B"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
 
                 <Grid Grid.Row="1">
                     <DataGrid x:Name="dgHoaDon"
@@ -177,88 +112,64 @@
                               HeadersVisibility="Column"
                               GridLinesVisibility="Horizontal"
                               HorizontalGridLinesBrush="#E2E8F0"
-                              BorderThickness="0"
                               Background="White"
                               AlternatingRowBackground="#F8FAFC"
-                              RowHeight="42">
-
+                              BorderThickness="0" RowHeight="42">
                         <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã hóa đơn"
+                                                Binding="{Binding MaHoaDon}"
+                                                Width="*"/>
+                            <DataGridTextColumn Header="Tháng"
+                                                Binding="{Binding KyHoaDon}"
+                                                Width="0.8*"/>
+                            <DataGridTextColumn Header="Phòng"
+                                                Binding="{Binding TenPhong}"
+                                                Width="1.2*"/>
+                            <DataGridTextColumn Header="Khách thuê"
+                                                Binding="{Binding TenKhachThue}"
+                                                Width="1.3*"/>
                             <DataGridTextColumn
-                                Header="Mã hóa đơn"
-                                Binding="{Binding MaHoaDon}"
+                                Header="Tổng tiền"
+                                Binding="{Binding TongTien, StringFormat=\{0:N0\}}"
                                 Width="*"/>
-
                             <DataGridTextColumn
-                                Header="Tháng"
-                                Binding="{Binding Thang}"
+                                Header="Còn nợ"
+                                Binding="{Binding ConNo, StringFormat=\{0:N0\}}"
                                 Width="*"/>
-
-                            <DataGridTextColumn
-                                Header="Phòng"
-                                Binding="{Binding SoPhong}"
-                                Width="*"/>
-
-                            <DataGridTextColumn
-                                Header="Khách thuê"
-                                Binding="{Binding TenKhachThue}"
-                                Width="1.5*"/>
-
-                            <DataGridTextColumn
-                                Header="Tổng tiền (VNĐ)"
-                                Binding="{Binding TongTien, StringFormat={}{0:N0}}"
-                                Width="1.2*"/>
-
-                            <DataGridTextColumn
-                                Header="Trạng thái"
-                                Binding="{Binding TrangThai}"
-                                Width="1.3*"/>
+                            <DataGridTextColumn Header="Trạng thái"
+                                                Binding="{Binding TrangThai}"
+                                                Width="1.2*"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <TextBlock Text="Chưa có dữ liệu hóa đơn để hiển thị."
+                    <TextBlock x:Name="txtDanhSachTrong"
                                Foreground="#94A3B8"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Margin="0,40,0,0"
-                               IsHitTestVisible="False">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding Items.Count, ElementName=dgHoaDon}"
-                                        Value="0">
-                                        <Setter Property="Visibility"
-                                                Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                               Margin="16,40,16,0"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
                 </Grid>
 
-                <!-- Nút thao tác -->
-                <Border Grid.Row="2"
-                        BorderBrush="#E2E8F0"
-                        BorderThickness="0,1,0,0"
-                        Padding="14">
-
+                <Border Grid.Row="2" Padding="14"
+                        BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
-
                         <Button x:Name="btnXemChiTiet"
                                 Content="Xem chi tiết"
-                                Background="White"
-                                Foreground="#475569"
-                                BorderBrush="#CBD5E1"
-                                BorderThickness="1"/>
-
+                                Background="White" Foreground="#475569"
+                                BorderBrush="#CBD5E1" BorderThickness="1"
+                                IsEnabled="False"/>
                         <Button x:Name="btnXacNhanThanhToan"
-                                Content="Xác nhận thanh toán"/>
+                                Content="Xác nhận thanh toán"
+                                IsEnabled="False"/>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
+
+        <TextBlock x:Name="txtTrangThai" Grid.Row="3"
+                   Margin="0,12,0,0" Foreground="#64748B"
+                   TextWrapping="Wrap"/>
     </Grid>
 </UserControl>

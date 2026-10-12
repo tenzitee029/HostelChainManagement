@@ -1,0 +1,181 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="QuanLyChuoiNhaTro.Views.Management.GuiThongBaoView"
+             Loaded="View_Loaded"
+             Background="#F8FAFC" d:DesignWidth="938.216">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#475569"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style TargetType="{x:Type ComboBox}">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,6,0,16"/>
+        </Style>
+
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="24">
+            <TextBlock Text="Gửi thông báo tới khách thuê"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="#0F172A"/>
+
+            <TextBlock Text="Tạo và gửi thông báo tới khách thuê thuộc dãy trọ được phân công."
+                       Margin="0,6,0,20" TextWrapping="Wrap"/>
+
+            <Border Background="White"
+                    BorderBrush="#CBD5E1"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                <StackPanel>
+                    <Border Padding="18,14"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="0,0,0,1">
+                        <StackPanel>
+                            <TextBlock Text="Thông tin thông báo"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"/>
+                            <TextBlock Text="Nhập tiêu đề, phạm vi người nhận và nội dung chi tiết."
+                                       Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel x:Name="pnlThongTin" Margin="18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Mã thông báo"/>
+                                <TextBox x:Name="txtMaThongBao"
+                                         IsReadOnly="True"
+                                         Background="#F1F5F9"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Ngày gửi"/>
+                                <TextBox x:Name="txtNgayGui"
+                                         Text="Tự ghi nhận khi gửi thành công"
+                                         IsReadOnly="True"
+                                         Background="#F1F5F9"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Tiêu đề *"/>
+                        <TextBox x:Name="txtTieuDe" MaxLength="200"/>
+
+                        <TextBlock Text="Dãy trọ *"/>
+                        <ComboBox x:Name="cboDayTro"
+                                  DisplayMemberPath="TenDayTro"
+                                  SelectedValuePath="MaDayTro"
+                                  SelectionChanged="DayTro_Changed"/>
+
+                        <TextBlock Text="Phạm vi người nhận *"
+                                   Margin="0,0,0,8"/>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Background="#EFF6FF"
+                                    BorderBrush="#BFDBFE"
+                                    BorderThickness="1" Padding="12">
+                                <RadioButton x:Name="rbToanDay"
+                                             Content="Toàn bộ dãy trọ đã chọn"
+                                             GroupName="PhamVi"
+                                             IsChecked="True"
+                                             Checked="PhamVi_Changed"/>
+                            </Border>
+
+                            <Border Grid.Column="2"
+                                    BorderBrush="#CBD5E1"
+                                    BorderThickness="1" Padding="12">
+                                <RadioButton x:Name="rbPhong"
+                                             Content="Phòng cụ thể"
+                                             GroupName="PhamVi"
+                                             Checked="PhamVi_Changed"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Người nhận"/>
+                                <TextBox
+                                    Text="Khách có tài khoản hoạt động và hợp đồng đang hiệu lực"
+                                    IsReadOnly="True"
+                                    Background="#F1F5F9"
+                                    TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Phòng cụ thể"/>
+                                <ComboBox x:Name="cboPhong"
+                                          DisplayMemberPath="TenHienThi"
+                                          SelectedValuePath="MaPhong"
+                                          IsEnabled="False"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Nội dung chi tiết *"/>
+                        <TextBox x:Name="txtNoiDung"
+                                 Height="150"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"/>
+
+                        <TextBlock
+                            Text="Thông báo được lưu trong hệ thống cho khách đứng tên hợp đồng. Không gửi email hoặc SMS."
+                            Foreground="#64748B"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="txtThongBao"
+                               Margin="18,0,18,16"
+                               Foreground="#DC2626"
+                               TextWrapping="Wrap"/>
+
+                    <Border BorderBrush="#E2E8F0"
+                            BorderThickness="0,1,0,0"
+                            Padding="16">
+                        <Button x:Name="btnGui"
+                                Content="Gửi thông báo"
+                                HorizontalAlignment="Right"
+                                IsEnabled="False"
+                                Click="Gui_Click"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

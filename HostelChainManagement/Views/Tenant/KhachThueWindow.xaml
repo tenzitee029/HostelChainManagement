@@ -120,8 +120,10 @@
                                    FontSize="10"
                                    Margin="8,0,0,8"/>
 
-                        <Button Content="Sửa chữa / bảo trì"
-                                Style="{StaticResource MenuButtonStyle}"/>
+                        <Button x:Name="btnRepair"
+                                Content="Sửa chữa / bảo trì"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="Repair_Click"/>
 
                         <Button x:Name="btnReturnRoom"
                                 Content="Yêu cầu trả phòng"
@@ -141,8 +143,10 @@
                                 Style="{StaticResource MenuButtonStyle}"
                                 Click="Profile_Click"/>
 
-                        <Button Content="Đổi mật khẩu"
-                                Style="{StaticResource MenuButtonStyle}"/>
+                        <Button x:Name="btnPassword"
+                                Content="Đổi mật khẩu"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="Password_Click"/>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
@@ -161,14 +165,25 @@
 
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Right"
+                                Orientation="Horizontal"
                                 VerticalAlignment="Center">
 
-                        <TextBlock x:Name="txtUser"
-                                   FontWeight="SemiBold"/>
+                        <Button x:Name="btnNotifications"
+                                Content="🔔"
+                                ToolTip="Thông báo"
+                                FontSize="18"
+                                Padding="7,5"
+                                Margin="0,0,12,0"
+                                Click="Notifications_Click"/>
 
-                        <TextBlock Text="Khách thuê"
-                                   Foreground="#64748B"
-                                   FontSize="11"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="txtUser"
+                                    FontWeight="SemiBold"/>
+
+                            <TextBlock Text="Khách thuê"
+                                    Foreground="#64748B"
+                                    FontSize="11"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <TextBlock x:Name="txtBreadcrumb"

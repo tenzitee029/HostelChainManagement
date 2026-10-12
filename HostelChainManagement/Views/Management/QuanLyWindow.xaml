@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Nhân viên quản lý — Quản lý nhà trọ"
-        Width="1250" Height="760"
+        Width="1366" Height="760"
         MinWidth="1050" MinHeight="650"
         WindowStartupLocation="CenterScreen"
         Background="#F8FAFC"
@@ -115,15 +115,17 @@
                                 Style="{StaticResource MenuStyle}"
                                 Click="Contracts_Click"/>
                         <Button x:Name="btnInvoices"
-                                Content="Hóa đơn"
-                                Style="{StaticResource MenuStyle}"
-                                Click="Invoices_Click"/>
+        Content="Hóa đơn"
+        Style="{StaticResource MenuStyle}"
+        Click="Invoices_Click"/>
                         <Button x:Name="btnRepairs"
-                                Content="Sửa chữa"
-                                Style="{StaticResource MenuStyle}"/>
+        Content="Sửa chữa"
+        Style="{StaticResource MenuStyle}"
+        Click="Repairs_Click"/>
                         <Button x:Name="btnNotifications"
-                                Content="Thông báo"
-                                Style="{StaticResource MenuStyle}"/>
+        Content="Thông báo"
+        Style="{StaticResource MenuStyle}"
+        Click="Notifications_Click"/>
 
                         <Separator Background="#334155" Margin="0,12"/>
 
@@ -147,7 +149,8 @@
                                 Click="Profile_Click"/>
                         <Button x:Name="btnPassword"
                                 Content="Đổi mật khẩu"
-                                Style="{StaticResource MenuStyle}"/>
+                                Style="{StaticResource MenuStyle}"
+                                Click="Password_Click"/>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>

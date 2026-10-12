@@ -1,0 +1,178 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="QuanLyChuoiNhaTro.Views.Management.QuanLySuaChuaView"
+             Background="#F8FAFC" d:DesignHeight="539.681" d:DesignWidth="880.719">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="0,0,0,20">
+            <TextBlock Text="Quản lý sự cố &amp; bảo trì"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#0F172A"/>
+
+            <TextBlock Text="Theo dõi các yêu cầu sửa chữa thuộc dãy trọ được phân công."
+                       Foreground="#64748B"
+                       Margin="0,6,0,0"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#CBD5E1"
+                BorderThickness="1"
+                CornerRadius="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Margin="16">
+                    <TextBlock Text="Danh sách yêu cầu sửa chữa"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="#334155"/>
+
+                    <TextBlock Text="Các yêu cầu của người gửi trong phạm vi dãy phụ trách."
+                               Foreground="#64748B"
+                               Margin="0,5,0,12"/>
+
+                    <WrapPanel HorizontalAlignment="Right">
+
+                        <Button x:Name="btnTatCa"
+                                Content="Tất cả"
+                                Background="#F1F5F9"
+                                Foreground="#475569"/>
+
+                        <Button x:Name="btnChoTiepNhan"
+                                Content="Chờ tiếp nhận"
+                                Background="#F1F5F9"
+                                Foreground="#475569"/>
+
+                        <Button x:Name="btnDaTiepNhan"
+                                Content="Đã tiếp nhận"
+                                Background="#DBEAFE"
+                                Foreground="#2563EB"/>
+
+                        <Button x:Name="btnDaPhanCong"
+                                Content="Đã phân công"
+                                Background="#DCFCE7"
+                                Foreground="#15803D"/>
+
+                        <Button x:Name="btnDangXuLy"
+                                Content="Đang xử lý"
+                                Background="#FEF3C7"
+                                Foreground="#92400E"/>
+
+                        <Button x:Name="btnHoanThanh"
+                                Content="Đã hoàn thành"
+                                Background="#E6FFFA"
+                                Foreground="#065F46"/>
+                    </WrapPanel>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <DataGrid x:Name="dgSuCo"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E2E8F0"
+                              Background="White"
+                              AlternatingRowBackground="#F8FAFC"
+                              BorderThickness="0"
+                              RowHeight="44">
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Yêu cầu"
+                                                Binding="{Binding MaSuCo}"
+                                                Width="*"/>
+
+                            <DataGridTextColumn Header="Phòng"
+                                                Binding="{Binding TenPhong}"
+                                                Width="1.2*"/>
+
+                            <DataGridTextColumn Header="Người gửi"
+                                                Binding="{Binding TenNguoiGui}"
+                                                Width="1.2*"/>
+
+                            <DataGridTextColumn
+                                Header="Ngày gửi"
+                                Binding="{Binding NgayGui, StringFormat=\{0:dd/MM/yyyy HH:mm\}}"
+                                Width="1.3*"/>
+
+                            <DataGridTextColumn Header="Nội dung"
+                                                Binding="{Binding NoiDungSuCo}"
+                                                Width="2*"/>
+
+                            <DataGridTextColumn Header="Trạng thái"
+                                                Binding="{Binding TrangThai}"
+                                                Width="1.2*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock x:Name="txtDanhSachTrong"
+                               Text="Đang tải yêu cầu sửa chữa..."
+                               Foreground="#94A3B8"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="16,40,16,0"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
+                </Grid>
+
+                <Border Grid.Row="2"
+                        BorderBrush="#E2E8F0"
+                        BorderThickness="0,1,0,0"
+                        Padding="14">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button x:Name="btnTaiLai"
+                                Content="Tải lại"
+                                Background="#64748B"/>
+
+                        <Button x:Name="btnXemChiTiet"
+                                Content="Xem chi tiết"
+                                IsEnabled="False"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <TextBlock x:Name="txtTrangThai"
+                   Grid.Row="2"
+                   Margin="0,12,0,0"
+                   Foreground="#64748B"
+                   TextWrapping="Wrap"/>
+    </Grid>
+</UserControl>

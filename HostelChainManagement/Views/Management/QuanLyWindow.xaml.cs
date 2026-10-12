@@ -119,6 +119,16 @@ namespace QuanLyChuoiNhaTro.Views.Management
             ShowView(view, "Hồ sơ cá nhân", btnProfile);
         }
 
+        private void Password_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            ShowView(
+                new DoiMatKhauView(),
+                "Đổi mật khẩu",
+                btnPassword);
+        }
+
         private void Logout_Click(
             object sender, RoutedEventArgs e)
         {

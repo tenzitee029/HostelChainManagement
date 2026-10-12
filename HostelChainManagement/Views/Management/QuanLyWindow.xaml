@@ -147,7 +147,8 @@
                                 Click="Profile_Click"/>
                         <Button x:Name="btnPassword"
                                 Content="Đổi mật khẩu"
-                                Style="{StaticResource MenuStyle}"/>
+                                Style="{StaticResource MenuStyle}"
+                                Click="Password_Click"/>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>

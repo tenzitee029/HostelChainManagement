@@ -129,6 +129,17 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             contentArea.Content = new SuaChuaBaoTriView();
         }
 
+        private void Password_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Đổi mật khẩu";
+
+            SetSelectedMenu(btnPassword);
+
+            contentArea.Content = new DoiMatKhauView();
+        }
+
         private void SetSelectedMenu(Button selected)
         {
             Button[] buttons =
@@ -138,7 +149,8 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
                 btnInvoices,
                 btnRepair,
                 btnReturnRoom,
-                btnProfile
+                btnProfile,
+                btnPassword
             };
 
             foreach (var button in buttons)

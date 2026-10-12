@@ -177,7 +177,7 @@
                                Margin="17,0,0,5"/>
 
                     <Button x:Name="btnJobs"
-                            Content="▥   Danh sách công việc"
+                            Content="Danh sách công việc"
                             Background="#2563EB"
                             Foreground="White"
                             Style="{StaticResource NavButton}"
@@ -194,12 +194,12 @@
                                Margin="17,0,0,5"/>
 
                     <Button x:Name="btnProfile"
-                            Content="⚙   Hồ sơ cá nhân"
+                            Content="Hồ sơ cá nhân"
                             Style="{StaticResource NavButton}"
                             Click="Profile_Click"/>
 
                     <Button x:Name="btnPassword"
-                            Content="▣   Đổi mật khẩu"
+                            Content="Đổi mật khẩu"
                             Style="{StaticResource NavButton}"
                             Click="Password_Click"/>
                 </StackPanel>

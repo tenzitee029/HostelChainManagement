@@ -56,9 +56,10 @@
             </StackPanel>
 
             <Button x:Name="btnLapHopDong"
-                    Grid.Column="1"
-                    Content="+ Lập hợp đồng thuê"
-                    VerticalAlignment="Center"/>
+        Grid.Column="1"
+        Content="+ Lập hợp đồng thuê"
+        VerticalAlignment="Center"
+        Click="LapHopDong_Click"/>
         </Grid>
 
         <!-- Tìm kiếm -->
@@ -69,7 +70,6 @@
                 CornerRadius="4"
                 Padding="16"
                 Margin="0,0,0,16">
-
             <StackPanel>
                 <TextBlock Text="Tìm kiếm hợp đồng"
                            Foreground="#334155"
@@ -90,7 +90,7 @@
                                  VerticalContentAlignment="Center"/>
 
                         <TextBlock
-                            Text="Nhập mã hợp đồng, khách thuê hoặc phòng..."
+                            Text="Nhập mã hợp đồng, khách thuê, phòng hoặc dãy trọ..."
                             Margin="11,0,0,0"
                             Foreground="#94A3B8"
                             VerticalAlignment="Center"
@@ -126,7 +126,6 @@
                 BorderBrush="#CBD5E1"
                 BorderThickness="1"
                 CornerRadius="4">
-
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -152,9 +151,9 @@
                                    TextWrapping="Wrap"/>
                     </StackPanel>
 
-                    <WrapPanel Grid.Column="1"
-                               VerticalAlignment="Center">
-
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
                         <Border Background="#DCFCE7"
                                 Padding="8,5"
                                 Margin="4"
@@ -184,11 +183,12 @@
                                        FontSize="10"
                                        FontWeight="Bold"/>
                         </Border>
-                    </WrapPanel>
+                    </StackPanel>
                 </Grid>
 
                 <Grid Grid.Row="1">
                     <DataGrid x:Name="dgHopDong"
+                              SelectionChanged="ChonHopDong_Changed"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
                               CanUserAddRows="False"
@@ -201,56 +201,64 @@
                               BorderThickness="0"
                               Background="White"
                               AlternatingRowBackground="#F8FAFC"
-                              RowHeight="42">
+                              RowHeight="42"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn
-                                Header="Mã hợp đồng"
-                                Binding="{Binding MaHopDong}"
-                                Width="*"/>
+                            <DataGridTextColumn Header="Mã hợp đồng"
+                                                Binding="{Binding MaHopDong}"
+                                                Width="*"
+                                                MinWidth="100"/>
 
-                            <DataGridTextColumn
-                                Header="Khách thuê"
-                                Binding="{Binding TenKhachThue}"
-                                Width="1.5*"/>
+                            <DataGridTextColumn Header="Khách thuê"
+                                                Binding="{Binding TenKhachThue}"
+                                                Width="1.5*"
+                                                MinWidth="130"/>
 
-                            <DataGridTextColumn
-                                Header="Phòng"
-                                Binding="{Binding SoPhong}"
-                                Width="0.7*"/>
+                            <DataGridTextColumn Header="Phòng"
+                                                Binding="{Binding SoPhong}"
+                                                Width="0.7*"
+                                                MinWidth="65"/>
 
-                            <DataGridTextColumn
-                                Header="Dãy trọ"
-                                Binding="{Binding TenDayTro}"
-                                Width="1.2*"/>
+                            <DataGridTextColumn Header="Dãy trọ"
+                                                Binding="{Binding TenDayTro}"
+                                                Width="1.2*"
+                                                MinWidth="110"/>
 
                             <DataGridTextColumn
                                 Header="Ngày bắt đầu"
                                 Binding="{Binding NgayBatDau, StringFormat={}{0:dd/MM/yyyy}}"
-                                Width="1.2*"/>
+                                Width="1.2*"
+                                MinWidth="110"/>
 
                             <DataGridTextColumn
                                 Header="Ngày kết thúc"
                                 Binding="{Binding NgayKetThuc, StringFormat={}{0:dd/MM/yyyy}}"
-                                Width="1.2*"/>
+                                Width="1.2*"
+                                MinWidth="110"/>
 
                             <DataGridTextColumn
-                                Header="Giá thuê"
+                                Header="Giá thuê (VNĐ)"
                                 Binding="{Binding GiaThue, StringFormat={}{0:N0}}"
-                                Width="*"/>
+                                Width="*"
+                                MinWidth="110"/>
 
-                            <DataGridTextColumn
-                                Header="Trạng thái"
-                                Binding="{Binding TrangThai}"
-                                Width="1.2*"/>
+                            <DataGridTextColumn Header="Trạng thái"
+                                                Binding="{Binding TrangThai}"
+                                                Width="1.2*"
+                                                MinWidth="120"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <TextBlock Text="Chưa có dữ liệu hợp đồng để hiển thị."
+                    <TextBlock x:Name="txtDanhSachTrong"
+                               Text="Không có hợp đồng để hiển thị."
                                Foreground="#94A3B8"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Margin="0,40,0,0"
+                               Margin="16,40,16,0"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
                                IsHitTestVisible="False">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -269,31 +277,34 @@
                     </TextBlock>
                 </Grid>
 
-                <!-- Nút thao tác -->
+                <!-- Chưa nối các chức năng nghiệp vụ -->
                 <Border Grid.Row="2"
                         BorderBrush="#E2E8F0"
                         BorderThickness="0,1,0,0"
                         Padding="14">
-
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
-
                         <Button x:Name="btnXemHopDong"
                                 Content="Xem"
                                 Background="White"
                                 Foreground="#475569"
                                 BorderBrush="#CBD5E1"
-                                BorderThickness="1"/>
+                                BorderThickness="1"
+                                IsEnabled="False"/>
 
                         <Button x:Name="btnGiaHan"
-                                Content="Gia hạn hợp đồng"/>
+        Content="Gia hạn hợp đồng"
+        IsEnabled="False"
+        Click="GiaHan_Click"/>
 
                         <Button x:Name="btnThanhLy"
-                                Content="Thanh lý hợp đồng"
-                                Background="White"
-                                Foreground="#DC2626"
-                                BorderBrush="#DC2626"
-                                BorderThickness="1"/>
+        Content="Thanh lý hợp đồng"
+        Background="White"
+        Foreground="#DC2626"
+        BorderBrush="#DC2626"
+        BorderThickness="1"
+        IsEnabled="False"
+        Click="ThanhLy_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>

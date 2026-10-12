@@ -1,0 +1,192 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Management.ThanhLyHopDongView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded"
+             Background="#F8FAFC">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#475569"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0,6,0,14"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Background" Value="#DC2626"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <TextBlock Text="Thanh lý hợp đồng"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="#0F172A"/>
+            <TextBlock Text="Kiểm tra và đối soát thông tin trước khi kết thúc hợp đồng thuê."
+                       Margin="0,6,0,20" TextWrapping="Wrap"/>
+
+            <Border Background="White"
+                    BorderBrush="#CBD5E1" BorderThickness="1"
+                    CornerRadius="4" Padding="18" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Thông tin hợp đồng"
+                               FontSize="16" FontWeight="SemiBold"
+                               Margin="0,0,0,14"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Margin="0,0,10,0">
+                            <TextBlock Text="Mã hợp đồng"/>
+                            <TextBox x:Name="txtMaHopDong"
+                                     IsReadOnly="True" Background="#F1F5F9"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="Khách thuê"/>
+                            <TextBox x:Name="txtKhach"
+                                     IsReadOnly="True" Background="#F1F5F9"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                            <TextBlock Text="Phòng"/>
+                            <TextBox x:Name="txtPhong"
+                                     IsReadOnly="True" Background="#F1F5F9"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="Trạng thái"/>
+                            <TextBox x:Name="txtTrangThai"
+                                     IsReadOnly="True" Background="#F1F5F9"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.3*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Background="White"
+                        BorderBrush="#CBD5E1" BorderThickness="1"
+                        CornerRadius="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Danh mục tài sản phòng bàn giao"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,0,0,14"/>
+
+                        <DataGrid x:Name="dgThietBi"
+                                  Height="320"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  HeadersVisibility="Column"
+                                  Background="White"
+                                  BorderThickness="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Thiết bị"
+                                                    Binding="{Binding TenThietBi}"
+                                                    Width="1.4*"/>
+                                <DataGridTextColumn Header="Số lượng"
+                                                    Binding="{Binding SoLuong}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="Tình trạng"
+                                                    Binding="{Binding TinhTrang}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="Ghi chú"
+                                                    Binding="{Binding GhiChu}"
+                                                    Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock
+                            Text="Danh sách là tình trạng thiết bị hiện được lưu trong hệ thống. Kiểm tra bàn giao thực tế trước khi xác nhận."
+                            Foreground="#64748B" Margin="0,12,0,0"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Background="White"
+                        BorderBrush="#CBD5E1" BorderThickness="1"
+                        CornerRadius="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Đối soát thanh lý"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,0,0,16"/>
+
+                        <TextBlock Text="Tiền cọc ban đầu"/>
+                        <TextBox x:Name="txtTienCoc"
+                                 IsReadOnly="True" Background="#F8FAFC"/>
+
+                        <TextBlock Text="Số tiền hóa đơn còn nợ"/>
+                        <TextBox x:Name="txtNo"
+                                 IsReadOnly="True" Background="#F8FAFC"/>
+
+                        <TextBlock Text="Khấu trừ tài sản phòng (VNĐ)"/>
+                        <TextBox x:Name="txtKhauTru"
+                                 Text="0" IsEnabled="False"
+                                 TextChanged="KhauTru_Changed"/>
+
+                        <TextBlock Text="Tiền cọc cần hoàn trả"/>
+                        <TextBox x:Name="txtHoanCoc"
+                                 IsReadOnly="True" Background="#EFF6FF"/>
+
+                        <TextBlock Text="Ghi chú thanh lý"/>
+                        <TextBox x:Name="txtGhiChu"
+                                 MaxLength="500" Height="75"
+                                 AcceptsReturn="True" TextWrapping="Wrap"
+                                 IsEnabled="False"/>
+
+                        <Border Background="#FEF3C7" Padding="12">
+                            <TextBlock
+                                Text="Cần thanh toán hết hóa đơn trước khi thanh lý. Chức năng này ghi nhận tiền cọc cần hoàn, không thực hiện chuyển tiền."
+                                Foreground="#92400E"
+                                TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <TextBlock x:Name="txtThongBao"
+                       Foreground="#DC2626"
+                       Margin="0,14,0,0" TextWrapping="Wrap"/>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,16,0,0">
+                <Button x:Name="btnQuayLai"
+                        Content="Quay lại"
+                        Background="#64748B"
+                        Click="QuayLai_Click"/>
+                <Button x:Name="btnLuu"
+                        Content="Xác nhận thanh lý"
+                        IsEnabled="False"
+                        Click="Luu_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

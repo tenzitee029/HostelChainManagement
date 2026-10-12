@@ -124,11 +124,61 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         // Hợp đồng.
-        private void Contracts_Click(
-            object sender, RoutedEventArgs e)
+        private void Contracts_Click(object sender, RoutedEventArgs e)
         {
+            HienThiHopDong();
+        }
+
+
+        private void HienThiThanhLyHopDong(string maHopDong)
+        {
+            var form = new ThanhLyHopDongView(maHopDong);
+
+            form.QuayLai += HienThiHopDong;
+            form.DaLuu += HienThiHopDong;
+
             ShowView(
-                new QuanLyHopDongView(),
+                form,
+                "Hợp đồng / Thanh lý hợp đồng",
+                btnContracts);
+        }
+
+        private void HienThiGiaHanHopDong(string maHopDong)
+        {
+            var form = new GiaHanHopDongView(maHopDong);
+
+            form.QuayLai += HienThiHopDong;
+            form.DaLuu += HienThiHopDong;
+
+            ShowView(
+                form,
+                "Hợp đồng / Gia hạn hợp đồng",
+                btnContracts);
+        }
+
+        private void HienThiLapHopDong()
+        {
+            var form = new LapHopDongView();
+
+            form.QuayLai += HienThiHopDong;
+            form.DaLuu += HienThiHopDong;
+
+            ShowView(
+                form,
+                "Hợp đồng / Lập hợp đồng thuê",
+                btnContracts);
+        }
+
+        private void HienThiHopDong()
+        {
+            var view = new QuanLyHopDongView();
+
+            view.MoLapHopDong += HienThiLapHopDong;
+            view.MoThanhLy += HienThiThanhLyHopDong;
+            view.MoGiaHan += HienThiGiaHanHopDong;
+
+            ShowView(
+                view,
                 "Hợp đồng",
                 btnContracts);
         }

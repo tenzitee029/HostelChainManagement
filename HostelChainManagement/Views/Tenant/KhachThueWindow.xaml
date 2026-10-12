@@ -123,8 +123,10 @@
                         <Button Content="Sửa chữa / bảo trì"
                                 Style="{StaticResource MenuButtonStyle}"/>
 
-                        <Button Content="Yêu cầu trả phòng"
-                                Style="{StaticResource MenuButtonStyle}"/>
+                        <Button x:Name="btnReturnRoom"
+                                Content="Yêu cầu trả phòng"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="ReturnRoom_Click"/>
 
                         <Separator Background="#334155"
                                    Margin="0,12"/>

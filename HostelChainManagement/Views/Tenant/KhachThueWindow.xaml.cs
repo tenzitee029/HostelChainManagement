@@ -107,6 +107,17 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             contentArea.Content = view;
         }
 
+        private void ReturnRoom_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Yêu cầu trả phòng";
+
+            SetSelectedMenu(btnReturnRoom);
+
+            contentArea.Content = new YeuCauTraPhongView();
+        }
+
         private void SetSelectedMenu(Button selected)
         {
             Button[] buttons =
@@ -114,6 +125,7 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
                 btnRoom,
                 btnContract,
                 btnInvoices,
+                btnReturnRoom,
                 btnProfile
             };
 

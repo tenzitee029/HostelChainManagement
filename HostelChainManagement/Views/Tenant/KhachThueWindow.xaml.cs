@@ -3,8 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using QuanLyChuoiNhaTro.Services;
-using QuanLyChuoiNhaTro.Views.Auth;
 using QuanLyChuoiNhaTro.Views.Account;
+using QuanLyChuoiNhaTro.Views.Auth;
 
 namespace QuanLyChuoiNhaTro.Views.Tenant
 {
@@ -30,6 +30,7 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
         private void ShowRoom()
         {
             txtBreadcrumb.Text = "Hệ thống / Phòng của tôi";
+
             SetSelectedMenu(btnRoom);
 
             contentArea.Content = new PhongCuaToiView();
@@ -47,40 +48,87 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             RoutedEventArgs e)
         {
             txtBreadcrumb.Text = "Hệ thống / Hợp đồng thuê";
+
             SetSelectedMenu(btnContract);
 
             contentArea.Content = new HopDongThueView();
         }
 
-        private void SetSelectedMenu(Button selected)
+        private void Invoices_Click(
+            object sender,
+            RoutedEventArgs e)
         {
-            Button[] buttons = { btnRoom, btnContract, btnProfile };
-
-            foreach (var button in buttons)
-            {
-                button.Background = Brushes.Transparent;
-                button.Foreground = new SolidColorBrush(
-                    Color.FromRgb(203, 213, 225));
-            }
-
-            selected.Background = new SolidColorBrush(
-                Color.FromRgb(37, 99, 235));
-            selected.Foreground = Brushes.White;
+            ShowInvoices();
         }
 
-        private void Profile_Click(object sender, RoutedEventArgs e)
+        private void ShowInvoices()
+        {
+            txtBreadcrumb.Text = "Hệ thống / Hóa đơn & Chi phí";
+
+            SetSelectedMenu(btnInvoices);
+
+            var view = new HoaDonChiPhiView();
+
+            view.InvoiceSelected += ShowInvoiceDetail;
+
+            contentArea.Content = view;
+        }
+
+        private void ShowInvoiceDetail(string maHoaDon)
+        {
+            txtBreadcrumb.Text =
+                "Hệ thống / Hóa đơn & Chi phí / Chi tiết";
+
+            SetSelectedMenu(btnInvoices);
+
+            var view = new ChiTietHoaDonView(maHoaDon);
+
+            view.BackRequested += ShowInvoices;
+
+            contentArea.Content = view;
+        }
+
+        private void Profile_Click(
+            object sender,
+            RoutedEventArgs e)
         {
             txtBreadcrumb.Text = "Hệ thống / Hồ sơ cá nhân";
+
             SetSelectedMenu(btnProfile);
 
             var view = new HoSoView();
 
             view.ProfileUpdated += (_, _) =>
             {
-                txtUser.Text = UserSession.CurrentUser?.HoTen ?? "";
+                txtUser.Text =
+                    UserSession.CurrentUser?.HoTen ?? "";
             };
 
             contentArea.Content = view;
+        }
+
+        private void SetSelectedMenu(Button selected)
+        {
+            Button[] buttons =
+            {
+                btnRoom,
+                btnContract,
+                btnInvoices,
+                btnProfile
+            };
+
+            foreach (var button in buttons)
+            {
+                button.Background = Brushes.Transparent;
+
+                button.Foreground = new SolidColorBrush(
+                    Color.FromRgb(203, 213, 225));
+            }
+
+            selected.Background = new SolidColorBrush(
+                Color.FromRgb(37, 99, 235));
+
+            selected.Foreground = Brushes.White;
         }
 
         private void Logout_Click(
@@ -100,9 +148,11 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             UserSession.SignOut();
 
             var login = new LoginWindow();
+
             Application.Current.MainWindow = login;
 
             login.Show();
+
             Close();
         }
     }

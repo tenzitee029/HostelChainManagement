@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Tenant.HoaDonChiPhiView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded">
+
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel>
+            <Button x:Name="btnRefresh"
+                    DockPanel.Dock="Right"
+                    Content="Làm mới"
+                    Padding="16,8"
+                    Click="Refresh_Click" Height="32"/>
+
+            <StackPanel>
+                <TextBlock Text="Hóa đơn &amp; Chi phí"
+                           FontSize="23"
+                           FontWeight="Bold"/>
+
+                <TextBlock Text="Chọn hóa đơn để xem các khoản chi phí và trạng thái thanh toán."
+                           Foreground="#64748B"
+                           Margin="0,6,0,14"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </DockPanel>
+
+        <TextBlock x:Name="txtStatus"
+                   Grid.Row="1"
+                   Foreground="#B45309"
+                   Margin="0,0,0,12"
+                   TextWrapping="Wrap"/>
+
+        <DataGrid x:Name="dgHoaDon"
+                  Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  RowHeight="38"
+                  HeadersVisibility="Column"
+                  Background="White"
+                  BorderBrush="#D1D5DB"
+                  SelectionChanged="Invoice_SelectionChanged"
+                  MouseDoubleClick="Invoice_DoubleClick">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Mã hóa đơn"
+                                    Binding="{Binding MaHoaDon}"
+                                    Width="*"/>
+
+                <DataGridTextColumn Header="Tháng"
+                                    Binding="{Binding Thang}"
+                                    Width="65"/>
+
+                <DataGridTextColumn Header="Năm"
+                                    Binding="{Binding Nam}"
+                                    Width="65"/>
+
+                <DataGridTextColumn Header="Phòng"
+                                    Binding="{Binding SoPhong}"
+                                    Width="70"/>
+
+                <DataGridTextColumn Header="Tổng tiền (VNĐ)"
+                                    Binding="{Binding TongTien,
+                                        StringFormat={}{0:N0}}"
+                                    Width="140"/>
+
+                <DataGridTextColumn Header="Hạn thanh toán"
+                                    Binding="{Binding HanThanhToan,
+                                        StringFormat={}{0:dd/MM/yyyy}}"
+                                    Width="130"/>
+
+                <DataGridTextColumn Header="Trạng thái"
+                                    Binding="{Binding TrangThai}"
+                                    Width="160"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button x:Name="btnDetail"
+                Grid.Row="3"
+                Content="Xem chi tiết"
+                HorizontalAlignment="Right"
+                Margin="0,14,0,0"
+                Padding="18,9"
+                Background="#2563EB"
+                Foreground="White"
+                IsEnabled="False"
+                Click="Detail_Click"/>
+    </Grid>
+</UserControl>

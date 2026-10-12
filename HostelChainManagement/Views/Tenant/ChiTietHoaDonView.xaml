@@ -1,0 +1,196 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Tenant.ChiTietHoaDonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,5,0,14"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="22">
+            <Button Content="← Quay lại danh sách"
+                    HorizontalAlignment="Left"
+                    Padding="14,8"
+                    Click="Back_Click"/>
+
+            <TextBlock Text="Chi tiết hóa đơn"
+                       FontSize="23"
+                       FontWeight="Bold"
+                       Margin="0,16,0,12"/>
+
+            <TextBlock x:Name="txtStatus"
+                       Foreground="#B45309"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,12"/>
+
+            <StackPanel x:Name="detailsPanel"
+                        Visibility="Collapsed">
+
+                <Border Background="White"
+                        Padding="20"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4">
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Mã hóa đơn"/>
+                            <TextBox Text="{Binding MaHoaDon,
+                                Mode=OneWay}"/>
+
+                            <TextBlock Text="Tháng / Năm"/>
+
+                            <TextBox>
+                                <TextBox.Text>
+                                    <MultiBinding StringFormat="{}{0}/{1}"
+                                                  Mode="OneWay">
+                                        <Binding Path="Thang"/>
+                                        <Binding Path="Nam"/>
+                                    </MultiBinding>
+                                </TextBox.Text>
+                            </TextBox>
+
+                            <TextBlock Text="Phòng / Dãy trọ"/>
+
+                            <TextBox>
+                                <TextBox.Text>
+                                    <MultiBinding StringFormat="{}{0} — {1}"
+                                                  Mode="OneWay">
+                                        <Binding Path="SoPhong"/>
+                                        <Binding Path="TenDayTro"/>
+                                    </MultiBinding>
+                                </TextBox.Text>
+                            </TextBox>
+
+                            <TextBlock Text="Khách thuê"/>
+                            <TextBox Text="{Binding TenKhachThue,
+                                Mode=OneWay}"/>
+
+                            <TextBlock Text="Mã hợp đồng"/>
+                            <TextBox Text="{Binding MaHopDong,
+                                Mode=OneWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Trạng thái"/>
+
+                            <TextBlock Text="{Binding TrangThai}"
+                                       FontWeight="SemiBold"
+                                       Foreground="#2563EB"
+                                       Margin="0,8,0,20"/>
+
+                            <TextBlock Text="Ngày lập"/>
+                            <TextBox Text="{Binding NgayLap,
+                                Mode=OneWay,
+                                StringFormat={}{0:dd/MM/yyyy}}"/>
+
+                            <TextBlock Text="Hạn thanh toán"/>
+                            <TextBox Text="{Binding HanThanhToan,
+                                Mode=OneWay,
+                                StringFormat={}{0:dd/MM/yyyy}}"/>
+
+                            <TextBlock Text="Tổng tiền"/>
+                            <TextBox Text="{Binding TongTien,
+                                Mode=OneWay,
+                                StringFormat={}{0:N0} VNĐ}"
+                                     FontWeight="Bold"/>
+
+                            <TextBlock Text="Đã thanh toán"/>
+                            <TextBox Text="{Binding DaThanhToan,
+                                Mode=OneWay,
+                                StringFormat={}{0:N0} VNĐ}"/>
+
+                            <TextBlock Text="Còn phải trả"/>
+                            <TextBox Text="{Binding ConPhaiTra,
+                                Mode=OneWay,
+                                StringFormat={}{0:N0} VNĐ}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <TextBlock Text="Chi tiết các khoản chi phí"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           Margin="0,20,0,10"/>
+
+                <DataGrid x:Name="dgKhoanThu"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          HeadersVisibility="Column"
+                          Background="White"
+                          BorderBrush="#D1D5DB"
+                          MinHeight="180"
+                          MaxHeight="350"
+                          RowHeight="36">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Khoản thu"
+                                            Binding="{Binding LoaiKhoanThu}"
+                                            Width="120"/>
+
+                        <DataGridTextColumn Header="Chỉ số cũ"
+                                            Binding="{Binding ChiSoCu,
+                                                StringFormat={}{0:N2}}"
+                                            Width="90"/>
+
+                        <DataGridTextColumn Header="Chỉ số mới"
+                                            Binding="{Binding ChiSoMoi,
+                                                StringFormat={}{0:N2}}"
+                                            Width="90"/>
+
+                        <DataGridTextColumn Header="Số lượng / Tiêu thụ"
+                                            Binding="{Binding SoLuong,
+                                                StringFormat={}{0:N2}}"
+                                            Width="135"/>
+
+                        <DataGridTextColumn Header="Đơn giá (VNĐ)"
+                                            Binding="{Binding DonGia,
+                                                StringFormat={}{0:N0}}"
+                                            Width="115"/>
+
+                        <DataGridTextColumn Header="Thành tiền (VNĐ)"
+                                            Binding="{Binding ThanhTien,
+                                                StringFormat={}{0:N0}}"
+                                            Width="135"/>
+
+                        <DataGridTextColumn Header="Ghi chú"
+                                            Binding="{Binding GhiChu}"
+                                            Width="*"
+                                            MinWidth="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock x:Name="txtEmptyItems"
+                           Text="Hóa đơn chưa có chi tiết khoản thu."
+                           Foreground="#64748B"
+                           Margin="0,8,0,0"
+                           Visibility="Collapsed"/>
+
+                <!-- UC26 chưa triển khai: không gắn sự kiện Click. -->
+                <Button x:Name="btnPayOnline"
+                        Content="Thanh toán online"
+                        HorizontalAlignment="Right"
+                        Padding="18,10"
+                        Background="#2563EB"
+                        Foreground="White"
+                        Margin="0,18,0,0"
+                        Visibility="Collapsed"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

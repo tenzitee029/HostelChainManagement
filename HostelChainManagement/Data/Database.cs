@@ -11,7 +11,7 @@ namespace QuanLyChuoiNhaTro.Data
         }
 
         private const string ConnectionString =
-            @"Server=LAPTOP-DM98J18N;Database=QuanLyNhaTro;" +
+            @"Server=DESKTOP-01BHOC6\SQLEXPRESS02;Database=QuanLyNhaTro;" +
             "Integrated Security=True;Encrypt=True;" +
             "TrustServerCertificate=True;Connect Timeout=10;";
 

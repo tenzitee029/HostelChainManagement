@@ -49,7 +49,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
             foreach (var button in buttons)
             {
                 button.Background = Brushes.Transparent;
-
                 button.Foreground = new SolidColorBrush(
                     Color.FromRgb(203, 213, 225));
             }
@@ -88,7 +87,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnRooms);
         }
 
-        // Danh sách khách thuê.
+        // Khách thuê.
         private void Tenants_Click(
             object sender, RoutedEventArgs e)
         {
@@ -107,7 +106,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnTenants);
         }
 
-        // Form dùng chung cho thêm và cập nhật.
         private void HienThiFormKhachThue(DataRowView? khach)
         {
             var form = new KhachThueFormView(khach);
@@ -124,35 +122,23 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         // Hợp đồng.
-        private void Contracts_Click(object sender, RoutedEventArgs e)
+        private void Contracts_Click(
+            object sender, RoutedEventArgs e)
         {
             HienThiHopDong();
         }
 
-
-        private void HienThiThanhLyHopDong(string maHopDong)
+        private void HienThiHopDong()
         {
-            var form = new ThanhLyHopDongView(maHopDong);
+            var view = new QuanLyHopDongView();
 
-            form.QuayLai += HienThiHopDong;
-            form.DaLuu += HienThiHopDong;
+            view.MoLapHopDong += HienThiLapHopDong;
+            view.MoGiaHan += HienThiGiaHanHopDong;
+            view.MoThanhLy += HienThiThanhLyHopDong;
 
             ShowView(
-                form,
-                "Hợp đồng / Thanh lý hợp đồng",
-                btnContracts);
-        }
-
-        private void HienThiGiaHanHopDong(string maHopDong)
-        {
-            var form = new GiaHanHopDongView(maHopDong);
-
-            form.QuayLai += HienThiHopDong;
-            form.DaLuu += HienThiHopDong;
-
-            ShowView(
-                form,
-                "Hợp đồng / Gia hạn hợp đồng",
+                view,
+                "Hợp đồng",
                 btnContracts);
         }
 
@@ -169,17 +155,29 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnContracts);
         }
 
-        private void HienThiHopDong()
+        private void HienThiGiaHanHopDong(string maHopDong)
         {
-            var view = new QuanLyHopDongView();
+            var form = new GiaHanHopDongView(maHopDong);
 
-            view.MoLapHopDong += HienThiLapHopDong;
-            view.MoThanhLy += HienThiThanhLyHopDong;
-            view.MoGiaHan += HienThiGiaHanHopDong;
+            form.QuayLai += HienThiHopDong;
+            form.DaLuu += HienThiHopDong;
 
             ShowView(
-                view,
-                "Hợp đồng",
+                form,
+                "Hợp đồng / Gia hạn hợp đồng",
+                btnContracts);
+        }
+
+        private void HienThiThanhLyHopDong(string maHopDong)
+        {
+            var form = new ThanhLyHopDongView(maHopDong);
+
+            form.QuayLai += HienThiHopDong;
+            form.DaLuu += HienThiHopDong;
+
+            ShowView(
+                form,
+                "Hợp đồng / Thanh lý hợp đồng",
                 btnContracts);
         }
 
@@ -191,6 +189,26 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 new QuanLyHoaDonView(),
                 "Hóa đơn",
                 btnInvoices);
+        }
+
+        // Sửa chữa.
+        private void Repairs_Click(
+            object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new QuanLySuaChuaView(),
+                "Sửa chữa",
+                btnRepairs);
+        }
+
+        // Thông báo.
+        private void Notifications_Click(
+            object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new GuiThongBaoView(),
+                "Thông báo / Gửi thông báo tới khách thuê",
+                btnNotifications);
         }
 
         // Hồ sơ cá nhân.

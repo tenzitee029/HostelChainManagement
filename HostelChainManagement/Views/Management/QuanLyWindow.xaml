@@ -115,15 +115,17 @@
                                 Style="{StaticResource MenuStyle}"
                                 Click="Contracts_Click"/>
                         <Button x:Name="btnInvoices"
-                                Content="Hóa đơn"
-                                Style="{StaticResource MenuStyle}"
-                                Click="Invoices_Click"/>
+        Content="Hóa đơn"
+        Style="{StaticResource MenuStyle}"
+        Click="Invoices_Click"/>
                         <Button x:Name="btnRepairs"
-                                Content="Sửa chữa"
-                                Style="{StaticResource MenuStyle}"/>
+        Content="Sửa chữa"
+        Style="{StaticResource MenuStyle}"
+        Click="Repairs_Click"/>
                         <Button x:Name="btnNotifications"
-                                Content="Thông báo"
-                                Style="{StaticResource MenuStyle}"/>
+        Content="Thông báo"
+        Style="{StaticResource MenuStyle}"
+        Click="Notifications_Click"/>
 
                         <Separator Background="#334155" Margin="0,12"/>
 

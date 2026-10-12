@@ -1,0 +1,281 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Tenant.SuaChuaBaoTriView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,5,0,12"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="0,5,0,12"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="14,8"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="22">
+            <DockPanel>
+                <Button x:Name="btnRefresh"
+                        DockPanel.Dock="Right"
+                        Content="Làm mới"
+                        Click="Refresh_Click" Height="35"/>
+
+                <StackPanel>
+                    <TextBlock Text="Sửa chữa / Bảo trì"
+                               FontSize="23"
+                               FontWeight="Bold"/>
+
+                    <TextBlock Text="Báo sự cố trong phòng và theo dõi trạng thái tiếp nhận."
+                               Foreground="#64748B"
+                               Margin="0,6,0,12"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </DockPanel>
+
+            <TextBlock x:Name="txtStatus"
+                       Foreground="#B45309"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,12"/>
+
+            <Border Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="20">
+
+                <StackPanel x:Name="formPanel"
+                            IsEnabled="False">
+
+                    <TextBlock Text="Gửi yêu cầu mới"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,14"/>
+
+                    <TextBlock Text="Hợp đồng đang thuê"/>
+
+                    <ComboBox x:Name="cboHopDong"
+                              DisplayMemberPath="MaHopDong"
+                              SelectionChanged="Contract_SelectionChanged"/>
+
+                    <Grid x:Name="contractPanel">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Khách thuê"/>
+
+                            <TextBox Text="{Binding HoTen,
+                                Mode=OneWay}"
+                                     IsReadOnly="True"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Phòng / Dãy trọ"/>
+
+                            <TextBox IsReadOnly="True">
+                                <TextBox.Text>
+                                    <MultiBinding Mode="OneWay"
+                                                  StringFormat="{}{0} — {1}">
+                                        <Binding Path="SoPhong"/>
+                                        <Binding Path="TenDayTro"/>
+                                    </MultiBinding>
+                                </TextBox.Text>
+                            </TextBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Nhóm sự cố"/>
+
+                            <ComboBox x:Name="cboNhom"
+                                      SelectedIndex="0">
+                                <ComboBoxItem Content="Điện"/>
+                                <ComboBoxItem Content="Nước"/>
+                                <ComboBoxItem Content="Thiết bị gia dụng"/>
+                                <ComboBoxItem Content="Kết cấu phòng"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Mức độ ưu tiên"/>
+
+                            <ComboBox x:Name="cboUuTien"
+                                      SelectedIndex="0">
+                                <ComboBoxItem Content="Bình thường"/>
+                                <ComboBoxItem Content="Khẩn cấp"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Nội dung yêu cầu"/>
+
+                    <TextBox x:Name="txtNoiDung"
+                             MaxLength="450"
+                             MinHeight="100"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"/>
+
+                    <TextBlock Text="Thời gian kỹ thuật viên có thể đến kiểm tra"/>
+
+                    <ComboBox x:Name="cboThoiGian"
+                              SelectedIndex="0">
+                        <ComboBoxItem Content="Giờ hành chính"/>
+                        <ComboBoxItem Content="Ngoài giờ hành chính"/>
+                        <ComboBoxItem Content="Theo lịch hẹn"/>
+                    </ComboBox>
+
+                    <TextBlock Text="Chi tiết thời gian (nếu có)"/>
+
+                    <TextBox x:Name="txtThoiGian"
+                             MaxLength="75"
+                             ToolTip="Ví dụ: Sau 18 giờ các ngày trong tuần."/>
+
+                    <TextBlock Text="Ảnh / Video hiện trường"/>
+
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,8,0,8">
+
+                        <Button Content="Chọn tệp"
+                                Click="ChooseFile_Click"/>
+
+                        <Button Content="Bỏ tệp"
+                                Margin="10,0,0,0"
+                                Click="RemoveFile_Click"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="txtFileName"
+                               Text="Chưa chọn tệp."
+                               Foreground="#64748B"
+                               TextWrapping="Wrap"/>
+
+                    <TextBlock Text="PNG/JPG/MP4, tối đa 20 MB."
+                               Foreground="#64748B"
+                               FontSize="11"
+                               Margin="0,4,0,14"/>
+
+                    <Button x:Name="btnSend"
+                            Content="Gửi yêu cầu"
+                            HorizontalAlignment="Right"
+                            Background="#2563EB"
+                            Foreground="White"
+                            Click="Send_Click"/>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Yêu cầu đã gửi"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Margin="0,20,0,10"/>
+
+            <DataGrid x:Name="dgSuCo"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow"
+                      HeadersVisibility="Column"
+                      Background="White"
+                      RowHeight="36"
+                      MinHeight="180"
+                      MaxHeight="320"
+                      SelectionChanged="Incident_SelectionChanged">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã sự cố"
+                                        Binding="{Binding MaSuCo}"
+                                        Width="170"/>
+
+                    <DataGridTextColumn Header="Phòng"
+                                        Binding="{Binding SoPhong}"
+                                        Width="60"/>
+
+                    <DataGridTextColumn Header="Ngày gửi"
+                                        Binding="{Binding NgayGui,
+                                            StringFormat={}{0:dd/MM/yyyy}}"
+                                        Width="100"/>
+
+                    <DataGridTextColumn Header="Ưu tiên"
+                                        Binding="{Binding MucDoUuTien}"
+                                        Width="95"/>
+
+                    <DataGridTextColumn Header="Trạng thái"
+                                        Binding="{Binding TrangThai}"
+                                        Width="130"/>
+
+                    <DataGridTextColumn Header="Nội dung"
+                                        Binding="{Binding NoiDungSuCo}"
+                                        Width="*"
+                                        MinWidth="180"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock x:Name="txtEmpty"
+                       Text="Bạn chưa gửi yêu cầu sửa chữa nào."
+                       Foreground="#64748B"
+                       Margin="0,8,0,0"/>
+
+            <Border x:Name="detailPanel"
+                    Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    Padding="16"
+                    Margin="0,12,0,0"
+                    Visibility="Collapsed">
+
+                <StackPanel>
+                    <TextBlock Text="Chi tiết yêu cầu đã chọn"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Nội dung"/>
+
+                    <TextBox Text="{Binding NoiDungSuCo,
+                                Mode=OneWay}"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"
+                             MinHeight="65"/>
+
+                    <TextBlock Text="Thời gian mong muốn"/>
+
+                    <TextBox Text="{Binding ThoiGianMongMuon,
+                                Mode=OneWay}"
+                             IsReadOnly="True"/>
+
+                    <TextBlock Text="Tệp đính kèm"/>
+
+                    <TextBlock x:Name="txtSelectedFile"
+                               Foreground="#64748B"
+                               TextWrapping="Wrap"
+                               Margin="0,5,0,12"/>
+
+                    <TextBlock Text="Lý do từ chối (nếu có)"/>
+
+                    <TextBox Text="{Binding LyDoTuChoi,
+                                Mode=OneWay}"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

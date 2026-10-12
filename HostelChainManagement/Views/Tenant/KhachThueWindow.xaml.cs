@@ -118,6 +118,17 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             contentArea.Content = new YeuCauTraPhongView();
         }
 
+        private void Repair_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Sửa chữa & Bảo trì";
+
+            SetSelectedMenu(btnRepair);
+
+            contentArea.Content = new SuaChuaBaoTriView();
+        }
+
         private void SetSelectedMenu(Button selected)
         {
             Button[] buttons =
@@ -125,6 +136,7 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
                 btnRoom,
                 btnContract,
                 btnInvoices,
+                btnRepair,
                 btnReturnRoom,
                 btnProfile
             };

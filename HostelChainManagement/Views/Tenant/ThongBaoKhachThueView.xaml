@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Tenant.ThongBaoKhachThueView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1000"
+             d:DesignHeight="700"
+             Background="#F8FAFC"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CFD6E1"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="RowHeight" Value="38"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="8,12"/>
+            <Setter Property="BorderBrush" Value="#D1D7E0"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="240"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Margin="0,0,0,12">
+            <Button DockPanel.Dock="Right"
+                    Content="Tải lại"
+                    Click="Refresh_Click"/>
+
+            <TextBlock Text="Thông báo"
+                       FontSize="22"
+                       FontWeight="SemiBold"/>
+        </DockPanel>
+
+        <TextBlock x:Name="txtStatus"
+                   Grid.Row="1"
+                   Foreground="#B45309"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,12"/>
+
+        <DataGrid x:Name="notificationsGrid"
+                  Grid.Row="2"
+                  SelectionChanged="Notification_SelectionChanged">
+
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Đã đọc"
+                                       Binding="{Binding DaDoc}"
+                                       Width="65"/>
+
+                <DataGridTextColumn Header="Tiêu đề"
+                                    Binding="{Binding TieuDe}"
+                                    Width="*"/>
+
+                <DataGridTextColumn Header="Người gửi"
+                                    Binding="{Binding NguoiGui}"
+                                    Width="180"/>
+
+                <DataGridTextColumn Header="Thời điểm"
+                                    Binding="{Binding NgayGui,
+                                        StringFormat={}{0:dd/MM/yyyy HH:mm}}"
+                                    Width="150"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBox x:Name="txtNotification"
+                 Grid.Row="3"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"
+                 Padding="12"
+                 Background="White"
+                 BorderBrush="#D1D7E0"
+                 Margin="0,12,0,0"/>
+    </Grid>
+</UserControl>

@@ -140,7 +140,18 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             contentArea.Content = new DoiMatKhauView();
         }
 
-        private void SetSelectedMenu(Button selected)
+        private void Notifications_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            txtBreadcrumb.Text = "Hệ thống / Thông báo";
+
+            SetSelectedMenu(null);
+
+            contentArea.Content = new ThongBaoKhachThueView();
+        }
+
+        private void SetSelectedMenu(Button? selected)
         {
             Button[] buttons =
             {
@@ -156,10 +167,12 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             foreach (var button in buttons)
             {
                 button.Background = Brushes.Transparent;
-
                 button.Foreground = new SolidColorBrush(
                     Color.FromRgb(203, 213, 225));
             }
+
+            if (selected == null)
+                return;
 
             selected.Background = new SolidColorBrush(
                 Color.FromRgb(37, 99, 235));

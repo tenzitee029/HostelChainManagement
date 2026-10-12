@@ -6,6 +6,7 @@
              mc:Ignorable="d"
              d:DesignWidth="1000"
              d:DesignHeight="650"
+             Loaded="View_Loaded"
              Background="#F8FAFC">
 
     <UserControl.Resources>
@@ -32,9 +33,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Tiêu đề và nút thêm khách -->
+        <!-- Tiêu đề -->
         <Grid Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -54,12 +56,13 @@
             </StackPanel>
 
             <Button x:Name="btnThemKhach"
-                    Grid.Column="1"
-                    Content="+ Thêm khách thuê"
-                    VerticalAlignment="Center"/>
+        Grid.Column="1"
+        Content="+ Thêm khách thuê"
+        VerticalAlignment="Center"
+        Click="Them_Click"/>
         </Grid>
 
-        <!-- Khung tìm kiếm -->
+        <!-- Tìm kiếm -->
         <Border Grid.Row="1"
                 Background="White"
                 BorderBrush="#CBD5E1"
@@ -67,7 +70,6 @@
                 CornerRadius="4"
                 Padding="16"
                 Margin="0,0,0,16">
-
             <StackPanel>
                 <TextBlock Text="Tìm kiếm khách thuê"
                            FontWeight="SemiBold"
@@ -80,15 +82,15 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Gợi ý nhập liệu -->
                     <Grid>
                         <TextBox x:Name="txtTimKiem"
                                  Padding="10,8"
                                  MinHeight="40"
                                  BorderBrush="#CBD5E1"
-                                 VerticalContentAlignment="Center"/>
+                                 VerticalContentAlignment="Center"
+                                 KeyDown="TimKiem_KeyDown"/>
 
-                        <TextBlock Text="Nhập họ tên, CCCCD hoặc SĐT..."
+                        <TextBlock Text="Nhập họ tên, CCCD hoặc SĐT..."
                                    Margin="11,0,0,0"
                                    VerticalAlignment="Center"
                                    Foreground="#94A3B8"
@@ -113,18 +115,18 @@
                     <Button x:Name="btnTimKiem"
                             Grid.Column="1"
                             Content="Tìm kiếm"
-                            Margin="12,0,0,0"/>
+                            Margin="12,0,0,0"
+                            Click="TimKiem_Click"/>
                 </Grid>
             </StackPanel>
         </Border>
 
-        <!-- Khung danh sách -->
+        <!-- Danh sách -->
         <Border Grid.Row="2"
                 Background="White"
                 BorderBrush="#CBD5E1"
                 BorderThickness="1"
                 CornerRadius="4">
-
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -138,9 +140,10 @@
                                FontWeight="SemiBold"
                                Foreground="#334155"/>
 
-                    <TextBlock Text="Thông tin khách thuê thuộc phạm vi quản lý."
+                    <TextBlock Text="Khách thuê có hợp đồng trong các dãy trọ được phân công."
                                Margin="0,5,0,0"
-                               Foreground="#64748B"/>
+                               Foreground="#64748B"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <Grid Grid.Row="1">
@@ -156,9 +159,9 @@
                               HorizontalGridLinesBrush="#E2E8F0"
                               Background="White"
                               AlternatingRowBackground="#F8FAFC"
+                              SelectionChanged="ChonKhach_Changed"
                               BorderThickness="0"
                               RowHeight="42">
-
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Họ tên"
                                                 Binding="{Binding HoTen}"
@@ -178,55 +181,50 @@
 
                             <DataGridTextColumn Header="Trạng thái"
                                                 Binding="{Binding TrangThai}"
-                                                Width="*"/>
+                                                Width="1.3*"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <TextBlock Text="Chưa có dữ liệu khách thuê để hiển thị."
+                    <TextBlock x:Name="txtDanhSachTrong"
+                               Text="Đang tải danh sách khách thuê..."
                                Foreground="#94A3B8"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Margin="0,40,0,0"
-                               IsHitTestVisible="False">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding Items.Count, ElementName=dgKhachThue}"
-                                        Value="0">
-                                        <Setter Property="Visibility"
-                                                Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                               Margin="16,40,16,0"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               IsHitTestVisible="False"/>
                 </Grid>
 
-                <!-- Nút thao tác -->
                 <Border Grid.Row="2"
                         BorderBrush="#E2E8F0"
                         BorderThickness="0,1,0,0"
                         Padding="14">
-
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
-
                         <Button x:Name="btnXoaKhach"
-                                Content="Xóa"
-                                Background="White"
-                                Foreground="#475569"
-                                BorderBrush="#CBD5E1"
-                                BorderThickness="1"
-                                Margin="0,0,8,0"/>
+        Content="Xóa"
+        Background="White"
+        Foreground="#DC2626"
+        BorderBrush="#DC2626"
+        BorderThickness="1"
+        Margin="0,0,8,0"
+        IsEnabled="False"
+        Click="Xoa_Click"/>
 
                         <Button x:Name="btnCapNhat"
-                                Content="Cập nhật"/>
+        Content="Cập nhật"
+        IsEnabled="False"
+        Click="CapNhat_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
+
+        <TextBlock x:Name="txtTrangThai"
+                   Grid.Row="3"
+                   Margin="0,12,0,0"
+                   Foreground="#64748B"
+                   TextWrapping="Wrap"/>
     </Grid>
 </UserControl>

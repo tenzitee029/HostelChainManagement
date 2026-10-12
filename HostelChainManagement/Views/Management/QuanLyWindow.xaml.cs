@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,27 +11,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
-        private void Invoices_Click(object sender, RoutedEventArgs e)
-        {
-            ShowView(
-                new QuanLyHoaDonView(),
-                "Hóa đơn",
-                btnInvoices);
-        }
-        private void Contracts_Click(object sender, RoutedEventArgs e)
-        {
-            ShowView(
-                new QuanLyHopDongView(),
-                "Hợp đồng",
-                btnContracts);
-        }
-        private void Tenants_Click(object sender, RoutedEventArgs e)
-        {
-            ShowView(
-                new QuanLyKhachThueView(),
-                "Khách thuê",
-                btnTenants);
-        }
         public QuanLyWindow()
         {
             InitializeComponent();
@@ -45,14 +25,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             txtUser.Text = user.HoTen;
             ShowOverview();
-        }
-
-        private void ShowOverview()
-        {
-            ShowView(
-                new TongQuanQuanLyView(),
-                "Tổng quan",
-                btnOverview);
         }
 
         private void ShowView(
@@ -77,6 +49,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             foreach (var button in buttons)
             {
                 button.Background = Brushes.Transparent;
+
                 button.Foreground = new SolidColorBrush(
                     Color.FromRgb(203, 213, 225));
             }
@@ -90,12 +63,22 @@ namespace QuanLyChuoiNhaTro.Views.Management
             contentArea.Content = view;
         }
 
+        // Tổng quan.
+        private void ShowOverview()
+        {
+            ShowView(
+                new TongQuanQuanLyView(),
+                "Tổng quan",
+                btnOverview);
+        }
+
         private void Overview_Click(
             object sender, RoutedEventArgs e)
         {
             ShowOverview();
         }
 
+        // Phòng trọ.
         private void Rooms_Click(
             object sender, RoutedEventArgs e)
         {
@@ -105,6 +88,62 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnRooms);
         }
 
+        // Danh sách khách thuê.
+        private void Tenants_Click(
+            object sender, RoutedEventArgs e)
+        {
+            HienThiKhachThue();
+        }
+
+        private void HienThiKhachThue()
+        {
+            var view = new QuanLyKhachThueView();
+
+            view.MoForm += HienThiFormKhachThue;
+
+            ShowView(
+                view,
+                "Khách thuê",
+                btnTenants);
+        }
+
+        // Form dùng chung cho thêm và cập nhật.
+        private void HienThiFormKhachThue(DataRowView? khach)
+        {
+            var form = new KhachThueFormView(khach);
+
+            form.QuayLai += HienThiKhachThue;
+            form.DaLuu += HienThiKhachThue;
+
+            ShowView(
+                form,
+                khach == null
+                    ? "Khách thuê / Thêm khách thuê"
+                    : "Khách thuê / Cập nhật khách thuê",
+                btnTenants);
+        }
+
+        // Hợp đồng.
+        private void Contracts_Click(
+            object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new QuanLyHopDongView(),
+                "Hợp đồng",
+                btnContracts);
+        }
+
+        // Hóa đơn.
+        private void Invoices_Click(
+            object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new QuanLyHoaDonView(),
+                "Hóa đơn",
+                btnInvoices);
+        }
+
+        // Hồ sơ cá nhân.
         private void Profile_Click(
             object sender, RoutedEventArgs e)
         {
@@ -116,12 +155,15 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     UserSession.CurrentUser?.HoTen ?? "";
             };
 
-            ShowView(view, "Hồ sơ cá nhân", btnProfile);
+            ShowView(
+                view,
+                "Hồ sơ cá nhân",
+                btnProfile);
         }
 
+        // Đổi mật khẩu.
         private void Password_Click(
-            object sender,
-            RoutedEventArgs e)
+            object sender, RoutedEventArgs e)
         {
             ShowView(
                 new DoiMatKhauView(),
@@ -129,6 +171,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnPassword);
         }
 
+        // Đăng xuất.
         private void Logout_Click(
             object sender, RoutedEventArgs e)
         {

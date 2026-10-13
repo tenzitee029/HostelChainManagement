@@ -18,6 +18,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 "Thống kê / Báo cáo hàng tháng / năm",
                 btnReports);
         }
+
         public QuanLyWindow()
         {
             InitializeComponent();

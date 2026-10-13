@@ -237,17 +237,15 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 _coQuyen && !_dangTai &&
                 !_dangXoa && _duLieu != null;
 
-            bool chonNguoiDungTen =
-                sanSang &&
-                dgKhachThue.SelectedItem is DataRowView khach &&
-                LaNguoiDungTen(khach);
+            bool daChonHoSo =
+                sanSang && dgKhachThue.SelectedItem is DataRowView;
 
             btnThemKhach.IsEnabled = sanSang;
             btnTimKiem.IsEnabled = sanSang;
             txtTimKiem.IsEnabled = sanSang;
 
-            btnCapNhat.IsEnabled = chonNguoiDungTen;
-            btnXoaKhach.IsEnabled = chonNguoiDungTen;
+            btnCapNhat.IsEnabled = daChonHoSo;
+            btnXoaKhach.IsEnabled = daChonHoSo;
         }
 
         private void Them_Click(
@@ -267,18 +265,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (_duLieu == null || _dangTai)
                 return;
 
-            if (dgKhachThue.SelectedItem is DataRowView khach &&
-                !LaNguoiDungTen(khach))
-            {
-                txtTrangThai.Text =
-                    "Đây là thành viên ở cùng được lưu trong hợp đồng. "
-                    + "Bản này chưa hỗ trợ cập nhật hoặc xóa thành viên.";
-            }
-            else
-            {
-                txtTrangThai.Text =
-                    $"Tổng số hồ sơ đã tải: {_duLieu.Rows.Count}.";
-            }
+            txtTrangThai.Text =
+                $"Tổng số hồ sơ đã tải: {_duLieu.Rows.Count}.";
         }
 
         private void CapNhat_Click(
@@ -287,8 +275,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (!_coQuyen || _dangTai || _dangXoa)
                 return;
 
-            if (dgKhachThue.SelectedItem is DataRowView khach &&
-                LaNguoiDungTen(khach))
+            if (dgKhachThue.SelectedItem is DataRowView khach)
             {
                 MoForm?.Invoke(khach);
             }
@@ -300,8 +287,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (!_coQuyen || _dangTai || _dangXoa)
                 return;
 
-            if (dgKhachThue.SelectedItem is not DataRowView khach ||
-                !LaNguoiDungTen(khach))
+            if (dgKhachThue.SelectedItem is not DataRowView khach)
                 return;
 
             var user = UserSession.CurrentUser;
@@ -314,11 +300,15 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             string maKhach = Convert.ToString(khach["MaKhachThue"]) ?? "";
             string hoTen = Convert.ToString(khach["HoTen"]) ?? "";
+            bool laThanhVien = !LaNguoiDungTen(khach);
 
             var xacNhan = MessageBox.Show(
                 $"Bạn có chắc muốn xóa hồ sơ “{hoTen}”?\n\n"
-                + "Chỉ xóa khách chưa có hợp đồng. "
-                + "Tài khoản đăng nhập được giữ lại.",
+                + (laThanhVien
+                    ? "Thành viên sẽ bị xóa khỏi phòng/hợp đồng. "
+                      + "Tài khoản đăng nhập vẫn được giữ lại."
+                    : "Chỉ xóa khách chưa có hợp đồng. "
+                      + "Tài khoản đăng nhập được giữ lại."),
                 "Xác nhận xóa",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -343,7 +333,28 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 using var command = connection.CreateCommand();
                 command.Transaction = transaction;
 
-                command.CommandText = @"
+                if (laThanhVien)
+                {
+                    command.CommandText = @"
+                        DECLARE @DaXoa TABLE (MaThanhVien VARCHAR(20));
+                        DELETE tv
+                        OUTPUT DELETED.MaThanhVien INTO @DaXoa
+                        FROM dbo.ThanhVienO tv
+                        JOIN dbo.HopDongThue h ON h.MaHopDong = tv.MaHopDong
+                        JOIN dbo.PhongTro p ON p.MaPhong = h.MaPhong
+                        WHERE tv.MaThanhVien = @MaKhach
+                          AND EXISTS (
+                              SELECT 1 FROM dbo.NhanVien nv
+                              WHERE nv.MaDayTro = p.MaDayTro
+                                AND nv.MaNguoiDung = @NguoiQuanLy
+                                AND nv.ChucVu = N'Quản lý'
+                                AND nv.TrangThaiLamViec = N'Đang làm'
+                          );
+                        SELECT COUNT(*) FROM @DaXoa;";
+                }
+                else
+                {
+                    command.CommandText = @"
                     DECLARE @DaXoa TABLE (MaKhachThue VARCHAR(20));
 
                     DELETE k
@@ -365,6 +376,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                       );
 
                     SELECT COUNT(*) FROM @DaXoa;";
+                }
 
                 command.Parameters.Add(
                     "@MaKhach", SqlDbType.VarChar, 20).Value = maKhach;
@@ -379,9 +391,13 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                 MessageBox.Show(
                     daXoa
-                        ? "Xóa hồ sơ khách thuê thành công."
-                        : "Không thể xóa: khách đã có hợp đồng, "
-                          + "hồ sơ không tồn tại hoặc bạn không còn quyền.",
+                        ? (laThanhVien
+                            ? "Đã xóa thành viên khỏi phòng. Tài khoản đăng nhập vẫn được giữ lại."
+                            : "Xóa hồ sơ khách thuê thành công.")
+                        : (laThanhVien
+                            ? "Không thể xóa thành viên: hồ sơ không tồn tại hoặc không có quyền."
+                            : "Không thể xóa: khách đã có hợp đồng, "
+                              + "hồ sơ không tồn tại hoặc bạn không còn quyền."),
                     "Thông báo",
                     MessageBoxButton.OK,
                     daXoa

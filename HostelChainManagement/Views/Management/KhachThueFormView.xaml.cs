@@ -17,9 +17,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private const string VaiTroThanhVien = "Thành viên ở cùng";
 
         private readonly bool _dangSua;
+        private readonly bool _suaThanhVien;
         private readonly string _maKhach;
         private readonly string _maThanhVienMoi;
         private readonly string _tenDangNhapMoi;
+        private readonly string _tenDangNhapThanhVienMoi;
         private readonly string _matKhauMoi;
 
         private bool _dangTai;
@@ -63,6 +65,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             InitializeComponent();
 
             _dangSua = khach != null;
+            _suaThanhVien = _dangSua &&
+                Convert.ToString(khach!["LoaiHoSo"]) == VaiTroThanhVien;
 
             _maKhach = khach == null
                 ? TaoMa("KT")
@@ -70,20 +74,22 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             _maThanhVienMoi = TaoMa("TV");
             _tenDangNhapMoi = _maKhach.ToLowerInvariant();
+            _tenDangNhapThanhVienMoi = _maThanhVienMoi.ToLowerInvariant();
 
             _matKhauMoi = _dangSua
                 ? ""
-                : Convert.ToBase64String(
+                : "Aa1!" + Convert.ToBase64String(
                     RandomNumberGenerator.GetBytes(12));
 
             txtMaKhach.Text = _maKhach;
             txtTieuDe.Text = _dangSua
-                ? "Cập nhật khách thuê"
+                ? (_suaThanhVien ? "Cập nhật thành viên ở cùng" : "Cập nhật khách thuê")
                 : "Thêm khách thuê";
 
-            cboVaiTro.Items.Add(VaiTroChu);
+            if (!_suaThanhVien)
+                cboVaiTro.Items.Add(VaiTroChu);
 
-            if (!_dangSua)
+            if (!_dangSua || _suaThanhVien)
                 cboVaiTro.Items.Add(VaiTroThanhVien);
 
             cboVaiTro.SelectedIndex = 0;
@@ -201,7 +207,45 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     return;
                 }
 
-                if (_dangSua)
+                if (_dangSua && _suaThanhVien)
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = @"
+                        SELECT tv.HoTen, tv.CCCD, tv.SoDienThoai,
+                               p.MaDayTro, h.MaHopDong,
+                               d.TenDayTro + N' - ' + p.SoPhong AS TenPhong,
+                               tv.TrangThai
+                        FROM dbo.ThanhVienO tv
+                        JOIN dbo.HopDongThue h ON h.MaHopDong = tv.MaHopDong
+                        JOIN dbo.PhongTro p ON p.MaPhong = h.MaPhong
+                        JOIN dbo.DayTro d ON d.MaDayTro = p.MaDayTro
+                        WHERE tv.MaThanhVien = @MaThanhVien
+                          AND EXISTS (
+                              SELECT 1 FROM dbo.NhanVien nv
+                              WHERE nv.MaDayTro = p.MaDayTro
+                                AND nv.MaNguoiDung = @NguoiQuanLy
+                                AND nv.ChucVu = N'Quản lý'
+                                AND nv.TrangThaiLamViec = N'Đang làm'
+                          );";
+                    command.Parameters.Add("@MaThanhVien", SqlDbType.VarChar, 20).Value = _maKhach;
+                    command.Parameters.Add("@NguoiQuanLy", SqlDbType.VarChar, 20).Value = user.MaNguoiDung;
+                    using var reader = await command.ExecuteReaderAsync();
+                    if (!await reader.ReadAsync())
+                    {
+                        txtThongBao.Text = "Không tìm thấy thành viên hoặc không có quyền.";
+                        return;
+                    }
+                    if (!IsLoaded) return;
+                    txtHoTen.Text = Convert.ToString(reader["HoTen"]) ?? "";
+                    txtCCCD.Text = Convert.ToString(reader["CCCD"]) ?? "";
+                    txtSoDienThoai.Text = Convert.ToString(reader["SoDienThoai"]) ?? "";
+                    cboDayTro.SelectedValue = Convert.ToString(reader["MaDayTro"]);
+                    pnlDiaChi.Visibility = Visibility.Collapsed;
+                    HienThiPhongChu(Convert.ToString(reader["TenPhong"]) ?? "",
+                        Convert.ToString(reader["TrangThai"]) ?? "");
+                    txtHuongDan.Text = "Cập nhật thông tin thành viên ở cùng. Phòng và hợp đồng được giữ nguyên.";
+                }
+                else if (_dangSua)
                 {
                     using var command = connection.CreateCommand();
 
@@ -338,8 +382,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     "Chọn phòng đôi đang có người đứng tên hợp đồng. "
                     + "Mỗi phòng tối đa 2 người, gồm người đứng tên "
                     + "và 1 thành viên ở cùng. "
-                    + "Thành viên được lưu vào hợp đồng đang có, "
-                    + "không tạo hợp đồng hoặc tài khoản mới.";
+                    + "Thành viên được lưu vào hợp đồng đang có "
+                    + "và được cấp tài khoản đăng nhập riêng.";
 
                 await TaiPhongOChungAsync();
             }
@@ -567,7 +611,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                if (laThanhVien)
+                if (_suaThanhVien)
+                    await CapNhatThanhVienAsync(user.MaNguoiDung);
+                else if (laThanhVien)
                     await LuuThanhVienAsync(user.MaNguoiDung);
                 else
                     await LuuKhachAsync(user.MaNguoiDung);
@@ -601,10 +647,17 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             string thongBao;
 
-            if (laThanhVien)
+            if (_suaThanhVien)
+            {
+                thongBao = "Cập nhật thành viên ở cùng thành công.";
+            }
+            else if (laThanhVien)
             {
                 thongBao =
-                    "Đã thêm thành viên vào phòng đôi thành công.";
+                    "Đã thêm thành viên vào phòng đôi thành công.\n\n"
+                    + "Tên đăng nhập: " + _tenDangNhapThanhVienMoi + "\n"
+                    + "Mật khẩu: " + _matKhauMoi + "\n\n"
+                    + "Hãy ghi lại thông tin tài khoản.";
             }
             else if (_dangSua)
             {
@@ -726,7 +779,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     .Value = _tenDangNhapMoi;
                 command.Parameters.Add(
                     "@MatKhau", SqlDbType.VarChar, 255)
-                    .Value = _matKhauMoi;
+                    .Value = PasswordSecurity.HashPassword(_matKhauMoi);
             }
 
             object? ketQua = await command.ExecuteScalarAsync();
@@ -735,6 +788,64 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 throw new InvalidOperationException(
                     "Hồ sơ không tồn tại hoặc bạn không còn quyền quản lý.");
 
+            transaction.Commit();
+        }
+
+        private async Task CapNhatThanhVienAsync(string maQuanLy)
+        {
+            using var connection = Database.CreateConnection();
+            await connection.OpenAsync();
+            using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            // Cập nhật hồ sơ thành viên và đồng bộ tài khoản liên quan (nếu xác định duy nhất).
+            // Các thành viên cũ không có tài khoản vẫn cập nhật hồ sơ bình thường.
+            command.CommandText = @"
+                DECLARE @CCCDCu VARCHAR(12);
+                SELECT @CCCDCu = tv.CCCD
+                FROM dbo.ThanhVienO tv WITH (UPDLOCK, HOLDLOCK)
+                JOIN dbo.HopDongThue h ON h.MaHopDong = tv.MaHopDong
+                JOIN dbo.PhongTro p ON p.MaPhong = h.MaPhong
+                WHERE tv.MaThanhVien = @MaThanhVien
+                  AND EXISTS (
+                      SELECT 1 FROM dbo.NhanVien nv
+                      WHERE nv.MaDayTro = p.MaDayTro
+                        AND nv.MaNguoiDung = @NguoiQuanLy
+                        AND nv.ChucVu = N'Quản lý'
+                        AND nv.TrangThaiLamViec = N'Đang làm'
+                  );
+                IF @CCCDCu IS NULL
+                    THROW 50006, N'Thành viên không tồn tại hoặc không có quyền.', 1;
+
+                -- Không cập nhật nhầm tài khoản người đứng hợp đồng.
+                IF (SELECT COUNT(*) FROM dbo.NguoiDung n
+                    WHERE n.CCCD = @CCCDCu AND n.VaiTro = N'Khách thuê'
+                      AND NOT EXISTS (SELECT 1 FROM dbo.KhachThue k
+                                      WHERE k.MaNguoiDung = n.MaNguoiDung)) > 1
+                    THROW 50007, N'Có nhiều tài khoản trùng CCCD; cần kiểm tra dữ liệu.', 1;
+
+                IF EXISTS (SELECT 1 FROM dbo.NguoiDung n
+                    WHERE n.CCCD = @CCCDCu AND n.VaiTro = N'Khách thuê'
+                      AND NOT EXISTS (SELECT 1 FROM dbo.KhachThue k
+                                      WHERE k.MaNguoiDung = n.MaNguoiDung))
+                BEGIN
+                    UPDATE n
+                    SET n.HoTen = @HoTen, n.CCCD = @CCCD, n.SoDienThoai = @SDT
+                    FROM dbo.NguoiDung n
+                    WHERE n.CCCD = @CCCDCu AND n.VaiTro = N'Khách thuê'
+                      AND NOT EXISTS (SELECT 1 FROM dbo.KhachThue k
+                                      WHERE k.MaNguoiDung = n.MaNguoiDung);
+                END
+                UPDATE dbo.ThanhVienO
+                SET HoTen = @HoTen, CCCD = @CCCD, SoDienThoai = @SDT
+                WHERE MaThanhVien = @MaThanhVien;
+            ";
+            command.Parameters.Add("@MaThanhVien", SqlDbType.VarChar, 20).Value = _maKhach;
+            command.Parameters.Add("@NguoiQuanLy", SqlDbType.VarChar, 20).Value = maQuanLy;
+            command.Parameters.Add("@HoTen", SqlDbType.NVarChar, 100).Value = txtHoTen.Text.Trim();
+            command.Parameters.Add("@CCCD", SqlDbType.VarChar, 12).Value = txtCCCD.Text.Trim();
+            command.Parameters.Add("@SDT", SqlDbType.VarChar, 15).Value = txtSoDienThoai.Text.Trim();
+            await command.ExecuteNonQueryAsync();
             transaction.Commit();
         }
 
@@ -825,6 +936,15 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     THROW 50005,
                         N'Người này đã được ghi nhận đang ở trong một phòng.', 1;
 
+                -- Tạo tài khoản trong cùng giao dịch với việc ghi nhận thành viên.
+                -- Nếu trùng thông tin hoặc một bước thất bại, cả hai đều rollback.
+                INSERT INTO dbo.NguoiDung
+                    (MaNguoiDung, TenDangNhap, MatKhau, HoTen,
+                     CCCD, SoDienThoai, DiaChi, VaiTro)
+                VALUES
+                    (@MaNguoiDung, @TenDangNhap, @MatKhau, @HoTen,
+                     @CCCD, @SDT, @DiaChi, N'Khách thuê');
+
                 INSERT INTO dbo.ThanhVienO
                     (MaThanhVien, MaHopDong, HoTen, CCCD,
                      SoDienThoai, QuanHe, TrangThai)
@@ -850,6 +970,20 @@ namespace QuanLyChuoiNhaTro.Views.Management
             command.Parameters.Add(
                 "@SDT", SqlDbType.VarChar, 15)
                 .Value = txtSoDienThoai.Text.Trim();
+            command.Parameters.Add(
+                "@MaNguoiDung", SqlDbType.VarChar, 20)
+                .Value = TaoMa("ND");
+            command.Parameters.Add(
+                "@TenDangNhap", SqlDbType.VarChar, 50)
+                .Value = _tenDangNhapThanhVienMoi;
+            command.Parameters.Add(
+                "@MatKhau", SqlDbType.VarChar, 255)
+                .Value = PasswordSecurity.HashPassword(_matKhauMoi);
+            command.Parameters.Add(
+                "@DiaChi", SqlDbType.NVarChar, 255)
+                .Value = txtDiaChi.Text.Trim().Length > 0
+                    ? txtDiaChi.Text.Trim()
+                    : "Chưa cập nhật";
 
             await command.ExecuteNonQueryAsync();
             transaction.Commit();

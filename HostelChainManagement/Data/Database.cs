@@ -12,7 +12,7 @@ namespace QuanLyChuoiNhaTro.Data
 
 
         private const string ConnectionString =
-            @"Server=DESKTOP-01BHOC6\SQLEXPRESS02;Database=QuanLyNhaTro;" +
+            @"Server=LAPTOP-DQP9I1OD\SQLEXPRESS;Database=QuanLyNhaTro;" +
             "Integrated Security=True;Encrypt=True;" +
             "TrustServerCertificate=True;Connect Timeout=10;";
 

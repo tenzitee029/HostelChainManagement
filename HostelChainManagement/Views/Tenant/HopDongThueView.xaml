@@ -131,10 +131,13 @@
                         TextWrapping="Wrap"
                         MinHeight="70"/>
 
-                    <!-- Chưa triển khai, bấm không có hành động -->
-                    <Button Content="Tải bản PDF"
+                    <Button x:Name="btnDownloadPdf"
+                            Content="Tải bản PDF"
                             Padding="16,8"
-                            HorizontalAlignment="Right"/>
+                            Margin="0,16,0,0"
+                            HorizontalAlignment="Right"
+                            Visibility="Visible"
+                            Click="DownloadPdf_Click"/>
                 </StackPanel>
             </Border>
         </StackPanel>

@@ -1,16 +1,81 @@
-﻿using System;
+﻿using QuanLyChuoiNhaTro.Data;
+using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Views.Account;
+using QuanLyChuoiNhaTro.Views.Auth;
+using System;
 using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using QuanLyChuoiNhaTro.Services;
-using QuanLyChuoiNhaTro.Views.Account;
-using QuanLyChuoiNhaTro.Views.Auth;
+using QuanLyChuoiNhaTro.Data;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
+        private async System.Threading.Tasks.Task CapNhatChuôngAsync()
+        {
+            var user = UserSession.CurrentUser;
+
+            if (user == null || user.VaiTro != "Nhân viên quản lý")
+                return;
+
+            try
+            {
+                using var connection = Database.CreateConnection();
+                using var command = connection.CreateCommand();
+
+                command.CommandText = @"
+            SELECT COUNT(*)
+            FROM dbo.ThongBaoNguoiNhan
+            WHERE MaNguoiNhan = @MaNguoiDung
+              AND DaDoc = 0;";
+
+                command.Parameters.Add(
+                    "@MaNguoiDung", SqlDbType.VarChar, 20)
+                    .Value = user.MaNguoiDung;
+
+                await connection.OpenAsync();
+
+                int soLuong = Convert.ToInt32(
+                    await command.ExecuteScalarAsync());
+
+                txtSoThongBao.Text =
+                    soLuong > 99 ? "99+" : soLuong.ToString();
+
+                badgeThongBao.Visibility = soLuong > 0
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+
+                btnThongBaoCaNhan.ToolTip =
+                    $"Thông báo của bạn — {soLuong} chưa đọc";
+            }
+            catch
+            {
+                badgeThongBao.Visibility = Visibility.Collapsed;
+                btnThongBaoCaNhan.ToolTip =
+                    "Chưa tải được số thông báo. Nhấn để mở và tải lại.";
+            }
+        }
+
+        private void ThongBaoCaNhan_Click(
+            object sender, RoutedEventArgs e)
+        {
+            if (UserSession.CurrentUser?.VaiTro != "Nhân viên quản lý")
+                return;
+
+            var view = new ThongBaoCaNhanWindow();
+
+            view.DaDocThongBao += async () =>
+            {
+                await CapNhatChuôngAsync();
+            };
+
+            ShowView(
+                view,
+                "Thông báo / Thông báo của bạn",
+                btnNotifications);
+        }
         private void Reports_Click(object sender, RoutedEventArgs e)
         {
             ShowView(
@@ -33,6 +98,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             txtUser.Text = user.HoTen;
             ShowOverview();
+            Loaded += async (_, _) => await CapNhatChuôngAsync();
         }
 
         private void ShowView(

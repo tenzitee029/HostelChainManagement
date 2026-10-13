@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="QuanLyChuoiNhaTro.Views.Management.BaoCaoView"
              Loaded="View_Loaded"
-             Background="#F8FAFC" d:DesignWidth="1045.457">
+             Background="#F8FAFC" d:DesignWidth="1031.327" d:DesignHeight="700.555">
 
     <UserControl.Resources>
         <Style TargetType="{x:Type TextBlock}">

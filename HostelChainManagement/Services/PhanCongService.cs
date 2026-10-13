@@ -113,6 +113,9 @@ namespace QuanLyChuoiNhaTro.Services
 
             if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
             {
+                bool motChuTro = await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                    connection, maChuTro);
+
                 command.CommandText = @"
                     SELECT
                         nv.MaNhanVien,
@@ -124,14 +127,21 @@ namespace QuanLyChuoiNhaTro.Services
                     FROM dbo.NhanVien AS nv
                     INNER JOIN dbo.NguoiDung AS nd
                         ON nd.MaNguoiDung = nv.MaNguoiDung
-                    INNER JOIN dbo.DayTro AS d
+                    LEFT JOIN dbo.DayTro AS d
                         ON d.MaDayTro = nv.MaDayTro
-                    WHERE d.MaChuTro = @MaChuTro
+                    WHERE
+                      (
+                          d.MaChuTro = @MaChuTro
+                          OR (@MotChuTro = 1 AND nv.MaDayTro IS NULL)
+                      )
                       AND nv.ChucVu = N'Quản lý'
                       AND nv.TrangThaiLamViec = N'Đang làm'
                       AND nd.VaiTro = N'Nhân viên quản lý'
                       AND nd.TrangThai = N'Hoạt động'
                     ORDER BY nd.HoTen, nv.MaNhanVien;";
+
+                command.Parameters.Add("@MotChuTro", SqlDbType.Bit)
+                    .Value = motChuTro;
             }
 
             using var reader = await command.ExecuteReaderAsync();
@@ -258,20 +268,24 @@ namespace QuanLyChuoiNhaTro.Services
 
             await connection.OpenAsync();
 
-            if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
-            {
-                throw new InvalidOperationException(
-                    "Database gốc không có quan hệ Chủ trọ - Nhân viên độc lập. " +
-                    "Không thể hủy phân công thành NULL vì sẽ mất thông tin nhân viên " +
-                    "thuộc Chủ trọ nào. Bạn có thể điều chuyển sang một dãy khác " +
-                    "hoặc sử dụng database có bảng ChuTroNhanVien.");
-            }
-
             using var transaction =
                 connection.BeginTransaction(IsolationLevel.Serializable);
 
             try
             {
+                bool coBangLienKet = await SoDoChuTroService.CoBangLienKetAsync(
+                    connection, transaction);
+
+                if (!coBangLienKet &&
+                    !await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                        connection, maChuTro, transaction))
+                {
+                    throw new InvalidOperationException(
+                        "Database gốc đang có nhiều Chủ trọ hoặc tài khoản Chủ trọ " +
+                        "không hợp lệ. Không thể hủy phân công an toàn khi " +
+                        "không có bảng ChuTroNhanVien.");
+                }
+
                 string tenDayTro = await LayTenDayTroAsync(
                     connection,
                     transaction,
@@ -444,6 +458,9 @@ namespace QuanLyChuoiNhaTro.Services
             if (!await SoDoChuTroService.CoBangLienKetAsync(
                     connection, transaction))
             {
+                bool motChuTro = await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                    connection, maChuTro, transaction);
+
                 command.CommandText = @"
                     SELECT
                         nd.MaNguoiDung,
@@ -452,10 +469,14 @@ namespace QuanLyChuoiNhaTro.Services
                     FROM dbo.NhanVien AS nv WITH (UPDLOCK, HOLDLOCK)
                     INNER JOIN dbo.NguoiDung AS nd
                         ON nd.MaNguoiDung = nv.MaNguoiDung
-                    INNER JOIN dbo.DayTro AS d
+                    LEFT JOIN dbo.DayTro AS d
                         ON d.MaDayTro = nv.MaDayTro
                     WHERE nv.MaNhanVien = @MaNhanVien
-                      AND d.MaChuTro = @MaChuTro
+                      AND
+                      (
+                          d.MaChuTro = @MaChuTro
+                          OR (@MotChuTro = 1 AND nv.MaDayTro IS NULL)
+                      )
                       AND nv.ChucVu = N'Quản lý'
                       AND nd.VaiTro = N'Nhân viên quản lý'
                       AND
@@ -467,6 +488,9 @@ namespace QuanLyChuoiNhaTro.Services
                               AND nd.TrangThai = N'Hoạt động'
                           )
                       );";
+
+                command.Parameters.Add("@MotChuTro", SqlDbType.Bit)
+                    .Value = motChuTro;
             }
 
             command.Parameters.Add(

@@ -21,5 +21,30 @@ namespace QuanLyChuoiNhaTro.Services
 
             return Convert.ToBoolean(await command.ExecuteScalarAsync());
         }
+
+        internal static async Task<bool> LaChuTroDuyNhatAsync(
+            SqlConnection connection,
+            string maChuTro,
+            SqlTransaction? transaction = null)
+        {
+            using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = @"
+                SELECT CAST(
+                    CASE
+                        WHEN COUNT_BIG(*) = 1
+                         AND MAX(
+                             CASE WHEN MaNguoiDung = @MaChuTro
+                                 THEN 1 ELSE 0 END
+                         ) = 1
+                        THEN 1 ELSE 0
+                    END AS BIT)
+                FROM dbo.NguoiDung WITH (HOLDLOCK)
+                WHERE VaiTro = N'Chủ nhà trọ';";
+            command.Parameters.Add("@MaChuTro", System.Data.SqlDbType.VarChar, 20)
+                .Value = maChuTro;
+
+            return Convert.ToBoolean(await command.ExecuteScalarAsync());
+        }
     }
 }

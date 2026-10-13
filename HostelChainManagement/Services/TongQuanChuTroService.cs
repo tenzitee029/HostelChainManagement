@@ -155,6 +155,11 @@ namespace QuanLyChuoiNhaTro.Services
 
             if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
             {
+                bool motChuTro = await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                    connection, user.MaNguoiDung);
+                command.Parameters.Add("@MotChuTro", SqlDbType.Bit)
+                    .Value = motChuTro;
+
                 command.CommandText = sql.Replace(
                     @"                    (
                         SELECT COUNT(DISTINCT nv.MaNhanVien)
@@ -181,11 +186,15 @@ namespace QuanLyChuoiNhaTro.Services
                     @"                    (
                         SELECT COUNT(DISTINCT nv.MaNhanVien)
                         FROM dbo.NhanVien AS nv
-                        INNER JOIN dbo.DayTro AS d
+                        LEFT JOIN dbo.DayTro AS d
                             ON d.MaDayTro = nv.MaDayTro
                         INNER JOIN dbo.NguoiDung AS nd
                             ON nd.MaNguoiDung = nv.MaNguoiDung
-                        WHERE d.MaChuTro = @MaChuTro
+                        WHERE
+                          (
+                              d.MaChuTro = @MaChuTro
+                              OR (@MotChuTro = 1 AND nv.MaDayTro IS NULL)
+                          )
                           AND nv.TrangThaiLamViec = N'Đang làm'
                           AND nd.TrangThai = N'Hoạt động'
                     ) AS NhanVienDangLam,");

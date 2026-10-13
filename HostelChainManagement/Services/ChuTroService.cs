@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -98,6 +99,9 @@ namespace QuanLyChuoiNhaTro.Services
 
             if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
             {
+                bool motChuTro = await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                    connection, user.MaNguoiDung);
+
                 command.CommandText = @"
                     SELECT
                         nv.MaNhanVien,
@@ -112,10 +116,17 @@ namespace QuanLyChuoiNhaTro.Services
                     FROM dbo.NhanVien AS nv
                     INNER JOIN dbo.NguoiDung AS nd
                         ON nd.MaNguoiDung = nv.MaNguoiDung
-                    INNER JOIN dbo.DayTro AS d
+                    LEFT JOIN dbo.DayTro AS d
                         ON d.MaDayTro = nv.MaDayTro
-                    WHERE d.MaChuTro = @MaChuTro
+                    WHERE
+                    (
+                        d.MaChuTro = @MaChuTro
+                        OR (@MotChuTro = 1 AND nv.MaDayTro IS NULL)
+                    )
                     ORDER BY nd.HoTen, nv.MaNhanVien;";
+
+                command.Parameters.Add("@MotChuTro", SqlDbType.Bit)
+                    .Value = motChuTro;
             }
 
             using var reader = await command.ExecuteReaderAsync();
@@ -474,29 +485,14 @@ namespace QuanLyChuoiNhaTro.Services
             {
                 bool coBangLienKet = await SoDoChuTroService.CoBangLienKetAsync(
                     connection, transaction);
-                string? maDayTroTuDongGan = null;
 
-                if (!coBangLienKet && themMoi)
+                if (themMoi && !coBangLienKet &&
+                    !await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                        connection, user.MaNguoiDung, transaction))
                 {
-                    using var layDay = connection.CreateCommand();
-                    layDay.Transaction = transaction;
-                    layDay.CommandText = @"
-                        SELECT TOP (1) MaDayTro
-                        FROM dbo.DayTro WITH (UPDLOCK, HOLDLOCK)
-                        WHERE MaChuTro = @MaChuTro
-                          AND TrangThai = N'Đang hoạt động'
-                        ORDER BY MaDayTro;";
-                    layDay.Parameters.Add("@MaChuTro", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-                    maDayTroTuDongGan = Convert.ToString(
-                        await layDay.ExecuteScalarAsync());
-
-                    if (string.IsNullOrWhiteSpace(maDayTroTuDongGan))
-                    {
-                        throw new InvalidOperationException(
-                            "Database gốc yêu cầu nhân viên thuộc một dãy trọ. " +
-                            "Hãy tạo ít nhất một dãy đang hoạt động trước khi thêm nhân viên.");
-                    }
+                    throw new InvalidOperationException(
+                        "Database không có bảng ChuTroNhanVien và đang có nhiều " +
+                        "Chủ trọ. Không thể tạo nhân viên chưa phân công an toàn.");
                 }
 
                 using (var checkOwner = connection.CreateCommand())
@@ -550,20 +546,31 @@ namespace QuanLyChuoiNhaTro.Services
 
                     if (!coBangLienKet)
                     {
+                        bool motChuTro =
+                            await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                                connection, user.MaNguoiDung, transaction);
+
                         checkNhanVien.CommandText = @"
                             SELECT nv.MaNguoiDung
                             FROM dbo.NhanVien AS nv WITH (UPDLOCK, HOLDLOCK)
-                            INNER JOIN dbo.DayTro AS d
+                            LEFT JOIN dbo.DayTro AS d
                                 ON d.MaDayTro = nv.MaDayTro
                             INNER JOIN dbo.NguoiDung AS nd
                                 ON nd.MaNguoiDung = nv.MaNguoiDung
                             WHERE nv.MaNhanVien = @MaNhanVien
-                              AND d.MaChuTro = @MaChuTro
+                              AND
+                              (
+                                  d.MaChuTro = @MaChuTro
+                                  OR (@MotChuTro = 1 AND nv.MaDayTro IS NULL)
+                              )
                               AND nd.VaiTro IN
                               (
                                   N'Nhân viên quản lý',
                                   N'Nhân viên kỹ thuật'
                               );";
+
+                        checkNhanVien.Parameters.Add(
+                            "@MotChuTro", SqlDbType.Bit).Value = motChuTro;
                     }
 
                     checkNhanVien.Parameters.Add(
@@ -734,9 +741,7 @@ namespace QuanLyChuoiNhaTro.Services
                         insertNhanVien.Parameters.Add(
                             "@MaDayTro",
                             SqlDbType.VarChar,
-                            20).Value = coBangLienKet
-                                ? (object)DBNull.Value
-                                : maDayTroTuDongGan!;
+                            20).Value = DBNull.Value;
 
                         insertNhanVien.Parameters.Add(
                             "@ChucVu",
@@ -871,8 +876,7 @@ namespace QuanLyChuoiNhaTro.Services
                 return themMoi
                     ? new TaiKhoanNhanVienMoi(
                         tenDangNhapMoi,
-                        matKhauTam,
-                        maDayTroTuDongGan)
+                        matKhauTam)
                     : null;
             }
             catch

@@ -15,6 +15,7 @@ namespace QuanLyChuoiNhaTro.Data
             "Integrated Security=True;Encrypt=True;" +
             "TrustServerCertificate=True;Connect Timeout=10;";
 
+
         public static void TestConnection()
         {
             using (SqlConnection connection =

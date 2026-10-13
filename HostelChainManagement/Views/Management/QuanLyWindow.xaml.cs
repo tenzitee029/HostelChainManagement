@@ -11,6 +11,13 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
+        private void Reports_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(
+                new BaoCaoView(),
+                "Thống kê / Báo cáo hàng tháng / năm",
+                btnReports);
+        }
         public QuanLyWindow()
         {
             InitializeComponent();

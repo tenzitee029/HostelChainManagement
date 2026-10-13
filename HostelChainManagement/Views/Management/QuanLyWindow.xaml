@@ -134,8 +134,9 @@
                                    FontSize="10"
                                    Margin="8,0,0,8"/>
                         <Button x:Name="btnReports"
-                                Content="Báo cáo"
-                                Style="{StaticResource MenuStyle}"/>
+        Content="Báo cáo"
+        Style="{StaticResource MenuStyle}"
+        Click="Reports_Click"/>
 
                         <Separator Background="#334155" Margin="0,12"/>
 

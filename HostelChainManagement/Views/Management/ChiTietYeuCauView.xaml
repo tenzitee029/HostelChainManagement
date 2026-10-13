@@ -226,9 +226,10 @@
                         Click="TuChoi_Click"/>
 
                 <Button x:Name="btnTiepNhan"
-                        Content="Tiếp nhận yêu cầu"
-                        IsEnabled="False"
-                        Click="TiepNhan_Click"/>
+        Content="Tiếp nhận yêu cầu"
+        IsEnabled="False"
+        Click="TiepNhan_Click"/>
+
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

@@ -100,10 +100,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             view.MoForm += HienThiFormKhachThue;
 
-            ShowView(
-                view,
-                "Khách thuê",
-                btnTenants);
+            ShowView(view, "Khách thuê", btnTenants);
         }
 
         private void HienThiFormKhachThue(DataRowView? khach)
@@ -136,10 +133,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             view.MoGiaHan += HienThiGiaHanHopDong;
             view.MoThanhLy += HienThiThanhLyHopDong;
 
-            ShowView(
-                view,
-                "Hợp đồng",
-                btnContracts);
+            ShowView(view, "Hợp đồng", btnContracts);
         }
 
         private void HienThiLapHopDong()
@@ -195,10 +189,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             view.MoTaoHoaDon += HienThiTaoHoaDon;
             view.MoThanhToan += HienThiXacNhanThanhToan;
 
-            ShowView(
-                view,
-                "Hóa đơn",
-                btnInvoices);
+            ShowView(view, "Hóa đơn", btnInvoices);
         }
 
         private void HienThiTaoHoaDon()
@@ -240,22 +231,36 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             view.MoChiTiet += HienThiChiTietYeuCau;
 
-            ShowView(
-                view,
-                "Sửa chữa",
-                btnRepairs);
+            ShowView(view, "Sửa chữa", btnRepairs);
         }
 
-        // Chi tiết yêu cầu, tiếp nhận và từ chối.
+        // Chi tiết yêu cầu.
         private void HienThiChiTietYeuCau(string maSuCo)
         {
             var form = new ChiTietYeuCauView(maSuCo);
 
             form.QuayLai += HienThiSuaChua;
+            form.MoPhanCong += HienThiPhanCongKyThuat;
 
             ShowView(
                 form,
                 "Sửa chữa / Chi tiết yêu cầu",
+                btnRepairs);
+        }
+
+        // Phân công kỹ thuật viên.
+        private void HienThiPhanCongKyThuat(string maSuCo)
+        {
+            var form = new PhanCongKyThuatView(maSuCo);
+
+            form.QuayLai += () =>
+                HienThiChiTietYeuCau(maSuCo);
+
+            form.DaLuu += HienThiSuaChua;
+
+            ShowView(
+                form,
+                "Sửa chữa / Phân công nhân viên kỹ thuật",
                 btnRepairs);
         }
 
@@ -281,10 +286,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     UserSession.CurrentUser?.HoTen ?? "";
             };
 
-            ShowView(
-                view,
-                "Hồ sơ cá nhân",
-                btnProfile);
+            ShowView(view, "Hồ sơ cá nhân", btnProfile);
         }
 
         // Đổi mật khẩu.

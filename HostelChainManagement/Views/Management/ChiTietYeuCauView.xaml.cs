@@ -14,6 +14,16 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class ChiTietYeuCauView : UserControl
     {
+        private void PhanCong_Click(
+            object sender, RoutedEventArgs e)
+        {
+            if (!_dangXuLy && _daTai &&
+                _trangThai == "Đã tiếp nhận")
+            {
+                MoPhanCong?.Invoke(_maSuCo);
+            }
+        }
+        public event Action<string>? MoPhanCong;
         private readonly string _maSuCo;
 
         private string _trangThai = "";
@@ -382,11 +392,31 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                 thanhCong = soDong == 1;
 
-                if (!thanhCong)
+                if (thanhCong)
                 {
-                    txtThongBao.Text =
-                        "Yêu cầu đã được người khác xử lý, đã bị xóa "
-                        + "hoặc bạn không còn quyền quản lý.";
+                    pnlLyDo.Visibility = Visibility.Collapsed;
+                    txtLyDo.Clear();
+
+                    if (tuChoi)
+                    {
+                        MessageBox.Show(
+                            "Đã từ chối yêu cầu.",
+                            "Thông báo");
+
+                        await TaiThongTinAsync();
+                    }
+                    else
+                    {
+                        // SQL đã lưu tiếp nhận thành công.
+                        _trangThai = "Đã tiếp nhận";
+                        txtTrangThai.Text = _trangThai;
+                        txtThongBao.Text = "";
+
+                        CapNhatNut();
+
+                        // Chuyển ngay sang màn hình phân công.
+                        MoPhanCong?.Invoke(_maSuCo);
+                    }
                 }
             }
             catch (Exception ex)
@@ -419,16 +449,21 @@ namespace QuanLyChuoiNhaTro.Views.Management
             bool coQuyen =
                 UserSession.CurrentUser?.VaiTro == "Nhân viên quản lý";
 
-            bool choXuLy =
-                coQuyen && _daTai && !_dangXuLy
-                && _trangThai == "Chờ tiếp nhận";
+            bool choPhep =
+                coQuyen && _daTai && !_dangXuLy;
 
-            btnTiepNhan.IsEnabled = choXuLy;
-            btnTuChoi.IsEnabled = choXuLy;
-            txtLyDo.IsEnabled = choXuLy;
+            bool choTiepNhan =
+                choPhep && _trangThai == "Chờ tiếp nhận";
+
+            btnTiepNhan.IsEnabled = choTiepNhan;
+            btnTuChoi.IsEnabled = choTiepNhan;
+            txtLyDo.IsEnabled = choTiepNhan;
+
+
             btnQuayLai.IsEnabled = !_dangXuLy;
+
             btnMoTep.IsEnabled =
-                coQuyen && _daTai && !_dangXuLy && TepHopLe();
+                choPhep && TepHopLe();
         }
 
         private void QuayLai_Click(

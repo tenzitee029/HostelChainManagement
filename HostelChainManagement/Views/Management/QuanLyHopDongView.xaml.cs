@@ -89,6 +89,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 (trangThai == "Hiệu lực" || trangThai == "Hết hạn");
         }
 
+
         private void GiaHan_Click(object sender, RoutedEventArgs e)
         {
             if (_dangTai)

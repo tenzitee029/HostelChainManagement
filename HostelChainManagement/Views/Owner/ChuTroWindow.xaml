@@ -212,17 +212,7 @@
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
 
-                        <Border Width="34"
-                                Height="34"
-                                BorderBrush="#D1D5DB"
-                                BorderThickness="1"
-                                CornerRadius="3"
-                                Margin="0,0,14,0">
-                            <TextBlock Text="🔔"
-                                       FontSize="14"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"/>
-                        </Border>
+
 
                         <Border Width="32"
                                 Height="32"

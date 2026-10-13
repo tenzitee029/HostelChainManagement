@@ -62,6 +62,7 @@ namespace QuanLyChuoiNhaTro.Views.Account
 
         private void DisplayProfile(HoSoCaNhan profile)
         {
+            txtTenDangNhap.Text = profile.TenDangNhap;
             txtHoTen.Text = profile.HoTen;
             txtCCCD.Text = profile.CCCD;
             txtEmail.Text = profile.Email;
@@ -77,12 +78,16 @@ namespace QuanLyChuoiNhaTro.Views.Account
             imgAvatar.Source = null;
             txtNoAvatar.Visibility = Visibility.Visible;
 
+            btnDeleteAvatar.IsEnabled =
+                bytes != null && bytes.Length > 0;
+
             if (bytes == null || bytes.Length == 0)
                 return;
 
             using var stream = new MemoryStream(bytes);
 
             var bitmap = new BitmapImage();
+
             bitmap.BeginInit();
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.DecodePixelWidth = 280;
@@ -148,6 +153,22 @@ namespace QuanLyChuoiNhaTro.Views.Account
             }
         }
 
+        private void DeleteAvatar_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (_busy || _savedProfile == null)
+                return;
+
+            _avatar = null;
+
+            ShowAvatar(null);
+
+            txtStatus.Text =
+                "Đã bỏ ảnh đại diện trên form. " +
+                "Nhấn Cập nhật để lưu thay đổi.";
+        }
+
         private async void Save_Click(
             object sender, RoutedEventArgs e)
         {
@@ -156,6 +177,7 @@ namespace QuanLyChuoiNhaTro.Views.Account
 
             var profile = new HoSoCaNhan
             {
+                TenDangNhap = txtTenDangNhap.Text,
                 HoTen = txtHoTen.Text,
                 CCCD = _savedProfile.CCCD,
                 Email = txtEmail.Text,

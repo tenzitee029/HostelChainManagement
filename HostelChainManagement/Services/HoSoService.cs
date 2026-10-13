@@ -19,6 +19,7 @@ namespace QuanLyChuoiNhaTro.Services
 
             const string sql = @"
                 SELECT
+                    n.TenDangNhap,
                     n.HoTen,
                     n.CCCD,
                     n.Email,
@@ -54,6 +55,7 @@ namespace QuanLyChuoiNhaTro.Services
 
             return new HoSoCaNhan
             {
+                TenDangNhap = ReadText("TenDangNhap"),
                 HoTen = ReadText("HoTen"),
                 CCCD = ReadText("CCCD"),
                 Email = ReadText("Email"),
@@ -72,7 +74,29 @@ namespace QuanLyChuoiNhaTro.Services
             var user = UserSession.CurrentUser
                 ?? throw new InvalidOperationException(
                     "Bạn chưa đăng nhập.");
+            profile.TenDangNhap = profile.TenDangNhap?.Trim() ?? "";
 
+            if (profile.TenDangNhap.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "Vui lòng nhập tên đăng nhập.");
+            }
+
+            if (profile.TenDangNhap.Length > 50)
+            {
+                throw new InvalidOperationException(
+                    "Tên đăng nhập không được quá 50 ký tự.");
+            }
+
+            // TenDangNhap trong SQL hiện tại là VARCHAR(50).
+            if (!Regex.IsMatch(
+                profile.TenDangNhap,
+                @"^[\x21-\x7E]+$"))
+            {
+                throw new InvalidOperationException(
+                    "Tên đăng nhập phải dùng ký tự không dấu " +
+                    "và không chứa khoảng trắng.");
+            }
             profile.HoTen = profile.HoTen.Trim();
             profile.Email = profile.Email.Trim();
             profile.SoDienThoai = profile.SoDienThoai.Trim();
@@ -120,8 +144,21 @@ namespace QuanLyChuoiNhaTro.Services
                     "Ảnh đại diện không được vượt quá 2 MB.");
 
             const string sql = @"
+                IF EXISTS
+                (
+                    SELECT 1
+                    FROM dbo.NguoiDung
+                    WHERE TenDangNhap = @TenDangNhap
+                      AND MaNguoiDung <> @MaNguoiDung
+                )
+                BEGIN
+                    THROW 50004, N'Tên đăng nhập đã được sử dụng.', 1;
+                END;
+
                 UPDATE dbo.NguoiDung
-                SET HoTen = @HoTen,
+                SET
+                    TenDangNhap = @TenDangNhap,
+                    HoTen = @HoTen,
                     Email = @Email,
                     SoDienThoai = @SoDienThoai,
                     DiaChi = @DiaChi,
@@ -132,6 +169,11 @@ namespace QuanLyChuoiNhaTro.Services
             using var command = connection.CreateCommand();
 
             command.CommandText = sql;
+
+            command.Parameters.Add(
+                "@TenDangNhap",
+                SqlDbType.VarChar,
+                50).Value = profile.TenDangNhap;
 
             command.Parameters.Add(
                 "@MaNguoiDung", SqlDbType.VarChar, 20)
@@ -167,20 +209,34 @@ namespace QuanLyChuoiNhaTro.Services
                     throw new InvalidOperationException(
                         "Không tìm thấy tài khoản để cập nhật.");
             }
-            catch (SqlException ex)
+            catch (SqlException ex) when (ex.Number == 50004)
             {
                 throw new InvalidOperationException(
-                    $"Lỗi SQL ({ex.Number}): {ex.Message}", ex);
+                    "Tên đăng nhập đã được sử dụng. Vui lòng chọn tên khác.",
+                    ex);
+            }
+            catch (SqlException ex) when (
+                ex.Number == 2601 || ex.Number == 2627)
+            {
+                // Ràng buộc UNIQUE trong SQL vẫn bảo vệ khi
+                // nhiều người cập nhật cùng lúc.
+                throw new InvalidOperationException(
+                    "Tên đăng nhập hoặc số điện thoại đã được sử dụng " +
+                    "bởi tài khoản khác.",
+                    ex);
             }
 
             // Cập nhật tên trong phiên đăng nhập.
-            UserSession.SignIn(new LoggedInUser
+            if (ReferenceEquals(user, UserSession.CurrentUser))
             {
-                MaNguoiDung = user.MaNguoiDung,
-                TenDangNhap = user.TenDangNhap,
-                VaiTro = user.VaiTro,
-                HoTen = profile.HoTen
-            });
+                UserSession.SignIn(new LoggedInUser
+                {
+                    MaNguoiDung = user.MaNguoiDung,
+                    TenDangNhap = profile.TenDangNhap,
+                    VaiTro = user.VaiTro,
+                    HoTen = profile.HoTen
+                });
+            }
         }
 
         private static object Optional(string value)

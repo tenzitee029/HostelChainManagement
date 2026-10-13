@@ -72,14 +72,27 @@
                                 Margin="0,14,0,0"
                                 Click="ChooseAvatar_Click"/>
 
+                        <Button x:Name="btnDeleteAvatar"
+                                Content="Xóa ảnh đại diện"
+                                Margin="0,8,0,0"
+                                Foreground="#DC2626"
+                                IsEnabled="False"
+                                Click="DeleteAvatar_Click"/>
+
                         <TextBlock Text="PNG/JPG, tối đa 2 MB"
                                    Foreground="#64748B"
                                    FontSize="11"
                                    HorizontalAlignment="Center"
                                    Margin="0,8,0,0"/>
+                        
                     </StackPanel>
 
                     <StackPanel Grid.Column="1">
+                        <TextBlock Text="Tên đăng nhập"/>
+                        <TextBox x:Name="txtTenDangNhap"
+                                MaxLength="50"
+                                ToolTip="Tên đăng nhập không dấu, không chứa khoảng trắng"/>
+
                         <TextBlock Text="Họ tên"/>
                         <TextBox x:Name="txtHoTen" MaxLength="100"/>
 

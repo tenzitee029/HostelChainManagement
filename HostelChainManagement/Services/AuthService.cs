@@ -8,12 +8,14 @@ namespace QuanLyChuoiNhaTro.Services
 {
     public static class AuthService
     {
-        public static async Task<LoggedInUser> LoginAsync(string account, string password)
+        public static async Task<LoggedInUser> LoginAsync(
+            string account,
+            string password)
         {
             account = account?.Trim() ?? "";
 
-            if (string.IsNullOrWhiteSpace(account)
-                || string.IsNullOrEmpty(password))
+            if (string.IsNullOrWhiteSpace(account) ||
+                string.IsNullOrEmpty(password))
             {
                 throw new InvalidOperationException(
                     "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
@@ -46,43 +48,42 @@ namespace QuanLyChuoiNhaTro.Services
 
                 await connection.OpenAsync();
 
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (!await reader.ReadAsync())
-                    {
-                        throw new InvalidOperationException(
-                            "Tên đăng nhập hoặc mật khẩu không chính xác.");
-                    }
+                using var reader =
+                    await command.ExecuteReaderAsync();
 
-                    storedPassword = reader.GetString(
+                if (!await reader.ReadAsync())
+                {
+                    throw new InvalidOperationException(
+                        "Tên đăng nhập hoặc mật khẩu không chính xác.");
+                }
+
+                storedPassword =
+                    reader.GetString(
                         reader.GetOrdinal("MatKhau"));
 
-                    status = reader.GetString(
+                status =
+                    reader.GetString(
                         reader.GetOrdinal("TrangThai"));
 
-                    user = new LoggedInUser
-                    {
-                        MaNguoiDung = reader.GetString(
-                            reader.GetOrdinal("MaNguoiDung")),
+                user = new LoggedInUser
+                {
+                    MaNguoiDung = reader.GetString(
+                        reader.GetOrdinal("MaNguoiDung")),
 
-                        TenDangNhap = reader.GetString(
-                            reader.GetOrdinal("TenDangNhap")),
+                    TenDangNhap = reader.GetString(
+                        reader.GetOrdinal("TenDangNhap")),
 
-                        HoTen = reader.GetString(
-                            reader.GetOrdinal("HoTen")),
+                    HoTen = reader.GetString(
+                        reader.GetOrdinal("HoTen")),
 
-                        VaiTro = reader.GetString(
-                            reader.GetOrdinal("VaiTro"))
-                    };
-                }
+                    VaiTro = reader.GetString(
+                        reader.GetOrdinal("VaiTro"))
+                };
             }
 
-            // So sánh chính xác, phân biệt chữ hoa/chữ thường.
-            // Không Trim mật khẩu.
-            if (!string.Equals(
-                password,
-                storedPassword,
-                StringComparison.Ordinal))
+            if (!PasswordSecurity.VerifyPassword(
+                    password,
+                    storedPassword))
             {
                 throw new InvalidOperationException(
                     "Tên đăng nhập hoặc mật khẩu không chính xác.");
@@ -92,7 +93,7 @@ namespace QuanLyChuoiNhaTro.Services
             {
                 throw new InvalidOperationException(
                     "Tài khoản của bạn đã bị khóa hoặc ngừng sử dụng. " +
-                    "Vui lòng liên hệ Quản trị viên để được hỗ trợ.");
+                    "Vui lòng liên hệ Quản trị viên.");
             }
 
             bool validRole = user.VaiTro is

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 
@@ -28,58 +27,24 @@ namespace QuanLyChuoiNhaTro.Services
                     "Vai trò tài khoản không hợp lệ.");
             }
 
-            // Không Trim mật khẩu.
-            if (string.IsNullOrEmpty(currentPassword)
-                || string.IsNullOrEmpty(newPassword)
-                || string.IsNullOrEmpty(confirmPassword))
+            if (string.IsNullOrEmpty(currentPassword) ||
+                string.IsNullOrEmpty(newPassword) ||
+                string.IsNullOrEmpty(confirmPassword))
             {
                 throw new InvalidOperationException(
                     "Vui lòng nhập đầy đủ ba trường mật khẩu.");
             }
 
-            if (currentPassword.Length > 255)
-            {
-                throw new InvalidOperationException(
-                    "Mật khẩu hiện tại không chính xác.");
-            }
-
             if (!string.Equals(
-                newPassword,
-                confirmPassword,
-                StringComparison.Ordinal))
+                    newPassword,
+                    confirmPassword,
+                    StringComparison.Ordinal))
             {
                 throw new InvalidOperationException(
                     "Xác nhận mật khẩu mới không khớp.");
             }
 
-            if (string.Equals(
-                newPassword,
-                currentPassword,
-                StringComparison.Ordinal))
-            {
-                throw new InvalidOperationException(
-                    "Mật khẩu mới không được trùng mật khẩu cũ.");
-            }
-
-            if (newPassword.Length < 8
-                || newPassword.Length > 255
-                || !newPassword.Any(c => c >= 'A' && c <= 'Z')
-                || !newPassword.Any(c => c >= 'a' && c <= 'z')
-                || !newPassword.Any(c => c >= '0' && c <= '9'))
-            {
-                throw new InvalidOperationException(
-                    "Mật khẩu mới phải từ 8 đến 255 ký tự, " +
-                    "gồm chữ hoa, chữ thường và số.");
-            }
-
-            // MatKhau đang là VARCHAR(255).
-            if (newPassword.Any(
-                c => c > 127 || char.IsControl(c)))
-            {
-                throw new InvalidOperationException(
-                    "Mật khẩu mới chỉ dùng ký tự ASCII, " +
-                    "không dùng chữ có dấu hoặc ký tự điều khiển.");
-            }
+            PasswordSecurity.ValidateNewPassword(newPassword);
 
             using var connection = Database.CreateConnection();
 
@@ -90,7 +55,6 @@ namespace QuanLyChuoiNhaTro.Services
 
             command.Transaction = transaction;
 
-            // Khóa bản ghi trong lúc kiểm tra và đổi mật khẩu.
             command.CommandText = @"
                 SELECT MatKhau
                 FROM dbo.NguoiDung WITH (UPDLOCK, HOLDLOCK)
@@ -114,18 +78,28 @@ namespace QuanLyChuoiNhaTro.Services
             if (stored == null)
             {
                 throw new InvalidOperationException(
-                    "Tài khoản không còn hoạt động hoặc quyền " +
-                    "đã thay đổi. Vui lòng đăng nhập lại.");
+                    "Tài khoản không còn hoạt động. " +
+                    "Vui lòng đăng nhập lại.");
             }
 
-            if (!string.Equals(
-                stored,
-                currentPassword,
-                StringComparison.Ordinal))
+            if (!PasswordSecurity.VerifyPassword(
+                    currentPassword,
+                    stored))
             {
                 throw new InvalidOperationException(
                     "Mật khẩu hiện tại không chính xác.");
             }
+
+            if (PasswordSecurity.VerifyPassword(
+                    newPassword,
+                    stored))
+            {
+                throw new InvalidOperationException(
+                    "Mật khẩu mới không được trùng mật khẩu cũ.");
+            }
+
+            string newHash =
+                PasswordSecurity.HashPassword(newPassword);
 
             command.CommandText = @"
                 UPDATE dbo.NguoiDung
@@ -137,11 +111,11 @@ namespace QuanLyChuoiNhaTro.Services
             command.Parameters.Add(
                 "@Password",
                 SqlDbType.VarChar,
-                255).Value = newPassword;
+                255).Value = newHash;
 
-            int count = await command.ExecuteNonQueryAsync();
+            int changed = await command.ExecuteNonQueryAsync();
 
-            if (count != 1)
+            if (changed != 1)
             {
                 throw new InvalidOperationException(
                     "Không cập nhật được mật khẩu tài khoản.");

@@ -11,46 +11,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
-        private void HienThiXacNhanThanhToan(string maHoaDon)
-        {
-            var form = new XacNhanThanhToanView(maHoaDon);
-
-            form.QuayLai += HienThiHoaDon;
-            form.DaLuu += HienThiHoaDon;
-
-            ShowView(
-                form,
-                "Hóa đơn / Xác nhận thanh toán",
-                btnInvoices);
-        }
-        private void Invoices_Click(
-            object sender, RoutedEventArgs e)
-        {
-            HienThiHoaDon();
-        }
-
-        private void HienThiHoaDon()
-        {
-            var view = new QuanLyHoaDonView();
-
-            view.MoTaoHoaDon += HienThiTaoHoaDon;
-            view.MoThanhToan += HienThiXacNhanThanhToan;
-
-            ShowView(view, "Hóa đơn", btnInvoices);
-        }
-
-        private void HienThiTaoHoaDon()
-        {
-            var form = new TaoHoaDonView();
-
-            form.QuayLai += HienThiHoaDon;
-            form.DaLuu += HienThiHoaDon;
-
-            ShowView(
-                form,
-                "Hóa đơn / Tạo hóa đơn hàng tháng",
-                btnInvoices);
-        }
         public QuanLyWindow()
         {
             InitializeComponent();
@@ -221,13 +181,81 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 btnContracts);
         }
 
-        // Sửa chữa.
+        // Hóa đơn.
+        private void Invoices_Click(
+            object sender, RoutedEventArgs e)
+        {
+            HienThiHoaDon();
+        }
+
+        private void HienThiHoaDon()
+        {
+            var view = new QuanLyHoaDonView();
+
+            view.MoTaoHoaDon += HienThiTaoHoaDon;
+            view.MoThanhToan += HienThiXacNhanThanhToan;
+
+            ShowView(
+                view,
+                "Hóa đơn",
+                btnInvoices);
+        }
+
+        private void HienThiTaoHoaDon()
+        {
+            var form = new TaoHoaDonView();
+
+            form.QuayLai += HienThiHoaDon;
+            form.DaLuu += HienThiHoaDon;
+
+            ShowView(
+                form,
+                "Hóa đơn / Tạo hóa đơn hàng tháng",
+                btnInvoices);
+        }
+
+        private void HienThiXacNhanThanhToan(string maHoaDon)
+        {
+            var form = new XacNhanThanhToanView(maHoaDon);
+
+            form.QuayLai += HienThiHoaDon;
+            form.DaLuu += HienThiHoaDon;
+
+            ShowView(
+                form,
+                "Hóa đơn / Xác nhận thanh toán",
+                btnInvoices);
+        }
+
+        // Danh sách yêu cầu sửa chữa.
         private void Repairs_Click(
             object sender, RoutedEventArgs e)
         {
+            HienThiSuaChua();
+        }
+
+        private void HienThiSuaChua()
+        {
+            var view = new QuanLySuaChuaView();
+
+            view.MoChiTiet += HienThiChiTietYeuCau;
+
             ShowView(
-                new QuanLySuaChuaView(),
+                view,
                 "Sửa chữa",
+                btnRepairs);
+        }
+
+        // Chi tiết yêu cầu, tiếp nhận và từ chối.
+        private void HienThiChiTietYeuCau(string maSuCo)
+        {
+            var form = new ChiTietYeuCauView(maSuCo);
+
+            form.QuayLai += HienThiSuaChua;
+
+            ShowView(
+                form,
+                "Sửa chữa / Chi tiết yêu cầu",
                 btnRepairs);
         }
 

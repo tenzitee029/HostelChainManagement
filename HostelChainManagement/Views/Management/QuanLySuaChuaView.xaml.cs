@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +10,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLySuaChuaView : UserControl
     {
+        public event Action<string>? MoChiTiet;
+
         private DataTable? _duLieu;
         private bool _dangXuLy;
         private string _boLoc = "";
@@ -29,15 +30,38 @@ namespace QuanLyChuoiNhaTro.Views.Management
         {
             InitializeComponent();
 
+            Loaded -= View_Loaded;
             Loaded += View_Loaded;
+
+            dgSuCo.SelectionChanged -= ChonSuCo_Changed;
             dgSuCo.SelectionChanged += ChonSuCo_Changed;
+
+            btnXemChiTiet.Click -= XemChiTiet_Click;
             btnXemChiTiet.Click += XemChiTiet_Click;
+
+            btnTaiLai.Click -= TaiLai_Click;
             btnTaiLai.Click += TaiLai_Click;
 
-            btnChoTiepNhan.Click += (_, _) => LocTrangThai("Chờ tiếp nhận");
-            btnDaTiepNhan.Click += (_, _) => LocTrangThai("Đã tiếp nhận");
-            btnDaPhanCong.Click += (_, _) => LocTrangThai("Đã phân công");
+            btnTatCa.Click += (_, _) =>
+                LocTrangThai("");
 
+            btnChoTiepNhan.Click += (_, _) =>
+                LocTrangThai("Chờ tiếp nhận");
+
+            btnDaTiepNhan.Click += (_, _) =>
+                LocTrangThai("Đã tiếp nhận");
+
+            btnDaPhanCong.Click += (_, _) =>
+                LocTrangThai("Đã phân công");
+
+            btnDangXuLy.Click += (_, _) =>
+                LocTrangThai("Đang xử lý");
+
+            btnHoanThanh.Click += (_, _) =>
+                LocTrangThai("Đã hoàn thành");
+
+            btnTuChoi.Click += (_, _) =>
+                LocTrangThai("Từ chối");
 
             CapNhatNut();
         }
@@ -63,23 +87,19 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             if (user == null || user.VaiTro != "Nhân viên quản lý")
             {
-                _duLieu = null;
-                dgSuCo.ItemsSource = null;
-                txtDanhSachTrong.Text = "Bạn không có quyền xem sự cố.";
-                txtDanhSachTrong.Visibility = Visibility.Visible;
-                CapNhatNut();
+                HienThiLoi("Bạn không có quyền xem sự cố.");
                 return;
             }
 
             _dangXuLy = true;
-            CapNhatNut();
-
             _duLieu = null;
             dgSuCo.ItemsSource = null;
 
             txtDanhSachTrong.Text = "Đang tải yêu cầu sửa chữa...";
             txtDanhSachTrong.Visibility = Visibility.Visible;
             txtTrangThai.Text = "";
+
+            CapNhatNut();
 
             try
             {
@@ -97,13 +117,19 @@ namespace QuanLyChuoiNhaTro.Views.Management
                         s.MucDoUuTien,
                         s.TrangThai
                     FROM dbo.PhieuSuCo s
-                    JOIN dbo.PhongTro p ON p.MaPhong = s.MaPhong
-                    JOIN dbo.DayTro d ON d.MaDayTro = p.MaDayTro
-                    JOIN dbo.NguoiDung n ON n.MaNguoiDung = s.MaNguoiGui
+                    JOIN dbo.PhongTro p
+                        ON p.MaPhong = s.MaPhong
+                    JOIN dbo.DayTro d
+                        ON d.MaDayTro = p.MaDayTro
+                    JOIN dbo.NguoiDung n
+                        ON n.MaNguoiDung = s.MaNguoiGui
                     WHERE " + DieuKienQuyen + @"
                     ORDER BY
-                        CASE WHEN s.MucDoUuTien = N'Khẩn cấp'
-                            THEN 0 ELSE 1 END,
+                        CASE
+                            WHEN s.MucDoUuTien = N'Khẩn cấp'
+                                THEN 0
+                            ELSE 1
+                        END,
                         s.NgayGui DESC,
                         s.MaSuCo;";
 
@@ -113,19 +139,21 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                 await connection.OpenAsync();
 
-                using var reader = await command.ExecuteReaderAsync();
+                using var reader =
+                    await command.ExecuteReaderAsync();
 
                 var table = new DataTable();
                 table.Load(reader);
+
+                if (!IsLoaded)
+                    return;
 
                 _duLieu = table;
                 HienThiKetQua();
             }
             catch (Exception ex)
             {
-                txtDanhSachTrong.Text = "Không tải được yêu cầu sửa chữa.";
-                txtDanhSachTrong.Visibility = Visibility.Visible;
-                txtTrangThai.Text = "Lỗi tải dữ liệu.";
+                HienThiLoi("Không tải được yêu cầu sửa chữa.");
 
                 MessageBox.Show(
                     ex.Message,
@@ -140,9 +168,21 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
         }
 
+        private void HienThiLoi(string thongBao)
+        {
+            _duLieu = null;
+            dgSuCo.ItemsSource = null;
+
+            txtDanhSachTrong.Text = thongBao;
+            txtDanhSachTrong.Visibility = Visibility.Visible;
+            txtTrangThai.Text = "Chưa tải được dữ liệu.";
+
+            CapNhatNut();
+        }
+
         private void LocTrangThai(string trangThai)
         {
-            if (_dangXuLy)
+            if (_dangXuLy || _duLieu == null)
                 return;
 
             _boLoc = trangThai;
@@ -177,7 +217,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             txtTrangThai.Text =
                 $"Hiển thị {ketQua.Rows.Count} yêu cầu — "
-                + (_boLoc.Length == 0 ? "Tất cả trạng thái" : _boLoc);
+                + (_boLoc.Length == 0
+                    ? "Tất cả trạng thái"
+                    : _boLoc);
 
             CapNhatNut();
         }
@@ -190,203 +232,55 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
         private void CapNhatNut()
         {
+            // Tránh truy cập control chưa tạo xong trong InitializeComponent.
+            if (btnXemChiTiet == null || btnTaiLai == null ||
+                btnTatCa == null || btnChoTiepNhan == null ||
+                btnDaTiepNhan == null || btnDaPhanCong == null ||
+                btnDangXuLy == null || btnHoanThanh == null ||
+                btnTuChoi == null)
+            {
+                return;
+            }
+
             bool coQuyen =
                 UserSession.CurrentUser?.VaiTro == "Nhân viên quản lý";
 
             bool choPhep = coQuyen && !_dangXuLy;
+            bool choLoc = choPhep && _duLieu != null;
 
             btnTaiLai.IsEnabled = choPhep;
 
             btnXemChiTiet.IsEnabled =
-                choPhep &&
-                _duLieu != null &&
-                dgSuCo.SelectedItem is DataRowView;
+                choLoc && dgSuCo.SelectedItem is DataRowView;
 
-            bool choLoc = choPhep && _duLieu != null;
-
-
+            btnTatCa.IsEnabled = choLoc;
             btnChoTiepNhan.IsEnabled = choLoc;
             btnDaTiepNhan.IsEnabled = choLoc;
             btnDaPhanCong.IsEnabled = choLoc;
-
+            btnDangXuLy.IsEnabled = choLoc;
+            btnHoanThanh.IsEnabled = choLoc;
+            btnTuChoi.IsEnabled = choLoc;
         }
 
-        private async void XemChiTiet_Click(
+        // Gửi mã sự cố cho QuanLyWindow mở form chi tiết.
+        private void XemChiTiet_Click(
             object sender, RoutedEventArgs e)
         {
             if (_dangXuLy ||
-                dgSuCo.SelectedItem is not DataRowView dong)
+                UserSession.CurrentUser?.VaiTro != "Nhân viên quản lý")
+            {
                 return;
-
-            var user = UserSession.CurrentUser;
-
-            if (user == null || user.VaiTro != "Nhân viên quản lý")
-                return;
-
-            string maSuCo = Convert.ToString(dong["MaSuCo"]) ?? "";
-
-            _dangXuLy = true;
-            CapNhatNut();
-
-            try
-            {
-                using var connection = Database.CreateConnection();
-                await connection.OpenAsync();
-
-                var noiDung = new StringBuilder();
-
-                // Đọc lại thông tin và kiểm tra quyền tại thời điểm xem.
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT
-                            s.MaSuCo, s.NgayGui, s.NoiDungSuCo,
-                            s.MucDoUuTien, s.TrangThai,
-                            s.ThoiGianMongMuon, s.NgayTiepNhan,
-                            s.LyDoTuChoi,
-                            n.HoTen,
-                            d.TenDayTro + N' - ' + p.SoPhong AS TenPhong
-                        FROM dbo.PhieuSuCo s
-                        JOIN dbo.PhongTro p ON p.MaPhong = s.MaPhong
-                        JOIN dbo.DayTro d ON d.MaDayTro = p.MaDayTro
-                        JOIN dbo.NguoiDung n
-                          ON n.MaNguoiDung = s.MaNguoiGui
-                        WHERE s.MaSuCo = @MaSuCo
-                          AND " + DieuKienQuyen + ";";
-
-                    command.Parameters.Add(
-                        "@MaSuCo", SqlDbType.VarChar, 20)
-                        .Value = maSuCo;
-                    command.Parameters.Add(
-                        "@QuanLy", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader = await command.ExecuteReaderAsync();
-
-                    if (!await reader.ReadAsync())
-                    {
-                        MessageBox.Show(
-                            "Yêu cầu không còn tồn tại hoặc bạn không có quyền xem.");
-                        return;
-                    }
-
-                    noiDung.AppendLine("Yêu cầu: " + maSuCo);
-                    noiDung.AppendLine("Phòng: " + reader["TenPhong"]);
-                    noiDung.AppendLine("Người gửi: " + reader["HoTen"]);
-                    noiDung.AppendLine(
-                        "Ngày gửi: " + Convert.ToDateTime(reader["NgayGui"])
-                            .ToString("dd/MM/yyyy HH:mm"));
-                    noiDung.AppendLine("Ưu tiên: " + reader["MucDoUuTien"]);
-                    noiDung.AppendLine("Trạng thái: " + reader["TrangThai"]);
-                    noiDung.AppendLine(
-                        "Thời gian mong muốn: " + reader["ThoiGianMongMuon"]);
-
-                    if (reader["NgayTiepNhan"] != DBNull.Value)
-                    {
-                        noiDung.AppendLine(
-                            "Tiếp nhận: "
-                            + Convert.ToDateTime(reader["NgayTiepNhan"])
-                                .ToString("dd/MM/yyyy HH:mm"));
-                    }
-
-                    noiDung.AppendLine();
-                    noiDung.AppendLine("Nội dung:");
-                    noiDung.AppendLine(
-                        Convert.ToString(reader["NoiDungSuCo"]));
-
-                    if (reader["LyDoTuChoi"] != DBNull.Value)
-                    {
-                        noiDung.AppendLine(
-                            "Lý do từ chối: " + reader["LyDoTuChoi"]);
-                    }
-                }
-
-                // Các lần phân công/sửa chữa của yêu cầu.
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT n.HoTen, ct.TienDo, ct.TrangThai,
-                               ct.NoiDungXuLy, ct.ChiPhiVatTu
-                        FROM dbo.ChiTietSuaChua ct
-                        JOIN dbo.NhanVien nv ON nv.MaNhanVien = ct.MaNhanVien
-                        JOIN dbo.NguoiDung n ON n.MaNguoiDung = nv.MaNguoiDung
-                        JOIN dbo.PhieuSuCo s ON s.MaSuCo = ct.MaSuCo
-                        JOIN dbo.PhongTro p ON p.MaPhong = s.MaPhong
-                        WHERE ct.MaSuCo = @MaSuCo
-                          AND " + DieuKienQuyen + @"
-                        ORDER BY ct.NgayPhanCong, ct.MaChiTietSuaChua;";
-
-                    command.Parameters.Add(
-                        "@MaSuCo", SqlDbType.VarChar, 20)
-                        .Value = maSuCo;
-                    command.Parameters.Add(
-                        "@QuanLy", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader = await command.ExecuteReaderAsync();
-
-                    noiDung.AppendLine();
-                    noiDung.AppendLine("Thông tin phân công:");
-
-                    bool coPhanCong = false;
-
-                    while (await reader.ReadAsync())
-                    {
-                        coPhanCong = true;
-
-                        noiDung.AppendLine(
-                            "- " + reader["HoTen"]
-                            + " | " + reader["TienDo"]
-                            + " | " + reader["TrangThai"]);
-
-                        noiDung.AppendLine(
-                            "  Xử lý: " + reader["NoiDungXuLy"]);
-
-                        noiDung.AppendLine(
-                            "  Chi phí vật tư: "
-                            + Convert.ToDecimal(reader["ChiPhiVatTu"])
-                                .ToString("N0") + " VNĐ");
-                    }
-
-                    if (!coPhanCong)
-                        noiDung.AppendLine("Chưa có phân công.");
-                }
-
-                // Cửa sổ đọc chi tiết, có thanh cuộn.
-                var cuaSo = new Window
-                {
-                    Title = "Chi tiết yêu cầu sửa chữa",
-                    Width = 650,
-                    Height = 550,
-                    Owner = Window.GetWindow(this),
-                    WindowStartupLocation =
-                        WindowStartupLocation.CenterOwner,
-                    Content = new TextBox
-                    {
-                        Text = noiDung.ToString(),
-                        IsReadOnly = true,
-                        TextWrapping = TextWrapping.Wrap,
-                        VerticalScrollBarVisibility =
-                            ScrollBarVisibility.Auto,
-                        Margin = new Thickness(16),
-                        Padding = new Thickness(12)
-                    }
-                };
-
-                cuaSo.ShowDialog();
             }
-            catch (Exception ex)
+
+            if (dgSuCo.SelectedItem is DataRowView dong)
             {
-                MessageBox.Show(
-                    ex.Message,
-                    "Lỗi xem chi tiết",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-            finally
-            {
-                _dangXuLy = false;
-                CapNhatNut();
+                string maSuCo =
+                    Convert.ToString(dong["MaSuCo"]) ?? "";
+
+                if (maSuCo.Length > 0)
+                {
+                    MoChiTiet?.Invoke(maSuCo);
+                }
             }
         }
     }

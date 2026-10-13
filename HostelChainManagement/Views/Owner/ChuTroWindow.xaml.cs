@@ -1,7 +1,9 @@
 ﻿
 using System;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using QuanLyChuoiNhaTro.Services;
 using QuanLyChuoiNhaTro.Views.Account;
@@ -11,6 +13,9 @@ namespace QuanLyChuoiNhaTro.Views.Owner
 {
     public partial class ChuTroWindow : Window
     {
+        private XemHopDongHoaDonView? _xemHopDongHoaDonView;
+        private XemBaoCaoView? _xemBaoCaoView;
+
         public ChuTroWindow()
         {
             InitializeComponent();
@@ -23,7 +28,9 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                     "Bạn không có quyền mở giao diện Chủ nhà trọ.");
             }
 
-            txtUser.Text = user.HoTen;
+            txtUser.Text = string.IsNullOrWhiteSpace(user.HoTen)
+                ? "—"
+                : user.HoTen;
 
             ShowOverview();
         }
@@ -75,6 +82,157 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                 btnOverview);
         }
 
+        private void ShowDayTro()
+        {
+            var view = new QuanLyDayTroView();
+
+            view.MoForm += ShowDayTroForm;
+
+            ShowView(
+                view,
+                "Quản lý các dãy trọ",
+                btnDayTro);
+        }
+
+        private void ShowDayTroForm(DataRowView? dayTro)
+        {
+            var form = new DayTroFormView(dayTro);
+
+            form.LuuThanhCong += ShowDayTro;
+
+            ShowView(
+                form,
+                dayTro == null
+                    ? "Dãy trọ / Thêm dãy trọ"
+                    : "Dãy trọ / Cập nhật dãy trọ",
+                btnDayTro);
+        }
+
+        private void ShowNhanVien()
+        {
+            var view = new QuanLyNhanVienView();
+
+            view.MoForm += ShowNhanVienForm;
+
+            ShowView(
+                view,
+                "Quản lý nhân viên",
+                btnNhanVien);
+        }
+
+        private void ShowNhanVienForm(DataRowView? nhanVien)
+        {
+            var form = new NhanVienFormView(nhanVien);
+
+            form.HuyRequested += ShowNhanVien;
+            form.LuuThanhCong += ShowNhanVien;
+
+            ShowView(
+                form,
+                nhanVien == null
+                    ? "Nhân viên / Thêm nhân viên"
+                    : "Nhân viên / Cập nhật nhân viên",
+                btnNhanVien);
+        }
+
+        private void ShowPhanCong()
+        {
+            ShowView(
+                new PhanCongQuanLyView(),
+                "Phân công quản lý",
+                btnPhanCong);
+        }
+
+        private void ShowHopDongHoaDon()
+        {
+            if (_xemHopDongHoaDonView == null)
+            {
+                _xemHopDongHoaDonView =
+                    new XemHopDongHoaDonView();
+
+                _xemHopDongHoaDonView
+                    .XemChiTietHopDongRequested +=
+                    ShowChiTietHopDong;
+
+                _xemHopDongHoaDonView
+                    .XemChiTietHoaDonRequested +=
+                    ShowChiTietHoaDon;
+            }
+
+            ShowView(
+                _xemHopDongHoaDonView,
+                "Xem hợp đồng, hóa đơn",
+                btnHopDong);
+        }
+
+        private void ShowChiTietHopDong(string maHopDong)
+        {
+            var view = new ChiTietHopDongView(maHopDong);
+
+            view.QuayLaiRequested += ShowHopDongHoaDon;
+
+            ShowView(
+                view,
+                "Hợp đồng & hóa đơn / Chi tiết hợp đồng",
+                btnHopDong);
+        }
+
+        private void ShowChiTietHoaDon(string maHoaDon)
+        {
+            var view = new ChiTietHoaDonView(maHoaDon);
+
+            view.QuayLaiRequested += ShowHopDongHoaDon;
+
+            ShowView(
+                view,
+                "Hợp đồng & hóa đơn / Chi tiết hóa đơn",
+                btnHopDong);
+        }
+
+        private void ShowBaoCao()
+        {
+            if (_xemBaoCaoView == null)
+            {
+                _xemBaoCaoView = new XemBaoCaoView();
+
+                if (_xemBaoCaoView.FindName("txtTongCongNo")
+                    is TextBlock tongCongNo)
+                {
+                    tongCongNo.Cursor = Cursors.Hand;
+
+                    tongCongNo.Foreground =
+                        new SolidColorBrush(
+                            Color.FromRgb(37, 99, 235));
+
+                    tongCongNo.TextDecorations =
+                        TextDecorations.Underline;
+
+                    tongCongNo.ToolTip =
+                        "Bấm để mở danh sách nhắc nợ quá hạn";
+
+                    tongCongNo.MouseLeftButtonUp +=
+                        (_, _) => ShowNhacNo();
+                }
+            }
+
+            ShowView(
+                _xemBaoCaoView,
+                "Xem báo cáo",
+                btnBaoCao);
+        }
+
+        private void ShowNhacNo()
+        {
+            var view = new NhacNoView();
+
+            view.QuayLaiRequested += ShowBaoCao;
+
+            ShowView(
+                view,
+                "Báo cáo / Nhắc nợ",
+                btnBaoCao);
+        }
+
         private void Overview_Click(
             object sender,
             RoutedEventArgs e)
@@ -82,73 +240,65 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             ShowOverview();
         }
 
-        private void OnOverviewNavigate(string destination)
-        {
-            switch (destination)
-            {
-                case "DayTro":
-                    OpenPendingScreen("Quản lý các dãy trọ");
-                    break;
-
-                case "NhanVien":
-                    OpenPendingScreen("Quản lý nhân viên");
-                    break;
-
-                case "PhanCong":
-                    OpenPendingScreen(
-                        "Phân công nhân viên quản lý");
-                    break;
-
-                case "HopDong":
-                    OpenPendingScreen("Hợp đồng & hóa đơn");
-                    break;
-            }
-        }
-
-        private void OpenPendingScreen(string screenName)
-        {
-            MessageBox.Show(
-                this,
-                $"Màn hình \"{screenName}\" chưa được triển khai.\n"
-                + "Chức năng này sẽ được thực hiện ở bước tiếp theo.",
-                "Thông báo",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
         private void DayTro_Click(
             object sender,
             RoutedEventArgs e)
         {
-            OpenPendingScreen("Quản lý các dãy trọ");
+            ShowDayTro();
         }
 
         private void NhanVien_Click(
             object sender,
             RoutedEventArgs e)
         {
-            OpenPendingScreen("Quản lý nhân viên");
+            ShowNhanVien();
         }
 
         private void PhanCong_Click(
             object sender,
             RoutedEventArgs e)
         {
-            OpenPendingScreen("Phân công nhân viên quản lý");
+            ShowPhanCong();
         }
 
         private void HopDong_Click(
             object sender,
             RoutedEventArgs e)
         {
-            OpenPendingScreen("Hợp đồng & hóa đơn");
+            ShowHopDongHoaDon();
         }
 
         private void BaoCao_Click(
             object sender,
             RoutedEventArgs e)
         {
-            OpenPendingScreen("Xem báo cáo");
+            ShowBaoCao();
+        }
+
+        private void OnOverviewNavigate(string destination)
+        {
+            switch (destination)
+            {
+                case "DayTro":
+                    ShowDayTro();
+                    break;
+
+                case "NhanVien":
+                    ShowNhanVien();
+                    break;
+
+                case "PhanCong":
+                    ShowPhanCong();
+                    break;
+
+                case "HopDong":
+                    ShowHopDongHoaDon();
+                    break;
+
+                case "BaoCao":
+                    ShowBaoCao();
+                    break;
+            }
         }
 
         private void Profile_Click(

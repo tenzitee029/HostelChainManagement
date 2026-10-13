@@ -5,383 +5,660 @@
              FontFamily="Segoe UI">
 
     <UserControl.Resources>
-        <Style x:Key="CardStyle" TargetType="Border">
+
+        <Style x:Key="StatCardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#D1D5DB"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="MinHeight" Value="111"/>
         </Style>
 
-        <Style x:Key="ActionButtonStyle" TargetType="Button">
+        <Style x:Key="StatValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="23"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+
+        <Style x:Key="StatLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="OperationButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder"
-                                Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}"
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="0,0,0,1">
-                            <ContentPresenter/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonBorder"
-                                        Property="Background"
-                                        Value="#EFF6FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="MinHeight" Value="67"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EFF6FF"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
+
+        <Style x:Key="ReportValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Margin" Value="0,6,0,0"/>
+        </Style>
+
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
 
-        <StackPanel Margin="24,18,24,20">
+        <StackPanel Margin="24,18,24,24">
 
-            <StackPanel Margin="0,0,0,14">
-                <TextBlock Text="Tổng quan"
-                           FontSize="20"
-                           FontWeight="SemiBold"
-                           Foreground="#111827"/>
+            <Grid Margin="0,0,0,18">
 
-                <TextBlock Text="Theo dõi tổng quan hoạt động các dãy trọ thuộc quyền quản lý."
-                           FontSize="11"
-                           Foreground="#6B7280"
-                           Margin="0,5,0,0"/>
-            </StackPanel>
-
-            <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+
+                    <TextBlock Text="Tổng quan"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="#111827"/>
+
+                    <TextBlock Text="Theo dõi tổng quan hoạt động các dãy trọ thuộc quyền quản lý."
+                               FontSize="11"
+                               Foreground="#6B7280"
+                               Margin="0,5,0,0"
+                               TextWrapping="Wrap"/>
+
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        x:Name="btnTaiLai"
+                        Content="Làm mới dữ liệu"
+                        Height="35"
+                        Padding="14,7"
+                        VerticalAlignment="Center"
+                        Background="White"
+                        Foreground="#2563EB"
+                        BorderBrush="#BFDBFE"
+                        BorderThickness="1"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        Cursor="Hand"
+                        Click="TaiLai_Click"/>
+
+            </Grid>
+
+            <Grid Margin="0,0,0,16">
+
+                <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Style="{StaticResource CardStyle}"
-                        Margin="0,0,10,0"
-                        Padding="14"
-                        MinHeight="96">
+                        Style="{StaticResource StatCardStyle}">
 
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Width="40"
-                                Height="40"
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Width="37"
+                                Height="37"
+                                Background="#DBEAFE"
                                 CornerRadius="4"
-                                Background="#DBEAFE">
+                                VerticalAlignment="Top"
+                                Margin="0,0,12,0">
+
                             <TextBlock Text="DT"
                                        FontSize="11"
                                        FontWeight="Bold"
                                        Foreground="#1D4ED8"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
+
                         </Border>
 
-                        <StackPanel Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
+                        <StackPanel Grid.Column="1">
+
                             <TextBlock Text="TỔNG DÃY TRỌ"
-                                       FontSize="10"
-                                       Foreground="#6B7280"
-                                       FontWeight="SemiBold"/>
+                                       Style="{StaticResource StatLabelStyle}"/>
 
                             <TextBlock x:Name="txtTongDayTro"
                                        Text="—"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
+                                       Style="{StaticResource StatValueStyle}"/>
+
                         </StackPanel>
-                    </StackPanel>
+
+                    </Grid>
+
                 </Border>
 
-                <Border Grid.Column="1"
-                        Style="{StaticResource CardStyle}"
-                        Margin="0,0,10,0"
-                        Padding="14"
-                        MinHeight="96">
+                <Border Grid.Column="2"
+                        Style="{StaticResource StatCardStyle}">
 
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Width="40"
-                                Height="40"
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Width="37"
+                                Height="37"
+                                Background="#DCFCE7"
                                 CornerRadius="4"
-                                Background="#DCFCE7">
+                                VerticalAlignment="Top"
+                                Margin="0,0,12,0">
+
                             <TextBlock Text="NV"
                                        FontSize="11"
                                        FontWeight="Bold"
                                        Foreground="#15803D"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
+
                         </Border>
 
-                        <StackPanel Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="NHÂN VIÊN ĐANG LÀM VIỆC"
-                                       FontSize="9"
-                                       TextWrapping="Wrap"
-                                       Foreground="#6B7280"
-                                       FontWeight="SemiBold"/>
+                        <StackPanel Grid.Column="1">
 
-                            <TextBlock x:Name="txtNhanVien"
+                            <TextBlock Text="NHÂN VIÊN ĐANG LÀM VIỆC"
+                                       Style="{StaticResource StatLabelStyle}"/>
+
+                            <TextBlock x:Name="txtNhanVienDangLam"
                                        Text="—"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
+                                       Style="{StaticResource StatValueStyle}"/>
+
                         </StackPanel>
-                    </StackPanel>
+
+                    </Grid>
+
                 </Border>
 
-                <Border Grid.Column="2"
-                        Style="{StaticResource CardStyle}"
-                        Margin="0,0,10,0"
-                        Padding="14"
-                        MinHeight="96">
+                <Border Grid.Column="4"
+                        Style="{StaticResource StatCardStyle}">
 
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Width="40"
-                                Height="40"
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Width="37"
+                                Height="37"
+                                Background="#CFFAFE"
                                 CornerRadius="4"
-                                Background="#CFFAFE">
+                                VerticalAlignment="Top"
+                                Margin="0,0,12,0">
+
                             <TextBlock Text="HĐ"
                                        FontSize="11"
                                        FontWeight="Bold"
                                        Foreground="#0E7490"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
+
                         </Border>
 
-                        <StackPanel Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="HỢP ĐỒNG HIỆU LỰC"
-                                       FontSize="9"
-                                       TextWrapping="Wrap"
-                                       Foreground="#6B7280"
-                                       FontWeight="SemiBold"/>
+                        <StackPanel Grid.Column="1">
 
-                            <TextBlock x:Name="txtHopDong"
+                            <TextBlock Text="HỢP ĐỒNG HIỆU LỰC"
+                                       Style="{StaticResource StatLabelStyle}"/>
+
+                            <TextBlock x:Name="txtHopDongHieuLuc"
                                        Text="—"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
+                                       Style="{StaticResource StatValueStyle}"/>
+
                         </StackPanel>
-                    </StackPanel>
+
+                    </Grid>
+
                 </Border>
 
-                <Border Grid.Column="3"
-                        Style="{StaticResource CardStyle}"
-                        Padding="14"
-                        MinHeight="96">
+                <Border Grid.Column="6"
+                        Style="{StaticResource StatCardStyle}">
 
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Width="40"
-                                Height="40"
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Width="37"
+                                Height="37"
+                                Background="#FEF3C7"
                                 CornerRadius="4"
-                                Background="#FEF3C7">
+                                VerticalAlignment="Top"
+                                Margin="0,0,12,0">
+
                             <TextBlock Text="CN"
                                        FontSize="11"
                                        FontWeight="Bold"
                                        Foreground="#B45309"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
+
                         </Border>
 
-                        <StackPanel Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="HÓA ĐƠN CÒN NỢ"
-                                       FontSize="9"
-                                       TextWrapping="Wrap"
-                                       Foreground="#6B7280"
-                                       FontWeight="SemiBold"/>
+                        <StackPanel Grid.Column="1">
 
-                            <TextBlock x:Name="txtHoaDonNo"
+                            <TextBlock Text="HÓA ĐƠN CÒN NỢ"
+                                       Style="{StaticResource StatLabelStyle}"/>
+
+                            <TextBlock x:Name="txtHoaDonConNo"
                                        Text="—"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
+                                       Style="{StaticResource StatValueStyle}"/>
+
                         </StackPanel>
-                    </StackPanel>
+
+                    </Grid>
+
                 </Border>
+
             </Grid>
 
             <Grid>
+
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.15*"/>
-                    <ColumnDefinition Width="0.85*"/>
+                    <ColumnDefinition Width="1.1*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="0.9*"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Style="{StaticResource CardStyle}"
-                        Margin="0,0,14,0">
+                        Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4">
 
                     <StackPanel>
-                        <StackPanel Margin="16,13">
-                            <TextBlock Text="Quản lý vận hành"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="#111827"/>
 
-                            <TextBlock Text="Các chức năng thuộc quyền Chủ nhà trọ."
-                                       FontSize="10"
-                                       Foreground="#6B7280"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
+                        <Border Background="#FAFAFA"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,13">
 
-                        <Separator Background="#E5E7EB"/>
-
-                        <Button Style="{StaticResource ActionButtonStyle}"
-                                Click="DayTro_Click">
                             <StackPanel>
-                                <TextBlock Text="Quản lý các dãy trọ"
-                                           FontWeight="SemiBold"
-                                           FontSize="11"/>
 
-                                <TextBlock Text="Theo dõi và cập nhật các dãy trọ."
+                                <TextBlock Text="Quản lý vận hành"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="#111827"/>
+
+                                <TextBlock Text="Các chức năng thuộc quyền Chủ nhà trọ."
                                            FontSize="10"
                                            Foreground="#6B7280"
-                                           Margin="0,4,0,0"/>
+                                           Margin="0,5,0,0"/>
+
                             </StackPanel>
+
+                        </Border>
+
+                        <Button Tag="DayTro"
+                                Style="{StaticResource OperationButtonStyle}"
+                                Click="Navigate_Click">
+
+                            <Grid Margin="16,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                        Width="34"
+                                        Height="34"
+                                        Background="#EFF6FF"
+                                        CornerRadius="4"
+                                        Margin="0,0,12,0">
+
+                                    <TextBlock Text="DT"
+                                               Foreground="#1D4ED8"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+
+                                </Border>
+
+                                <StackPanel Grid.Column="1"
+                                            VerticalAlignment="Center">
+
+                                    <TextBlock Text="Quản lý các dãy trọ"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="#111827"/>
+
+                                    <TextBlock Text="Theo dõi và cập nhật các dãy trọ."
+                                               FontSize="10"
+                                               Foreground="#6B7280"
+                                               Margin="0,4,0,0"
+                                               TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="›"
+                                           FontSize="21"
+                                           Foreground="#94A3B8"
+                                           VerticalAlignment="Center"
+                                           Margin="10,0,0,0"/>
+
+                            </Grid>
+
                         </Button>
 
-                        <Button Style="{StaticResource ActionButtonStyle}"
-                                Click="NhanVien_Click">
-                            <StackPanel>
-                                <TextBlock Text="Quản lý nhân viên"
-                                           FontWeight="SemiBold"
-                                           FontSize="11"/>
+                        <Button Tag="NhanVien"
+                                Style="{StaticResource OperationButtonStyle}"
+                                Click="Navigate_Click">
 
-                                <TextBlock Text="Theo dõi nhân viên quản lý và nhân viên kỹ thuật."
-                                           FontSize="10"
-                                           Foreground="#6B7280"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
+                            <Grid Margin="16,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                        Width="34"
+                                        Height="34"
+                                        Background="#EFF6FF"
+                                        CornerRadius="4"
+                                        Margin="0,0,12,0">
+
+                                    <TextBlock Text="NV"
+                                               Foreground="#1D4ED8"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+
+                                </Border>
+
+                                <StackPanel Grid.Column="1"
+                                            VerticalAlignment="Center">
+
+                                    <TextBlock Text="Quản lý nhân viên"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="#111827"/>
+
+                                    <TextBlock Text="Theo dõi nhân viên quản lý và kỹ thuật."
+                                               FontSize="10"
+                                               Foreground="#6B7280"
+                                               Margin="0,4,0,0"
+                                               TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="›"
+                                           FontSize="21"
+                                           Foreground="#94A3B8"
+                                           VerticalAlignment="Center"
+                                           Margin="10,0,0,0"/>
+
+                            </Grid>
+
                         </Button>
 
-                        <Button Style="{StaticResource ActionButtonStyle}"
-                                Click="PhanCong_Click">
-                            <StackPanel>
-                                <TextBlock Text="Phân công nhân viên quản lý"
-                                           FontWeight="SemiBold"
-                                           FontSize="11"/>
+                        <Button Tag="PhanCong"
+                                Style="{StaticResource OperationButtonStyle}"
+                                Click="Navigate_Click">
 
-                                <TextBlock Text="Phân công nhân viên phụ trách từng dãy trọ."
-                                           FontSize="10"
-                                           Foreground="#6B7280"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
+                            <Grid Margin="16,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                        Width="34"
+                                        Height="34"
+                                        Background="#EFF6FF"
+                                        CornerRadius="4"
+                                        Margin="0,0,12,0">
+
+                                    <TextBlock Text="PC"
+                                               Foreground="#1D4ED8"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+
+                                </Border>
+
+                                <StackPanel Grid.Column="1"
+                                            VerticalAlignment="Center">
+
+                                    <TextBlock Text="Phân công nhân viên quản lý"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="#111827"/>
+
+                                    <TextBlock Text="Phân công người phụ trách từng dãy trọ."
+                                               FontSize="10"
+                                               Foreground="#6B7280"
+                                               Margin="0,4,0,0"
+                                               TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="›"
+                                           FontSize="21"
+                                           Foreground="#94A3B8"
+                                           VerticalAlignment="Center"
+                                           Margin="10,0,0,0"/>
+
+                            </Grid>
+
                         </Button>
 
-                        <Button Style="{StaticResource ActionButtonStyle}"
-                                Click="HopDong_Click">
-                            <StackPanel>
-                                <TextBlock Text="Xem hợp đồng &amp; hóa đơn"
-                                           FontWeight="SemiBold"
-                                           FontSize="11"/>
+                        <Button Tag="HopDong"
+                                Style="{StaticResource OperationButtonStyle}"
+                                Click="Navigate_Click">
 
-                                <TextBlock Text="Tra cứu dữ liệu thuộc các dãy trọ đang quản lý."
-                                           FontSize="10"
-                                           Foreground="#6B7280"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
+                            <Grid Margin="16,10">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                        Width="34"
+                                        Height="34"
+                                        Background="#EFF6FF"
+                                        CornerRadius="4"
+                                        Margin="0,0,12,0">
+
+                                    <TextBlock Text="HĐ"
+                                               Foreground="#1D4ED8"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+
+                                </Border>
+
+                                <StackPanel Grid.Column="1"
+                                            VerticalAlignment="Center">
+
+                                    <TextBlock Text="Xem hợp đồng &amp; hóa đơn"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="#111827"/>
+
+                                    <TextBlock Text="Tra cứu hợp đồng và hóa đơn thuộc các dãy."
+                                               FontSize="10"
+                                               Foreground="#6B7280"
+                                               Margin="0,4,0,0"
+                                               TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="›"
+                                           FontSize="21"
+                                           Foreground="#94A3B8"
+                                           VerticalAlignment="Center"
+                                           Margin="10,0,0,0"/>
+
+                            </Grid>
+
                         </Button>
+
                     </StackPanel>
+
                 </Border>
 
-                <Border Grid.Column="1"
-                        Style="{StaticResource CardStyle}">
+                <Border Grid.Column="2"
+                        Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4">
 
                     <StackPanel>
-                        <StackPanel Margin="16,13">
-                            <TextBlock Text="Thông tin báo cáo"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="#111827"/>
 
-                            <TextBlock Text="Dữ liệu tổng hợp từ các dãy trọ."
-                                       FontSize="10"
-                                       Foreground="#6B7280"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
+                        <Border Background="#FAFAFA"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,13">
 
-                        <Separator Background="#E5E7EB"/>
+                            <StackPanel>
 
-                        <StackPanel Margin="16,14">
-                            <TextBlock Text="Tổng doanh thu đã thu"
-                                       FontSize="10"
-                                       Foreground="#374151"/>
+                                <TextBlock Text="Thông tin báo cáo"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="#111827"/>
 
-                            <TextBlock x:Name="txtDoanhThu"
-                                       Text="— VNĐ"
-                                       FontSize="16"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
-                        </StackPanel>
+                                <TextBlock Text="Dữ liệu tổng hợp từ các dãy trọ."
+                                           FontSize="10"
+                                           Foreground="#6B7280"
+                                           Margin="0,5,0,0"/>
 
-                        <Separator Background="#E5E7EB"/>
+                            </StackPanel>
 
-                        <StackPanel Margin="16,14">
-                            <TextBlock Text="Tổng công nợ tồn đọng"
-                                       FontSize="10"
-                                       Foreground="#374151"/>
+                        </Border>
 
-                            <TextBlock x:Name="txtCongNo"
-                                       Text="— VNĐ"
-                                       FontSize="16"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
-                        </StackPanel>
+                        <Border BorderBrush="#E5E7EB"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,18">
 
-                        <Separator Background="#E5E7EB"/>
+                            <StackPanel>
 
-                        <StackPanel Margin="16,14">
-                            <TextBlock Text="Phòng chưa thanh toán"
-                                       FontSize="10"
-                                       Foreground="#374151"/>
+                                <TextBlock Text="Tổng doanh thu đã thu"
+                                           FontSize="11"
+                                           Foreground="#374151"/>
 
-                            <TextBlock x:Name="txtPhongChuaThanhToan"
-                                       Text="—"
-                                       FontSize="16"
-                                       FontWeight="Bold"
-                                       Foreground="#111827"
-                                       Margin="0,6,0,0"/>
+                                <TextBlock x:Name="txtDoanhThuDaThu"
+                                           Text="— VNĐ"
+                                           Style="{StaticResource ReportValueStyle}"/>
 
-                            <TextBlock Text="Dữ liệu lấy từ báo cáo theo kỳ."
-                                       FontSize="9"
-                                       Foreground="#9CA3AF"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
+                            </StackPanel>
+
+                        </Border>
+
+                        <Border BorderBrush="#E5E7EB"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,18">
+
+                            <StackPanel>
+
+                                <TextBlock Text="Tổng công nợ tồn đọng"
+                                           FontSize="11"
+                                           Foreground="#374151"/>
+
+                                <TextBlock x:Name="txtTongCongNo"
+                                           Text="— VNĐ"
+                                           Style="{StaticResource ReportValueStyle}"/>
+
+                            </StackPanel>
+
+                        </Border>
+
+                        <Border BorderBrush="#E5E7EB"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,18">
+
+                            <StackPanel>
+
+                                <TextBlock Text="Phòng chưa thanh toán"
+                                           FontSize="11"
+                                           Foreground="#374151"/>
+
+                                <TextBlock x:Name="txtPhongChuaThanhToan"
+                                           Text="—"
+                                           Style="{StaticResource ReportValueStyle}"/>
+
+                                <TextBlock Text="Đếm theo phòng có hóa đơn còn phải thu."
+                                           FontSize="10"
+                                           Foreground="#9CA3AF"
+                                           TextWrapping="Wrap"
+                                           Margin="0,5,0,0"/>
+
+                            </StackPanel>
+
+                        </Border>
+
+                        <Button Content="Xem báo cáo chi tiết →"
+                                Tag="BaoCao"
+                                Margin="16,14"
+                                Padding="14,9"
+                                Height="37"
+                                Background="#2563EB"
+                                Foreground="White"
+                                BorderThickness="0"
+                                FontSize="11"
+                                FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Click="Navigate_Click"/>
+
                     </StackPanel>
+
                 </Border>
+
             </Grid>
 
-            <Border Background="#EFF6FF"
-                    BorderBrush="#BFDBFE"
-                    BorderThickness="1"
-                    CornerRadius="3"
-                    Padding="13,11"
-                    Margin="0,14,0,0">
-
-                <TextBlock Text="Chủ nhà trọ được xem dữ liệu hợp đồng, hóa đơn và báo cáo của các dãy trọ thuộc quyền quản lý; chức năng nhắc nợ được thực hiện từ phần báo cáo."
-                           FontSize="11"
-                           Foreground="#4B5563"
-                           TextWrapping="Wrap"/>
-            </Border>
+            <TextBlock x:Name="txtTrangThaiTai"
+                       Text="Đang tải dữ liệu tổng quan..."
+                       FontSize="11"
+                       Foreground="#6B7280"
+                       TextWrapping="Wrap"
+                       Margin="0,13,0,0"/>
 
         </StackPanel>
+
     </ScrollViewer>
+
 </UserControl>

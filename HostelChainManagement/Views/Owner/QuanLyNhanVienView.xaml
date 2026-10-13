@@ -1,0 +1,300 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Owner.QuanLyNhanVienView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F9FAFB"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinHeight" Value="34"/>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="BorderBrush" Value="#BFDBFE"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinHeight" Value="28"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,11"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Background" Value="White"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EFF6FF"/>
+                </Trigger>
+
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#DBEAFE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Margin="24,18,24,20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        VerticalAlignment="Center">
+
+                <TextBlock Text="Quản lý nhân viên"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"/>
+
+                <TextBlock Text="Quản lý nhân viên vận hành và nhân viên kỹ thuật."
+                           FontSize="11"
+                           Foreground="#6B7280"
+                           Margin="0,5,0,0"/>
+
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    x:Name="btnThemNhanVien"
+                    Content="+ Thêm nhân viên mới"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    VerticalAlignment="Center"
+                    Click="ThemNhanVien_Click"/>
+
+        </Grid>
+
+        <TextBlock Grid.Row="1"
+                   x:Name="txtThongBao"
+                   Text="Chưa có dữ liệu nhân viên để cập nhật."
+                   FontSize="11"
+                   Foreground="#6B7280"
+                   Margin="0,0,0,12"
+                   Visibility="Collapsed"/>
+
+        <Border Grid.Row="2"
+                Background="White"
+                BorderBrush="#D1D5DB"
+                BorderThickness="1"
+                CornerRadius="4">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="#FAFAFA"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,12">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Danh sách nhân viên"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827"/>
+
+                        <TextBlock Text="Thông tin nhân sự hiện có trong hệ thống."
+                                   FontSize="10"
+                                   Foreground="#6B7280"
+                                   Margin="0,4,0,0"/>
+
+                    </StackPanel>
+
+                </Border>
+
+                <Grid Grid.Row="1">
+
+                    <DataGrid x:Name="dgvNhanVien"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E5E7EB"
+                              BorderThickness="0"
+                              RowHeaderWidth="0"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              Background="White"
+                              FontSize="11"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="Mã NV"
+                                                Binding="{Binding MaNhanVien}"
+                                                Width="1.1*"
+                                                MinWidth="100"/>
+
+                            <DataGridTextColumn Header="Họ tên"
+                                                Binding="{Binding HoTen}"
+                                                Width="1.8*"
+                                                MinWidth="145"/>
+
+                            <DataGridTextColumn Header="SĐT"
+                                                Binding="{Binding SoDienThoai}"
+                                                Width="1.4*"
+                                                MinWidth="115"/>
+
+                            <DataGridTextColumn Header="Vị trí công việc"
+                                                Binding="{Binding ChucVu}"
+                                                Width="1.5*"
+                                                MinWidth="130"/>
+
+                            <DataGridTemplateColumn Header="Trạng thái làm việc"
+                                                    Width="1.5*"
+                                                    MinWidth="145">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <Border x:Name="StatusBadge"
+                                                Background="#F3F4F6"
+                                                CornerRadius="3"
+                                                Padding="8,5"
+                                                HorizontalAlignment="Left">
+
+                                            <TextBlock x:Name="StatusText"
+                                                       Text="{Binding TrangThaiLamViec}"
+                                                       Foreground="#4B5563"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"/>
+
+                                        </Border>
+
+                                        <DataTemplate.Triggers>
+
+                                            <DataTrigger Binding="{Binding TrangThaiLamViec}"
+                                                         Value="Đang làm">
+
+                                                <Setter TargetName="StatusBadge"
+                                                        Property="Background"
+                                                        Value="#DCFCE7"/>
+
+                                                <Setter TargetName="StatusText"
+                                                        Property="Foreground"
+                                                        Value="#15803D"/>
+
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding TrangThaiLamViec}"
+                                                         Value="Tạm nghỉ">
+
+                                                <Setter TargetName="StatusBadge"
+                                                        Property="Background"
+                                                        Value="#FEF3C7"/>
+
+                                                <Setter TargetName="StatusText"
+                                                        Property="Foreground"
+                                                        Value="#B45309"/>
+
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding TrangThaiLamViec}"
+                                                         Value="Đã nghỉ">
+
+                                                <Setter TargetName="StatusBadge"
+                                                        Property="Background"
+                                                        Value="#F3F4F6"/>
+
+                                                <Setter TargetName="StatusText"
+                                                        Property="Foreground"
+                                                        Value="#4B5563"/>
+
+                                            </DataTrigger>
+
+                                        </DataTemplate.Triggers>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Thao tác"
+                                                    Width="1.1*"
+                                                    MinWidth="95">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <Button Content="Sửa"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                HorizontalAlignment="Center"
+                                                Click="SuaNhanVien_Click"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                    <TextBlock x:Name="txtEmptyState"
+                               Text="Chưa có dữ liệu nhân viên để hiển thị"
+                               FontSize="11"
+                               Foreground="#9CA3AF"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+
+                </Grid>
+
+            </Grid>
+
+        </Border>
+
+    </Grid>
+
+</UserControl>

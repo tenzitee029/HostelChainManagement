@@ -1,0 +1,413 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Owner.XemBaoCaoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F9FAFB"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+
+        <Style x:Key="FilterLabelStyle"
+               TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="FilterComboStyle"
+               TargetType="ComboBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+
+        <Style x:Key="MetricValueStyle"
+               TargetType="TextBlock">
+            <Setter Property="FontSize" Value="23"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Margin" Value="0,9,0,4"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,11"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="MinHeight" Value="43"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#374151"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+
+        <StackPanel Margin="24,18,24,20">
+
+            <StackPanel Margin="0,0,0,16">
+
+                <TextBlock Text="Xem báo cáo"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"/>
+
+                <TextBlock Text="Theo dõi doanh thu, công nợ và tỷ lệ lấp đầy của các dãy trọ."
+                           FontSize="11"
+                           Foreground="#6B7280"
+                           Margin="0,5,0,0"/>
+
+            </StackPanel>
+
+            <Border Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Margin="0,0,0,15">
+
+                <StackPanel>
+
+                    <Border Background="#FAFAFA"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="0,0,0,1"
+                            Padding="16,12">
+
+                        <TextBlock Text="Bộ lọc báo cáo"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827"/>
+
+                    </Border>
+
+                    <Grid Margin="16,14,16,16">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.15*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1.15*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+
+                            <TextBlock Text="Dãy trọ"
+                                       Style="{StaticResource FilterLabelStyle}"/>
+
+                            <ComboBox x:Name="cmbDayTro"
+                                      Style="{StaticResource FilterComboStyle}"
+                                      SelectedIndex="0"
+                                      IsEnabled="False">
+
+                                <ComboBoxItem Content="Tất cả dãy trọ"/>
+
+                            </ComboBox>
+
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+
+                            <TextBlock Text="Theo tháng/năm"
+                                       Style="{StaticResource FilterLabelStyle}"/>
+
+                            <ComboBox x:Name="cmbKieuKy"
+                                      Style="{StaticResource FilterComboStyle}"
+                                      SelectedIndex="0">
+
+                                <ComboBoxItem Content="Theo tháng"/>
+                                <ComboBoxItem Content="Theo năm"/>
+
+                            </ComboBox>
+
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+
+                            <TextBlock Text="Thời gian"
+                                       Style="{StaticResource FilterLabelStyle}"/>
+
+                            <ComboBox x:Name="cmbThoiGian"
+                                      Style="{StaticResource FilterComboStyle}"
+                                      SelectedIndex="0">
+
+                                <ComboBoxItem Content="Kỳ hiện tại"/>
+                                <ComboBoxItem Content="Kỳ trước"/>
+                                <ComboBoxItem Content="3 kỳ gần đây"/>
+                                <ComboBoxItem Content="12 kỳ gần đây"/>
+
+                            </ComboBox>
+
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="6">
+
+                            <TextBlock Text="Loại báo cáo"
+                                       Style="{StaticResource FilterLabelStyle}"/>
+
+                            <ComboBox x:Name="cmbLoaiBaoCao"
+                                      Style="{StaticResource FilterComboStyle}"
+                                      SelectedIndex="0">
+
+                                <ComboBoxItem Content="Doanh thu"/>
+                                <ComboBoxItem Content="Tỷ lệ lấp đầy"/>
+                                <ComboBoxItem Content="Công nợ"/>
+
+                            </ComboBox>
+
+                        </StackPanel>
+
+                        <Button Grid.Column="8"
+                                x:Name="btnXemBaoCao"
+                                Content="Xem báo cáo"
+                                Height="36"
+                                Padding="16,8"
+                                VerticalAlignment="Bottom"
+                                Background="#2563EB"
+                                Foreground="White"
+                                BorderThickness="0"
+                                FontSize="11"
+                                FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Click="XemBaoCao_Click"/>
+
+                    </Grid>
+
+                </StackPanel>
+
+            </Border>
+
+            <Grid Margin="0,0,0,15">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="17,15">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Tổng doanh thu đã thu"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="#374151"/>
+
+                        <TextBlock x:Name="txtTongDoanhThu"
+                                   Text="—"
+                                   Style="{StaticResource MetricValueStyle}"/>
+
+                        <TextBlock Text="Các khoản đã được thanh toán"
+                                   FontSize="10"
+                                   Foreground="#6B7280"/>
+
+                    </StackPanel>
+
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="17,15">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Tổng nợ tồn đọng"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="#374151"/>
+
+                        <TextBlock x:Name="txtTongCongNo"
+                                   Text="—"
+                                   Style="{StaticResource MetricValueStyle}"/>
+
+                        <TextBlock Text="Các khoản còn phải thu"
+                                   FontSize="10"
+                                   Foreground="#6B7280"/>
+
+                    </StackPanel>
+
+                </Border>
+
+                <Border Grid.Column="4"
+                        Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="17,15">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Tỷ lệ lấp đầy"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="#374151"/>
+
+                        <TextBlock x:Name="txtTyLeLapDay"
+                                   Text="—"
+                                   Style="{StaticResource MetricValueStyle}"/>
+
+                        <TextBlock Text="Tỷ lệ phòng có khách thuê"
+                                   FontSize="10"
+                                   Foreground="#6B7280"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <Border Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Margin="0,0,0,15">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="#FAFAFA"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="0,0,0,1"
+                            Padding="16,12">
+
+                        <TextBlock x:Name="txtTieuDeBieuDo"
+                                   Text="Biểu đồ báo cáo doanh thu"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827"/>
+
+                    </Border>
+
+                    <Grid Grid.Row="1"
+                          Height="210">
+
+                        <ItemsControl x:Name="itemsBieuDo"
+                                      Margin="20,15"/>
+
+                        <TextBlock x:Name="txtEmptyBieuDo"
+                                   Text="Chưa có dữ liệu biểu đồ. Vui lòng chọn bộ lọc và xem báo cáo."
+                                   FontSize="11"
+                                   Foreground="#9CA3AF"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="20"
+                                   IsHitTestVisible="False"/>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+            <Border Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    CornerRadius="4">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="#FAFAFA"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="0,0,0,1"
+                            Padding="16,12">
+
+                        <TextBlock x:Name="txtTieuDeChiTiet"
+                                   Text="Thông tin báo cáo doanh thu"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#111827"/>
+
+                    </Border>
+
+                    <Grid Grid.Row="1"
+                          MinHeight="220">
+
+                        <DataGrid x:Name="dgvBaoCao"
+                                  AutoGenerateColumns="True"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  HeadersVisibility="Column"
+                                  RowHeaderWidth="0"
+                                  GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="#E5E7EB"
+                                  BorderThickness="0"
+                                  Background="White"
+                                  FontSize="11"
+                                  MinHeight="220"
+                                  MaxHeight="350"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"/>
+
+                        <TextBlock x:Name="txtEmptyBaoCao"
+                                   Text="Chưa có dữ liệu báo cáo trong kỳ này."
+                                   FontSize="11"
+                                   Foreground="#9CA3AF"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"/>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+            <TextBlock x:Name="txtThongBao"
+                       Text="Các chỉ số sẽ được tải từ SQL Server ở bước tiếp theo."
+                       FontSize="11"
+                       Foreground="#6B7280"
+                       Margin="0,12,0,0"
+                       TextWrapping="Wrap"/>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

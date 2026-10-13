@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -111,6 +110,29 @@ namespace QuanLyChuoiNhaTro.Services
                 20).Value = maChuTro;
 
             await connection.OpenAsync();
+
+            if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
+            {
+                command.CommandText = @"
+                    SELECT
+                        nv.MaNhanVien,
+                        nv.MaNguoiDung,
+                        nd.HoTen,
+                        nd.HoTen AS HoTenHienThi,
+                        nv.MaDayTro,
+                        nv.TrangThaiLamViec
+                    FROM dbo.NhanVien AS nv
+                    INNER JOIN dbo.NguoiDung AS nd
+                        ON nd.MaNguoiDung = nv.MaNguoiDung
+                    INNER JOIN dbo.DayTro AS d
+                        ON d.MaDayTro = nv.MaDayTro
+                    WHERE d.MaChuTro = @MaChuTro
+                      AND nv.ChucVu = N'Quản lý'
+                      AND nv.TrangThaiLamViec = N'Đang làm'
+                      AND nd.VaiTro = N'Nhân viên quản lý'
+                      AND nd.TrangThai = N'Hoạt động'
+                    ORDER BY nd.HoTen, nv.MaNhanVien;";
+            }
 
             using var reader = await command.ExecuteReaderAsync();
 
@@ -235,6 +257,15 @@ namespace QuanLyChuoiNhaTro.Services
             using var connection = Database.CreateConnection();
 
             await connection.OpenAsync();
+
+            if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
+            {
+                throw new InvalidOperationException(
+                    "Database gốc không có quan hệ Chủ trọ - Nhân viên độc lập. " +
+                    "Không thể hủy phân công thành NULL vì sẽ mất thông tin nhân viên " +
+                    "thuộc Chủ trọ nào. Bạn có thể điều chuyển sang một dãy khác " +
+                    "hoặc sử dụng database có bảng ChuTroNhanVien.");
+            }
 
             using var transaction =
                 connection.BeginTransaction(IsolationLevel.Serializable);
@@ -409,6 +440,34 @@ namespace QuanLyChuoiNhaTro.Services
                           AND nd.TrangThai = N'Hoạt động'
                       )
                   );";
+
+            if (!await SoDoChuTroService.CoBangLienKetAsync(
+                    connection, transaction))
+            {
+                command.CommandText = @"
+                    SELECT
+                        nd.MaNguoiDung,
+                        nd.HoTen,
+                        nv.MaDayTro
+                    FROM dbo.NhanVien AS nv WITH (UPDLOCK, HOLDLOCK)
+                    INNER JOIN dbo.NguoiDung AS nd
+                        ON nd.MaNguoiDung = nv.MaNguoiDung
+                    INNER JOIN dbo.DayTro AS d
+                        ON d.MaDayTro = nv.MaDayTro
+                    WHERE nv.MaNhanVien = @MaNhanVien
+                      AND d.MaChuTro = @MaChuTro
+                      AND nv.ChucVu = N'Quản lý'
+                      AND nd.VaiTro = N'Nhân viên quản lý'
+                      AND
+                      (
+                          @YeuCauDangLam = 0
+                          OR
+                          (
+                              nv.TrangThaiLamViec = N'Đang làm'
+                              AND nd.TrangThai = N'Hoạt động'
+                          )
+                      );";
+            }
 
             command.Parameters.Add(
                 "@MaNhanVien",

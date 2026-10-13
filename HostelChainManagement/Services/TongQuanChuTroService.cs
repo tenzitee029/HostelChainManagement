@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
@@ -153,6 +152,44 @@ namespace QuanLyChuoiNhaTro.Services
                 SqlDbType.Date).Value = DateTime.Today;
 
             await connection.OpenAsync();
+
+            if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
+            {
+                command.CommandText = sql.Replace(
+                    @"                    (
+                        SELECT COUNT(DISTINCT nv.MaNhanVien)
+                        FROM dbo.ChuTroNhanVien AS ct
+                        INNER JOIN dbo.NhanVien AS nv
+                            ON nv.MaNhanVien = ct.MaNhanVien
+                        INNER JOIN dbo.NguoiDung AS nd
+                            ON nd.MaNguoiDung = nv.MaNguoiDung
+                        WHERE ct.MaChuTro = @MaChuTro
+                          AND nv.TrangThaiLamViec = N'Đang làm'
+                          AND nd.TrangThai = N'Hoạt động'
+                          AND
+                          (
+                              nv.MaDayTro IS NULL
+                              OR EXISTS
+                              (
+                                  SELECT 1
+                                  FROM dbo.DayTro AS d
+                                  WHERE d.MaDayTro = nv.MaDayTro
+                                    AND d.MaChuTro = @MaChuTro
+                              )
+                          )
+                    ) AS NhanVienDangLam,",
+                    @"                    (
+                        SELECT COUNT(DISTINCT nv.MaNhanVien)
+                        FROM dbo.NhanVien AS nv
+                        INNER JOIN dbo.DayTro AS d
+                            ON d.MaDayTro = nv.MaDayTro
+                        INNER JOIN dbo.NguoiDung AS nd
+                            ON nd.MaNguoiDung = nv.MaNguoiDung
+                        WHERE d.MaChuTro = @MaChuTro
+                          AND nv.TrangThaiLamViec = N'Đang làm'
+                          AND nd.TrangThai = N'Hoạt động'
+                    ) AS NhanVienDangLam,");
+            }
 
             using var reader =
                 await command.ExecuteReaderAsync();

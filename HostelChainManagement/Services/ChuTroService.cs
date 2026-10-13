@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -11,7 +10,8 @@ namespace QuanLyChuoiNhaTro.Services
     {
         public sealed record TaiKhoanNhanVienMoi(
             string TenDangNhap,
-            string MatKhau);
+            string MatKhau,
+            string? MaDayTroTuDongGan = null);
 
         public static async Task<DataTable> GetDanhSachDayTroAsync()
         {
@@ -95,6 +95,28 @@ namespace QuanLyChuoiNhaTro.Services
                 20).Value = user.MaNguoiDung;
 
             await connection.OpenAsync();
+
+            if (!await SoDoChuTroService.CoBangLienKetAsync(connection))
+            {
+                command.CommandText = @"
+                    SELECT
+                        nv.MaNhanVien,
+                        nd.MaNguoiDung,
+                        nd.HoTen,
+                        nd.SoDienThoai,
+                        nd.CCCD,
+                        nv.ChucVu,
+                        nv.TrangThaiLamViec,
+                        nv.MaDayTro,
+                        d.TenDayTro
+                    FROM dbo.NhanVien AS nv
+                    INNER JOIN dbo.NguoiDung AS nd
+                        ON nd.MaNguoiDung = nv.MaNguoiDung
+                    INNER JOIN dbo.DayTro AS d
+                        ON d.MaDayTro = nv.MaDayTro
+                    WHERE d.MaChuTro = @MaChuTro
+                    ORDER BY nd.HoTen, nv.MaNhanVien;";
+            }
 
             using var reader = await command.ExecuteReaderAsync();
 
@@ -450,6 +472,33 @@ namespace QuanLyChuoiNhaTro.Services
 
             try
             {
+                bool coBangLienKet = await SoDoChuTroService.CoBangLienKetAsync(
+                    connection, transaction);
+                string? maDayTroTuDongGan = null;
+
+                if (!coBangLienKet && themMoi)
+                {
+                    using var layDay = connection.CreateCommand();
+                    layDay.Transaction = transaction;
+                    layDay.CommandText = @"
+                        SELECT TOP (1) MaDayTro
+                        FROM dbo.DayTro WITH (UPDLOCK, HOLDLOCK)
+                        WHERE MaChuTro = @MaChuTro
+                          AND TrangThai = N'Đang hoạt động'
+                        ORDER BY MaDayTro;";
+                    layDay.Parameters.Add("@MaChuTro", SqlDbType.VarChar, 20)
+                        .Value = user.MaNguoiDung;
+                    maDayTroTuDongGan = Convert.ToString(
+                        await layDay.ExecuteScalarAsync());
+
+                    if (string.IsNullOrWhiteSpace(maDayTroTuDongGan))
+                    {
+                        throw new InvalidOperationException(
+                            "Database gốc yêu cầu nhân viên thuộc một dãy trọ. " +
+                            "Hãy tạo ít nhất một dãy đang hoạt động trước khi thêm nhân viên.");
+                    }
+                }
+
                 using (var checkOwner = connection.CreateCommand())
                 {
                     checkOwner.Transaction = transaction;
@@ -498,6 +547,24 @@ namespace QuanLyChuoiNhaTro.Services
                               N'Nhân viên quản lý',
                               N'Nhân viên kỹ thuật'
                           );";
+
+                    if (!coBangLienKet)
+                    {
+                        checkNhanVien.CommandText = @"
+                            SELECT nv.MaNguoiDung
+                            FROM dbo.NhanVien AS nv WITH (UPDLOCK, HOLDLOCK)
+                            INNER JOIN dbo.DayTro AS d
+                                ON d.MaDayTro = nv.MaDayTro
+                            INNER JOIN dbo.NguoiDung AS nd
+                                ON nd.MaNguoiDung = nv.MaNguoiDung
+                            WHERE nv.MaNhanVien = @MaNhanVien
+                              AND d.MaChuTro = @MaChuTro
+                              AND nd.VaiTro IN
+                              (
+                                  N'Nhân viên quản lý',
+                                  N'Nhân viên kỹ thuật'
+                              );";
+                    }
 
                     checkNhanVien.Parameters.Add(
                         "@MaNhanVien",
@@ -649,7 +716,7 @@ namespace QuanLyChuoiNhaTro.Services
                             (
                                 @MaNhanVien,
                                 @MaNguoiDung,
-                                NULL,
+                                @MaDayTro,
                                 @ChucVu,
                                 N'Đang làm'
                             );";
@@ -665,6 +732,13 @@ namespace QuanLyChuoiNhaTro.Services
                             20).Value = maNguoiDungMoi;
 
                         insertNhanVien.Parameters.Add(
+                            "@MaDayTro",
+                            SqlDbType.VarChar,
+                            20).Value = coBangLienKet
+                                ? (object)DBNull.Value
+                                : maDayTroTuDongGan!;
+
+                        insertNhanVien.Parameters.Add(
                             "@ChucVu",
                             SqlDbType.NVarChar,
                             50).Value = chucVu;
@@ -672,8 +746,9 @@ namespace QuanLyChuoiNhaTro.Services
                         await insertNhanVien.ExecuteNonQueryAsync();
                     }
 
-                    using (var insertLink = connection.CreateCommand())
+                    if (coBangLienKet)
                     {
+                        using var insertLink = connection.CreateCommand();
                         insertLink.Transaction = transaction;
 
                         insertLink.CommandText = @"
@@ -796,7 +871,8 @@ namespace QuanLyChuoiNhaTro.Services
                 return themMoi
                     ? new TaiKhoanNhanVienMoi(
                         tenDangNhapMoi,
-                        matKhauTam)
+                        matKhauTam,
+                        maDayTroTuDongGan)
                     : null;
             }
             catch

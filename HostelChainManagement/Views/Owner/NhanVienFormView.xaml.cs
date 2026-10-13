@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Linq;
 using System.Windows;
@@ -166,6 +165,11 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                         + Environment.NewLine
                         + "Mật khẩu tạm: "
                         + taiKhoan.MatKhau
+                        + (string.IsNullOrWhiteSpace(taiKhoan.MaDayTroTuDongGan)
+                            ? ""
+                            : Environment.NewLine
+                              + "Dãy trọ tự động gán: "
+                              + taiKhoan.MaDayTroTuDongGan)
                         + Environment.NewLine
                         + Environment.NewLine
                         + "Hãy ghi lại thông tin đăng nhập này "

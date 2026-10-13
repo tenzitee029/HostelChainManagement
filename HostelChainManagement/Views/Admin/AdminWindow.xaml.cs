@@ -36,7 +36,6 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             NhatKyHeThongView view => !view.IsBusy,
             QuanLyTaiKhoanView view => !view.IsBusy,
             TaoTaiKhoanView view => !view.IsBusy,
-            ThongBaoAdminView view => !view.IsBusy,
             _ => true
         };
 
@@ -144,7 +143,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 return;
 
             ShowView(
-                new ThongBaoAdminView(),
+                new (),
                 "Thông báo");
         }
 

@@ -18,7 +18,8 @@ namespace QuanLyChuoiNhaTro.Services;
 
 public sealed record CreatedAccount(
     string Id,
-    bool EmailSent);
+    bool EmailSent,
+    string? InitialPassword = null);
 
 public static class AdminService
 {
@@ -287,6 +288,180 @@ public static class AdminService
             transaction,
             $"Đổi trạng thái tài khoản {id}: "
                 + $"{expected} → {next}.");
+
+        transaction.Commit();
+    }
+
+    public static async Task DeleteAccountAsync(
+    string id,
+    string expectedStatus)
+    {
+        string adminId = UserId();
+
+        if (id == adminId)
+        {
+            throw new InvalidOperationException(
+                "Không thể xóa tài khoản Admin đang đăng nhập.");
+        }
+
+        using var connection = Database.CreateConnection();
+        await connection.OpenAsync();
+
+        using var transaction = connection.BeginTransaction(
+            IsolationLevel.Serializable);
+
+        await LockAccountsAsync(connection, transaction);
+
+        using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+
+        command.Parameters.Add(
+            "@Id",
+            SqlDbType.VarChar,
+            20).Value = id;
+
+        command.Parameters.Add(
+            "@ExpectedStatus",
+            SqlDbType.NVarChar,
+            30).Value = expectedStatus;
+
+        command.CommandText = @"
+        SELECT TenDangNhap
+        FROM dbo.NguoiDung WITH (UPDLOCK, HOLDLOCK)
+        WHERE MaNguoiDung = @Id
+          AND TrangThai = @ExpectedStatus;";
+
+        string? login =
+            await command.ExecuteScalarAsync() as string;
+
+        if (login == null)
+        {
+            throw new InvalidOperationException(
+                "Tài khoản đã thay đổi hoặc không còn tồn tại. "
+                + "Vui lòng tải lại danh sách.");
+        }
+
+        command.CommandText = @"
+        IF EXISTS
+        (
+            SELECT 1 FROM dbo.NguoiDung
+            WHERE MaNguoiDung = @Id
+              AND VaiTro = N'Admin'
+              AND TrangThai = N'Hoạt động'
+        )
+        AND
+        (
+            SELECT COUNT(*) FROM dbo.NguoiDung
+            WHERE VaiTro = N'Admin'
+              AND TrangThai = N'Hoạt động'
+        ) <= 1
+            THROW 50001,
+                N'Không thể xóa Admin hoạt động cuối cùng.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1 FROM dbo.DayTro
+            WHERE MaChuTro = @Id
+        )
+            THROW 50001,
+                N'Không thể xóa: tài khoản đang liên kết với dãy trọ sở hữu.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1 FROM dbo.NhanVien
+            WHERE MaNguoiDung = @Id
+              AND ChucVu = N'Quản lý'
+              AND MaDayTro IS NOT NULL
+              AND TrangThaiLamViec = N'Đang làm'
+        )
+            THROW 50001,
+                N'Cần bàn giao dãy trọ đang quản lý trước khi xóa tài khoản.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1
+            FROM dbo.HopDongThue hd
+            JOIN dbo.KhachThue kt
+                ON kt.MaKhachThue = hd.MaKhachThue
+            WHERE kt.MaNguoiDung = @Id
+        )
+            THROW 50001,
+                N'Không thể xóa: tài khoản có lịch sử hợp đồng thuê.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1
+            FROM dbo.ChiTietSuaChua ct
+            JOIN dbo.NhanVien nv
+                ON nv.MaNhanVien = ct.MaNhanVien
+            WHERE nv.MaNguoiDung = @Id
+        )
+            THROW 50001,
+                N'Không thể xóa: tài khoản có lịch sử công việc sửa chữa.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1 FROM dbo.PhieuSuCo
+            WHERE MaNguoiGui = @Id
+        )
+            THROW 50001,
+                N'Không thể xóa: tài khoản đã gửi phiếu sự cố.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1 FROM dbo.ThanhToan
+            WHERE MaNguoiXacNhan = @Id
+        )
+            THROW 50001,
+                N'Không thể xóa: tài khoản có lịch sử xác nhận thanh toán.',
+                1;
+
+        IF EXISTS
+        (
+            SELECT 1 FROM dbo.ThongBao
+            WHERE MaNguoiGui = @Id
+        )
+            THROW 50001,
+                N'Không thể xóa: tài khoản có lịch sử gửi thông báo.',
+                1;
+
+        DELETE FROM dbo.MaOtp
+        WHERE MaNguoiDung = @Id;
+
+        DELETE FROM dbo.ThongBaoNguoiNhan
+        WHERE MaNguoiNhan = @Id;
+
+        -- Giữ nhật ký, bỏ liên kết đến tài khoản được xóa.
+        UPDATE dbo.NhatKyHeThong
+        SET MaNguoiDung = NULL
+        WHERE MaNguoiDung = @Id;
+
+        DELETE FROM dbo.NhanVien
+        WHERE MaNguoiDung = @Id;
+
+        DELETE FROM dbo.KhachThue
+        WHERE MaNguoiDung = @Id;
+
+        DELETE FROM dbo.NguoiDung
+        WHERE MaNguoiDung = @Id;
+
+        IF @@ROWCOUNT <> 1
+            THROW 50001,
+                N'Không xóa được tài khoản. Vui lòng tải lại.',
+                1;";
+
+        await command.ExecuteNonQueryAsync();
+
+        await AuditAsync(
+            connection,
+            transaction,
+            $"Xóa vĩnh viễn tài khoản {login}, mã {id}.");
 
         transaction.Commit();
     }
@@ -581,15 +756,14 @@ public static class AdminService
         };
     }
 
-    public static async Task<CreatedAccount>
-        CreateAccountAsync(
-            string login,
-            string email,
-            string phone,
-            string role,
-            string fullName,
-            string cccd,
-            string? day)
+    public static async Task<CreatedAccount> CreateAccountAsync(
+    string login,
+    string email,
+    string phone,
+    string role,
+    string fullName,
+    string cccd,
+    string? day)
     {
         login = login.Trim();
         email = email.Trim();
@@ -597,21 +771,52 @@ public static class AdminService
         fullName = fullName.Trim();
         cccd = cccd.Trim();
 
-        if (!Regex.IsMatch(
-            login,
-            @"^[A-Za-z0-9_.-]{3,50}$"))
+        bool hasEmail = !string.IsNullOrWhiteSpace(email);
+
+        if (!Regex.IsMatch(login, @"^[A-Za-z0-9_.-]{3,50}$"))
         {
             throw new InvalidOperationException(
-                "Tên đăng nhập: 3–50 ký tự chữ, số, "
-                + "_, . hoặc -.");
+                "Tên đăng nhập cần 3–50 ký tự chữ, số, "
+                + "dấu _, . hoặc -.");
         }
 
-        if (email.Length > 100
-            || email.Any(character => character > 127)
-            || new MailAddress(email).Address != email)
+        if (string.IsNullOrWhiteSpace(fullName)
+            || fullName.Length > 100)
         {
             throw new InvalidOperationException(
-                "Email không hợp lệ.");
+                "Họ tên không được để trống, tối đa 100 ký tự.");
+        }
+
+        if (!Regex.IsMatch(cccd, @"^[0-9]{12}$"))
+        {
+            throw new InvalidOperationException(
+                "CCCD phải có đúng 12 chữ số.");
+        }
+
+        if (hasEmail)
+        {
+            bool validEmail;
+
+            try
+            {
+                validEmail =
+                    email.Length <= 100
+                    && !email.Any(character => character > 127)
+                    && string.Equals(
+                        new MailAddress(email).Address,
+                        email,
+                        StringComparison.OrdinalIgnoreCase);
+            }
+            catch (FormatException)
+            {
+                validEmail = false;
+            }
+
+            if (!validEmail)
+            {
+                throw new InvalidOperationException(
+                    "Email không hợp lệ. Bạn có thể để trống.");
+            }
         }
 
         if (!Regex.IsMatch(phone, @"^[0-9]{9,15}$"))
@@ -620,28 +825,38 @@ public static class AdminService
                 "SĐT cần 9–15 chữ số.");
         }
 
-        if (!Roles.Contains(role)
-            || fullName.Length is < 1 or > 100
-            || !Regex.IsMatch(cccd, @"^[0-9]{12}$"))
+        if (!Roles.Contains(role))
         {
             throw new InvalidOperationException(
-                "Chọn vai trò, nhập họ tên "
-                + "(tối đa 100 ký tự) và CCCD 12 chữ số.");
+                "Vai trò không hợp lệ.");
         }
 
-        if (role == "Nhân viên quản lý"
-            && string.IsNullOrWhiteSpace(day))
+        bool employee =
+            role == "Nhân viên quản lý"
+            || role == "Nhân viên kỹ thuật";
+
+        day = employee && !string.IsNullOrWhiteSpace(day)
+            ? day.Trim()
+            : null;
+
+        if (role == "Nhân viên quản lý" && day == null)
         {
             throw new InvalidOperationException(
                 "Chọn dãy trọ cho nhân viên quản lý.");
         }
 
-        // Kiểm tra cấu hình email trước khi tạo tài khoản.
-        using var smtp = CreateSmtp(out string from);
+        string adminId = UserId();
+
+        // Email trống thì không đọc cấu hình SMTP.
+        string from = "";
+
+        using SmtpClient? smtp = hasEmail
+            ? CreateSmtp(out from)
+            : null;
 
         string password =
             Convert.ToBase64String(
-                RandomNumberGenerator.GetBytes(18))
+                RandomNumberGenerator.GetBytes(12))
             + "@1aA";
 
         string id = NewId("ND");
@@ -650,70 +865,85 @@ public static class AdminService
         {
             await connection.OpenAsync();
 
-            using var transaction =
-                connection.BeginTransaction();
+            using var transaction = connection.BeginTransaction();
 
-            await LockAccountsAsync(
-                connection,
-                transaction);
+            await LockAccountsAsync(connection, transaction);
+
+            if (day != null)
+            {
+                using var dayCommand = connection.CreateCommand();
+                dayCommand.Transaction = transaction;
+
+                dayCommand.CommandText = @"
+                SELECT COUNT(*)
+                FROM dbo.DayTro WITH (HOLDLOCK)
+                WHERE MaDayTro = @Day
+                  AND TrangThai = N'Đang hoạt động';";
+
+                dayCommand.Parameters.Add(
+                    "@Day",
+                    SqlDbType.VarChar,
+                    20).Value = day;
+
+                if (Convert.ToInt32(
+                    await dayCommand.ExecuteScalarAsync()) != 1)
+                {
+                    throw new InvalidOperationException(
+                        "Dãy trọ không tồn tại hoặc đã ngừng hoạt động.");
+                }
+            }
 
             using var command = connection.CreateCommand();
             command.Transaction = transaction;
 
             command.CommandText = @"
-                INSERT dbo.NguoiDung
-                (
-                    MaNguoiDung,
-                    TenDangNhap,
-                    MatKhau,
-                    HoTen,
-                    CCCD,
-                    Email,
-                    SoDienThoai,
-                    VaiTro
-                )
-                VALUES
-                (
-                    @Id,
-                    @Login,
-                    @Password,
-                    @Name,
-                    @CCCD,
-                    @Email,
-                    @Phone,
-                    @Role
-                );";
+            INSERT dbo.NguoiDung
+            (
+                MaNguoiDung,
+                TenDangNhap,
+                MatKhau,
+                HoTen,
+                CCCD,
+                Email,
+                SoDienThoai,
+                VaiTro
+            )
+            VALUES
+            (
+                @Id,
+                @Login,
+                @Password,
+                @Name,
+                @CCCD,
+                @Email,
+                @Phone,
+                @Role
+            );";
 
             command.Parameters.Add(
                 "@Id", SqlDbType.VarChar, 20).Value = id;
 
             command.Parameters.Add(
-                "@Login", SqlDbType.VarChar, 50).Value =
-                login;
+                "@Login", SqlDbType.VarChar, 50).Value = login;
 
             command.Parameters.Add(
-                "@Password", SqlDbType.VarChar, 255).Value =
-                password;
+                "@Password", SqlDbType.VarChar, 255).Value = password;
 
             command.Parameters.Add(
-                "@Name", SqlDbType.NVarChar, 100).Value =
-                fullName;
+                "@Name", SqlDbType.NVarChar, 100).Value = fullName;
 
             command.Parameters.Add(
-                "@CCCD", SqlDbType.VarChar, 12).Value =
-                cccd;
+                "@CCCD", SqlDbType.VarChar, 12).Value = cccd;
 
             command.Parameters.Add(
                 "@Email", SqlDbType.VarChar, 100).Value =
-                email;
+                hasEmail ? (object)email : DBNull.Value;
 
             command.Parameters.Add(
-                "@Phone", SqlDbType.VarChar, 15).Value =
-                phone;
+                "@Phone", SqlDbType.VarChar, 15).Value = phone;
 
             command.Parameters.Add(
-                "@Role", SqlDbType.NVarChar, 50).Value =
-                role;
+                "@Role", SqlDbType.NVarChar, 50).Value = role;
 
             await command.ExecuteNonQueryAsync();
 
@@ -732,28 +962,35 @@ public static class AdminService
             transaction.Commit();
         }
 
+        if (!hasEmail)
+        {
+            return new CreatedAccount(id, false, password);
+        }
+
         try
         {
             using var mail = new MailMessage(
                 from,
                 email,
-                "Tài khoản hệ thống quản lý nhà trọ",
-                $"Xin chào {fullName},\n"
-                    + $"Tên đăng nhập: {login}\n"
-                    + $"Mật khẩu: {password}\n"
-                    + "Vui lòng đổi mật khẩu sau khi đăng nhập.");
+                "Tạo tài khoản hệ thống quản lý nhà trọ thành công",
+                $"Xin chào {fullName},\n\n"
+                + "Tài khoản của bạn đã được tạo thành công.\n"
+                + $"Tên đăng nhập: {login}\n"
+                + $"Mật khẩu ban đầu: {password}\n"
+                + $"Vai trò: {role}\n\n"
+                + "Vui lòng đổi mật khẩu sau khi đăng nhập.");
 
-            await smtp.SendMailAsync(mail);
+            await smtp!.SendMailAsync(mail);
 
             return new CreatedAccount(id, true);
         }
         catch
         {
             await SystemLogService.TryWriteAsync(
-                UserId(),
+                adminId,
                 "Log lỗi runtime",
                 $"Đã tạo tài khoản {id} "
-                    + "nhưng chưa gửi được email cấp mật khẩu.");
+                + "nhưng chưa gửi được email thông tin đăng nhập.");
 
             return new CreatedAccount(id, false);
         }

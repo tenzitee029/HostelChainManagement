@@ -15,7 +15,12 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         private bool _busy;
 
         public bool IsBusy => _busy;
+
         public event Action? CreateRequested;
+
+        private sealed record RoleSelection(
+            string Role,
+            string? Day);
 
         public QuanLyTaiKhoanView()
         {
@@ -50,16 +55,31 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 await action();
 
                 if (success != null)
+                {
                     txtStatus.Text = success;
+                }
                 else if (txtStatus.Text == "Đang xử lý...")
+                {
                     txtStatus.Text = "";
+                }
             }
             catch (SqlException ex)
             {
-                txtStatus.Text = ex.Number == 50001
-                    ? ex.Message
-                    : "Không thực hiện được thao tác. "
-                        + "Vui lòng kiểm tra SQL Server.";
+                txtStatus.Text = ex.Number switch
+                {
+                    50001 => ex.Message,
+
+                    547 =>
+                        "Không thực hiện được vì tài khoản còn "
+                        + "liên kết với dữ liệu khác trong hệ thống.",
+
+                    2601 or 2627 =>
+                        "Thông tin tài khoản đã tồn tại.",
+
+                    _ =>
+                        "Không thực hiện được thao tác. "
+                        + "Vui lòng kiểm tra SQL Server."
+                };
             }
             catch (Exception ex)
             {
@@ -72,28 +92,45 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         }
 
         private async void View_Loaded(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             await RunAsync(LoadAccountsAsync);
         }
 
         private async Task LoadAccountsAsync()
         {
-            _accounts =
+            var session = UserSession.CurrentUser;
+
+            var accounts =
                 await AdminService.GetAccountsAsync();
 
-            if (IsLoaded)
-                ApplyAccountFilter();
+            if (!IsLoaded
+                || !ReferenceEquals(
+                    session,
+                    UserSession.CurrentUser))
+            {
+                return;
+            }
+
+            _accounts = accounts;
+
+            ApplyAccountFilter();
         }
 
         private void ApplyAccountFilter()
         {
             if (_accounts == null
                 || txtSearch == null
-                || cboStatus == null)
+                || cboRoleFilter == null
+                || cboStatus == null
+                || accountsGrid == null
+                || txtNoAccounts == null)
             {
                 return;
             }
+
+            string search = txtSearch.Text.Trim();
 
             string role =
                 cboRoleFilter.SelectedItem as string
@@ -104,14 +141,17 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                     .Content.ToString()
                 ?? "Tất cả trạng thái";
 
-            var rows = _accounts.DefaultView.Cast<DataRowView>()
+            var rows = _accounts.DefaultView
+                .Cast<DataRowView>()
                 .Where(row =>
                     (row["TenDangNhap"].ToString() ?? "")
                         .Contains(
-                            txtSearch.Text.Trim(),
+                            search,
                             StringComparison.OrdinalIgnoreCase)
+
                     && (role == "Tất cả vai trò"
                         || row["VaiTro"].ToString() == role)
+
                     && (status == "Tất cả trạng thái"
                         || row["TrangThai"].ToString() == status))
                 .ToList();
@@ -124,90 +164,313 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         }
 
         private void AccountFilter_Changed(
-            object sender, SelectionChangedEventArgs e)
+            object sender,
+            SelectionChangedEventArgs e)
         {
             ApplyAccountFilter();
         }
 
         private void AccountSearch_Changed(
-            object sender, TextChangedEventArgs e)
+            object sender,
+            TextChangedEventArgs e)
         {
             ApplyAccountFilter();
         }
 
         private void NewAccount_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             if (!_busy)
+            {
                 CreateRequested?.Invoke();
+            }
+        }
+
+        private bool Confirm(
+            string message,
+            string title,
+            MessageBoxImage image = MessageBoxImage.Question)
+        {
+            var owner = Window.GetWindow(this);
+
+            MessageBoxResult result = owner != null
+                ? MessageBox.Show(
+                    owner,
+                    message,
+                    title,
+                    MessageBoxButton.YesNo,
+                    image)
+                : MessageBox.Show(
+                    message,
+                    title,
+                    MessageBoxButton.YesNo,
+                    image);
+
+            return result == MessageBoxResult.Yes;
+        }
+
+        private async void DeleteAccount_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (_busy
+                || sender is not Button button
+                || button.DataContext is not DataRowView row)
+            {
+                return;
+            }
+
+            string id = row["MaNguoiDung"].ToString()!;
+            string login = row["TenDangNhap"].ToString()!;
+            string status = row["TrangThai"].ToString()!;
+
+            if (id == UserSession.CurrentUser?.MaNguoiDung)
+            {
+                txtStatus.Text =
+                    "Không thể xóa tài khoản Admin đang đăng nhập.";
+
+                return;
+            }
+
+            string message =
+                $"Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản {login}?\n\n"
+                + "Tài khoản sẽ bị xóa khỏi database. "
+                + "Nếu còn dữ liệu nghiệp vụ liên quan, "
+                + "hệ thống sẽ thông báo và không xóa.";
+
+            if (!Confirm(
+                message,
+                "Xác nhận xóa tài khoản",
+                MessageBoxImage.Warning))
+            {
+                return;
+            }
+
+            await RunAsync(
+                async () =>
+                {
+                    await AdminService.DeleteAccountAsync(
+                        id,
+                        status);
+
+                    // Đúng tên hàm của file hiện tại.
+                    await LoadAccountsAsync();
+                },
+                $"Đã xóa vĩnh viễn tài khoản {login}.");
         }
 
         private async void ToggleStatus_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             if (_busy
-                || (sender as Button)?.DataContext
-                    is not DataRowView row)
+                || sender is not Button button
+                || button.DataContext is not DataRowView row)
             {
                 return;
             }
 
             string id = row["MaNguoiDung"].ToString()!;
-            string old = row["TrangThai"].ToString()!;
+            string login = row["TenDangNhap"].ToString()!;
+            string oldStatus = row["TrangThai"].ToString()!;
 
-            string next =
-                old == "Hoạt động" ? "Khóa" : "Hoạt động";
+            if (id == UserSession.CurrentUser?.MaNguoiDung)
+            {
+                txtStatus.Text =
+                    "Không thể tự vô hiệu hóa tài khoản "
+                    + "quản trị đang đăng nhập.";
 
-            string action =
-                next == "Khóa" ? "Khóa" : "Mở khóa";
+                return;
+            }
 
-            if (MessageBox.Show(
-                Window.GetWindow(this),
-                $"{action} tài khoản {row["TenDangNhap"]}?",
-                "Xác nhận",
-                MessageBoxButton.YesNo)
-                != MessageBoxResult.Yes)
+            if (oldStatus is not ("Hoạt động" or "Khóa"))
+            {
+                txtStatus.Text =
+                    "Tài khoản không ở trạng thái cho phép "
+                    + "khóa hoặc mở khóa.";
+
+                return;
+            }
+
+            string nextStatus = oldStatus == "Hoạt động"
+                ? "Khóa"
+                : "Hoạt động";
+
+            string action = nextStatus == "Khóa"
+                ? "Khóa"
+                : "Mở khóa";
+
+            if (!Confirm(
+                $"{action} tài khoản {login}?",
+                "Xác nhận"))
             {
                 return;
             }
 
-            await RunAsync(async () =>
-            {
-                await AdminService.SetStatusAsync(
-                    id, old, next);
+            await RunAsync(
+                async () =>
+                {
+                    await AdminService.SetStatusAsync(
+                        id,
+                        oldStatus,
+                        nextStatus);
 
-                await LoadAccountsAsync();
-            }, "Cập nhật trạng thái tài khoản thành công.");
+                    await LoadAccountsAsync();
+                },
+                "Cập nhật trạng thái tài khoản thành công.");
+        }
+
+        private RoleSelection? PromptRole(
+            DataTable days,
+            string currentRole)
+        {
+            var panel = new StackPanel
+            {
+                Margin = new Thickness(20)
+            };
+
+            var roles = new ComboBox
+            {
+                ItemsSource = AdminService.Roles,
+                SelectedItem = currentRole,
+                MinHeight = 34,
+                Margin = new Thickness(0, 6, 0, 12)
+            };
+
+            var day = new ComboBox
+            {
+                ItemsSource = days.DefaultView,
+                DisplayMemberPath = "TenDayTro",
+                SelectedValuePath = "MaDayTro",
+                MinHeight = 34,
+                Margin = new Thickness(0, 6, 0, 12)
+            };
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = "Vai trò mới"
+            });
+
+            panel.Children.Add(roles);
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = "Dãy trọ — bắt buộc với Nhân viên quản lý",
+                TextWrapping = TextWrapping.Wrap
+            });
+
+            panel.Children.Add(day);
+
+            var status = new TextBlock
+            {
+                Foreground = System.Windows.Media.Brushes.DarkOrange,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+
+            panel.Children.Add(status);
+
+            var button = new Button
+            {
+                Content = "Xác nhận",
+                Padding = new Thickness(14, 8, 14, 8),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                IsDefault = true
+            };
+
+            panel.Children.Add(button);
+
+            var dialog = new Window
+            {
+                Owner = Window.GetWindow(this),
+                Title = "Cập nhật vai trò",
+                Width = 460,
+                SizeToContent = SizeToContent.Height,
+                WindowStartupLocation =
+                    WindowStartupLocation.CenterOwner,
+                ResizeMode = ResizeMode.NoResize,
+                Content = panel
+            };
+
+            button.Click += (_, _) =>
+            {
+                if (roles.SelectedItem is not string role)
+                {
+                    status.Text = "Vui lòng chọn vai trò.";
+                    return;
+                }
+
+                if (role != currentRole
+                    && role == "Nhân viên quản lý"
+                    && day.SelectedValue == null)
+                {
+                    status.Text =
+                        "Vui lòng chọn dãy trọ cho nhân viên quản lý.";
+
+                    return;
+                }
+
+                dialog.DialogResult = true;
+            };
+
+            if (dialog.ShowDialog() != true
+                || roles.SelectedItem is not string selectedRole)
+            {
+                return null;
+            }
+
+            bool employee =
+                selectedRole == "Nhân viên quản lý"
+                || selectedRole == "Nhân viên kỹ thuật";
+
+            return new RoleSelection(
+                selectedRole,
+                employee ? day.SelectedValue as string : null);
         }
 
         private async void ChangeRole_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
-            if (_busy
-                || accountsGrid.SelectedItem
-                    is not DataRowView row)
+            if (_busy)
+                return;
+
+            if (accountsGrid.SelectedItem is not DataRowView row)
             {
+                txtStatus.Text =
+                    "Vui lòng chọn tài khoản cần cập nhật vai trò.";
+
                 return;
             }
 
             string id = row["MaNguoiDung"].ToString()!;
-            string old = row["VaiTro"].ToString()!;
+            string oldRole = row["VaiTro"].ToString()!;
 
             await RunAsync(async () =>
             {
-                var info = AdminProfileDialog.Show(
-                    Window.GetWindow(this),
-                    await AdminService.GetDaysAsync(),
-                    old,
-                    false);
+                var days = await AdminService.GetDaysAsync();
 
-                if (info == null)
+                var selection = PromptRole(days, oldRole);
+
+                if (selection == null)
                     return;
 
+                if (selection.Role == oldRole)
+                {
+                    txtStatus.Text = "Vai trò không thay đổi.";
+                    return;
+                }
+
+                // Service bạn gửi nhận 4 tham số.
                 await AdminService.SetRoleAsync(
-                    id, old, info.Role, info.Day);
+                    id,
+                    oldRole,
+                    selection.Role,
+                    selection.Day);
 
                 await LoadAccountsAsync();
+
                 txtStatus.Text = "Đã cập nhật vai trò.";
             });
         }

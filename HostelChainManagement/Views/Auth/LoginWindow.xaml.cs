@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
 using QuanLyChuoiNhaTro.Views.Admin;
@@ -17,6 +18,7 @@ namespace QuanLyChuoiNhaTro.Views.Auth
         public LoginWindow()
         {
             InitializeComponent();
+
             Loaded += (_, _) => txtAccount.Focus();
         }
 
@@ -43,12 +45,9 @@ namespace QuanLyChuoiNhaTro.Views.Auth
                 var user = await AuthService.LoginAsync(
                     account, password);
 
-                // Không mở cửa sổ mới nếu người dùng đã đóng form.
                 if (!IsVisible)
                     return;
 
-                // Lưu phiên trước khi tạo cửa sổ,
-                // vì cửa sổ có thể đọc CurrentUser trong constructor.
                 UserSession.SignIn(user);
 
                 destination = CreateRoleWindow(user.VaiTro);
@@ -80,7 +79,6 @@ namespace QuanLyChuoiNhaTro.Views.Auth
                 txtMessage.Text =
                     "Không thể mở giao diện tài khoản.";
 
-                // Hiển thị chi tiết trong giai đoạn phát triển.
                 MessageBox.Show(
                     this,
                     ex.Message,
@@ -183,7 +181,54 @@ namespace QuanLyChuoiNhaTro.Views.Auth
 
         private void ForgotPassword_Click(object sender, RoutedEventArgs e)
         {
-            
+            ShowForgotPassword();
+        }
+
+        private void ShowForgotPassword(string email = "")
+        {
+            var view = new ForgotPasswordView(email);
+
+            view.SendCodeRequested += submittedEmail =>
+            {
+                ShowVerifyOtp(submittedEmail);
+            };
+
+            view.BackToLoginRequested += ShowLoginForm;
+
+            ShowAuthView(view);
+        }
+
+        private void ShowVerifyOtp(string email)
+        {
+            var view = new VerifyOtpView(email);
+
+            view.BackToEmailRequested += () =>
+            {
+                ShowForgotPassword(email);
+            };
+
+            view.BackToLoginRequested += ShowLoginForm;
+
+            ShowAuthView(view);
+        }
+
+        private void ShowAuthView(UserControl view)
+        {
+            LoginFormBorder.Visibility = Visibility.Collapsed;
+
+            AuthContentHost.Content = view;
+            AuthContentHost.Visibility = Visibility.Visible;
+        }
+
+        private void ShowLoginForm()
+        {
+            AuthContentHost.Content = null;
+            AuthContentHost.Visibility = Visibility.Collapsed;
+
+            LoginFormBorder.Visibility = Visibility.Visible;
+
+            txtMessage.Text = string.Empty;
+            txtAccount.Focus();
         }
     }
 }

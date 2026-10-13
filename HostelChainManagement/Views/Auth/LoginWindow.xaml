@@ -12,7 +12,7 @@
         UseLayoutRounding="True">
 
     <Window.Resources>
-        <!-- Ô nhập tài khoản và mật khẩu đang hiện -->
+
         <Style TargetType="TextBox">
             <Setter Property="Height" Value="42"/>
             <Setter Property="Padding" Value="12,0"/>
@@ -35,7 +35,6 @@
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
-        <!-- Nút đăng nhập -->
         <Style x:Key="LoginButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#2563EB"/>
             <Setter Property="Foreground" Value="White"/>
@@ -78,7 +77,6 @@
             </Setter>
         </Style>
 
-        <!-- Nút dạng liên kết và nút con mắt -->
         <Style x:Key="FlatButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#2563EB"/>
@@ -115,8 +113,9 @@
             <ColumnDefinition Width="52*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Bên trái: giới thiệu hệ thống -->
-        <Border Grid.Column="0" Background="#1E293B">
+        <Border Grid.Column="0"
+                Background="#1E293B">
+
             <StackPanel Margin="48,30"
                         VerticalAlignment="Center">
 
@@ -126,6 +125,7 @@
                         CornerRadius="3"
                         HorizontalAlignment="Left"
                         Margin="0,0,0,24">
+
                     <TextBlock Text="NT"
                                Foreground="White"
                                FontSize="16"
@@ -182,107 +182,124 @@
                     <Run Text="✓  " Foreground="#93C5FD"/>
                     <Run Text="Hỗ trợ quản lý yêu cầu sửa chữa"/>
                 </TextBlock>
+
             </StackPanel>
         </Border>
 
-        <!-- Bên phải: khung đăng nhập -->
-        <Border Grid.Column="1"
-                Width="350"
-                Padding="30"
-                Background="White"
-                BorderBrush="#D1D5DB"
-                BorderThickness="1"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
+        <Grid Grid.Column="1"
+              Background="#F8FAFC">
 
-            <StackPanel>
-                <TextBlock Text="Đăng nhập"
-                           Foreground="#111827"
-                           FontSize="22"
-                           FontWeight="Bold"
-                           Margin="0,0,0,24"/>
+            <Border x:Name="LoginFormBorder"
+                    Width="350"
+                    Padding="30"
+                    Background="White"
+                    BorderBrush="#D1D5DB"
+                    BorderThickness="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
 
-                <TextBlock Text="Tên đăng nhập"
-                           Foreground="#374151"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,7"/>
+                <StackPanel>
 
-                <TextBox x:Name="txtAccount"
-                         MaxLength="50"
-                         Margin="0,0,0,16"
-                         ToolTip="Nhập tên đăng nhập"/>
+                    <TextBlock Text="Đăng nhập"
+                               Foreground="#111827"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Margin="0,0,0,24"/>
 
-                <TextBlock Text="Mật khẩu"
-                           Foreground="#374151"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,7"/>
+                    <TextBlock Text="Tên đăng nhập"
+                               Foreground="#374151"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,7"/>
 
-                <Grid>
-                    <PasswordBox x:Name="txtPassword"
+                    <TextBox x:Name="txtAccount"
+                             MaxLength="50"
+                             Margin="0,0,0,16"
+                             ToolTip="Nhập tên đăng nhập"/>
+
+                    <TextBlock Text="Mật khẩu"
+                               Foreground="#374151"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,7"/>
+
+                    <Grid>
+
+                        <PasswordBox x:Name="txtPassword"
+                                     MaxLength="128"
+                                     Padding="12,0,42,0"/>
+
+                        <TextBox x:Name="txtVisiblePassword"
                                  MaxLength="128"
-                                 Padding="12,0,42,0"/>
+                                 Padding="12,0,42,0"
+                                 Visibility="Collapsed"/>
 
-                    <TextBox x:Name="txtVisiblePassword"
-                             MaxLength="128"
-                             Padding="12,0,42,0"
-                             Visibility="Collapsed"/>
+                        <Button x:Name="btnTogglePassword"
+                                Width="38"
+                                Height="38"
+                                Margin="0,0,2,0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Foreground="#64748B"
+                                ToolTip="Hiện mật khẩu"
+                                Style="{StaticResource FlatButtonStyle}"
+                                Click="TogglePassword_Click">
 
-                    <Button x:Name="btnTogglePassword"
-                            Width="38"
-                            Height="38"
-                            Margin="0,0,2,0"
+                            <Viewbox Width="18"
+                                     Height="18">
+                                <Canvas Width="24"
+                                        Height="24">
+
+                                    <Path
+                                        Data="M 2,12 C 7,4 17,4 22,12 C 17,20 7,20 2,12 Z"
+                                        Stroke="{Binding Foreground,
+                                            RelativeSource={RelativeSource AncestorType=Button}}"
+                                        StrokeThickness="1.7"/>
+
+                                    <Ellipse Width="6"
+                                             Height="6"
+                                             Canvas.Left="9"
+                                             Canvas.Top="9"
+                                             Stroke="{Binding Foreground,
+                                                 RelativeSource={RelativeSource AncestorType=Button}}"
+                                             StrokeThickness="1.7"/>
+
+                                </Canvas>
+                            </Viewbox>
+
+                        </Button>
+                    </Grid>
+
+                    <Button x:Name="btnForgotPassword"
+                            Content="Quên mật khẩu?"
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Padding="0,5"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            Foreground="#64748B"
-                            ToolTip="Hiện mật khẩu"
+                            Margin="0,6,0,16"
                             Style="{StaticResource FlatButtonStyle}"
-                            Click="TogglePassword_Click">
+                            Click="ForgotPassword_Click"/>
 
-                        <!-- Biểu tượng mắt bằng vector -->
-                        <Viewbox Width="18" Height="18">
-                            <Canvas Width="24" Height="24">
-                                <Path
-                                    Data="M 2,12 C 7,4 17,4 22,12 C 17,20 7,20 2,12 Z"
-                                    Stroke="{Binding Foreground,
-                                        RelativeSource={RelativeSource AncestorType=Button}}"
-                                    StrokeThickness="1.7"/>
+                    <Button x:Name="btnLogin"
+                            Content="ĐĂNG NHẬP"
+                            IsDefault="True"
+                            Style="{StaticResource LoginButtonStyle}"
+                            Click="Login_Click"/>
 
-                                <Ellipse Width="6"
-                                         Height="6"
-                                         Canvas.Left="9"
-                                         Canvas.Top="9"
-                                         Stroke="{Binding Foreground,
-                                             RelativeSource={RelativeSource AncestorType=Button}}"
-                                         StrokeThickness="1.7"/>
-                            </Canvas>
-                        </Viewbox>
-                    </Button>
-                </Grid>
+                    <TextBlock x:Name="txtMessage"
+                               Foreground="#DC2626"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Margin="0,12,0,0"/>
 
-                <Button x:Name="btnForgotPassword"
-                        Content="Quên mật khẩu?"
-                        FontSize="12"
-                        FontWeight="SemiBold"
-                        Padding="0,5"
-                        HorizontalAlignment="Right"
-                        Margin="0,6,0,16"
-                        Style="{StaticResource FlatButtonStyle}"
-                        Click="ForgotPassword_Click"/>
+                </StackPanel>
+            </Border>
 
-                <Button x:Name="btnLogin"
-                        Content="ĐĂNG NHẬP"
-                        IsDefault="True"
-                        Style="{StaticResource LoginButtonStyle}"
-                        Click="Login_Click"/>
+            <ContentControl x:Name="AuthContentHost"
+                            Visibility="Collapsed"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"/>
 
-                <TextBlock x:Name="txtMessage"
-                           Foreground="#DC2626"
-                           FontSize="12"
-                           TextWrapping="Wrap"
-                           Margin="0,12,0,0"/>
-            </StackPanel>
-        </Border>
+        </Grid>
     </Grid>
 </Window>

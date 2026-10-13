@@ -1,0 +1,211 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Auth.VerifyOtpView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+
+        <Style x:Key="OtpInputStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="OtpPasswordStyle" TargetType="PasswordBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="OtpLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="OtpPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Background"
+                                        Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Background"
+                                        Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="OtpLinkStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid MinHeight="540" Margin="12,12">
+
+                <Border Width="390"
+                        Padding="25"
+                        Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="3"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Xác nhận mã OTP"
+                                   Foreground="#111827"
+                                   FontSize="21"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,7"/>
+
+                        <TextBlock
+                            Text="Nhập mã OTP và thiết lập mật khẩu mới."
+                            Foreground="#6B7280"
+                            FontSize="12"
+                            TextWrapping="Wrap"
+                            Margin="0,0,0,7"/>
+
+                        <TextBlock x:Name="txtEmailInfo"
+                                   Foreground="#2563EB"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,18"/>
+
+                        <TextBlock Style="{StaticResource OtpLabelStyle}">
+                            <Run Text="Mã OTP"/>
+                            <Run Text=" *" Foreground="#DC2626"/>
+                        </TextBlock>
+
+                        <TextBox x:Name="txtOtp"
+                                 Style="{StaticResource OtpInputStyle}"
+                                 MaxLength="6"
+                                 ToolTip="Nhập mã OTP gồm 6 chữ số"
+                                 Margin="0,0,0,13"/>
+
+                        <Border Background="#EFF6FF"
+                                BorderBrush="#BFDBFE"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="9"
+                                Margin="0,0,0,15">
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="Mã OTP có hiệu lực trong 5 phút."
+                                           Foreground="#1E40AF"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,7,0"/>
+
+                                <Button Grid.Column="1"
+                                        Content="Gửi lại mã (60s)"
+                                        Height="30"
+                                        Padding="8,0"
+                                        IsEnabled="False"
+                                        Background="#F3F4F6"
+                                        Foreground="#9CA3AF"
+                                        BorderBrush="#CBD5E1"
+                                        BorderThickness="1"
+                                        FontSize="10"/>
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Style="{StaticResource OtpLabelStyle}">
+                            <Run Text="Mật khẩu mới"/>
+                            <Run Text=" *" Foreground="#DC2626"/>
+                        </TextBlock>
+
+                        <PasswordBox x:Name="txtNewPassword"
+                                     Style="{StaticResource OtpPasswordStyle}"
+                                     MaxLength="128"
+                                     Margin="0,0,0,13"/>
+
+                        <TextBlock Style="{StaticResource OtpLabelStyle}">
+                            <Run Text="Xác nhận mật khẩu mới"/>
+                            <Run Text=" *" Foreground="#DC2626"/>
+                        </TextBlock>
+
+                        <PasswordBox x:Name="txtConfirmPassword"
+                                     Style="{StaticResource OtpPasswordStyle}"
+                                     MaxLength="128"
+                                     Margin="0,0,0,14"/>
+
+                        <Button Content="Xác nhận"
+                                Style="{StaticResource OtpPrimaryButtonStyle}"
+                                Click="Confirm_Click"/>
+
+                        <Button Content="Quay lại nhập email"
+                                Style="{StaticResource OtpLinkStyle}"
+                                Margin="0,10,0,0"
+                                Click="BackToEmail_Click"/>
+
+                        <Button Content="Quay lại đăng nhập"
+                                Style="{StaticResource OtpLinkStyle}"
+                                Margin="0,4,0,0"
+                                Click="BackToLogin_Click"/>
+
+                        <TextBlock
+                            Text="Bản xem trước — chưa xác thực OTP hoặc đổi mật khẩu."
+                            Foreground="#9CA3AF"
+                            FontSize="10"
+                            TextAlignment="Center"
+                            TextWrapping="Wrap"
+                            Margin="0,12,0,0"/>
+
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

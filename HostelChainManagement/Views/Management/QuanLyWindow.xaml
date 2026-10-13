@@ -259,6 +259,7 @@
                 </Grid>
             </Border>
 
+            
             <ContentControl x:Name="contentArea"
                             Grid.Row="1"/>
         </Grid>

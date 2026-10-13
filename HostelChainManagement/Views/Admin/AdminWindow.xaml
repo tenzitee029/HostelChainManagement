@@ -264,27 +264,12 @@
                                         C10.8,22.3 13.2,22.3 14,21"/>
                         </Button>
 
-                        <Border Width="30"
-                                Height="30"
-                                Background="#DBEAFE"
-                                CornerRadius="15"
-                                Margin="0,0,8,0">
-
-                            <TextBlock Text="AD"
-                                       Foreground="#2563EB"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock x:Name="txtUser"
-                                       FontSize="11"
                                        FontWeight="SemiBold"/>
 
                             <TextBlock Text="Quản trị hệ thống"
-                                       FontSize="9"
+                                       FontSize="11"
                                        Foreground="#94A3B8"/>
                         </StackPanel>
                     </StackPanel>

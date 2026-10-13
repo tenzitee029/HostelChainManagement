@@ -12,94 +12,169 @@
     <UserControl.Resources>
         <Style TargetType="Button">
             <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#CFD6E1"/>
-            <Setter Property="Foreground" Value="#475569"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-
-        <Style TargetType="DataGrid">
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="CanUserDeleteRows" Value="False"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="SelectionUnit" Value="FullRow"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="RowHeight" Value="38"/>
-        </Style>
-
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F3F4F6"/>
-            <Setter Property="Foreground" Value="#475569"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Padding" Value="8,12"/>
-            <Setter Property="BorderBrush" Value="#D1D7E0"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="22">
+    <Grid x:Name="editorPanel"
+          Margin="24">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="240"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Margin="0,0,0,12">
-            <Button DockPanel.Dock="Right"
-                    Content="Tải lại"
-                    Click="Refresh_Click"/>
+        <!-- Tiêu đề và nút tải lại -->
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Thông báo"
-                       FontSize="22"
-                       FontWeight="SemiBold"/>
-        </DockPanel>
+            <StackPanel Margin="0,0,16,0">
+                <TextBlock Text="Thông báo của bạn"
+                           FontSize="24"
+                           FontWeight="Bold"
+                           Foreground="#0F172A"/>
+
+                <TextBlock
+                    Text="Thông báo được gửi đến tài khoản đang đăng nhập."
+                    Margin="0,6,0,0"
+                    Foreground="#64748B"
+                    TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="Tải lại"
+                    VerticalAlignment="Center"
+                    Click="Refresh_Click"/>
+        </Grid>
+
+        <!-- Danh sách bên trái, nội dung bên phải -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.1*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="1.3*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Background="White"
+                    BorderBrush="#CBD5E1"
+                    BorderThickness="1"
+                    CornerRadius="4">
+
+                <!-- Giữ tên control để tương thích code hiện tại -->
+                <ListBox x:Name="notificationsGrid"
+                         BorderThickness="0"
+                         Background="White"
+                         HorizontalContentAlignment="Stretch"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         SelectionChanged="Notification_SelectionChanged">
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12"
+                                    BorderBrush="#E2E8F0"
+                                    BorderThickness="0,0,0,1">
+
+                                <StackPanel>
+                                    <TextBlock Text="{Binding TieuDe}"
+                                               FontSize="14"
+                                               TextWrapping="Wrap">
+
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight"
+                                                        Value="Normal"/>
+
+                                                <Setter Property="Foreground"
+                                                        Value="#475569"/>
+
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding DaDoc}"
+                                                        Value="False">
+
+                                                        <Setter Property="FontWeight"
+                                                                Value="Bold"/>
+
+                                                        <Setter Property="Foreground"
+                                                                Value="#0F172A"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <TextBlock Text="{Binding NguoiGui}"
+                                               Margin="0,6,0,0"
+                                               Foreground="#64748B"
+                                               TextWrapping="Wrap"/>
+
+                                    <TextBlock
+                                        Text="{Binding NgayGui,
+                                            StringFormat={}{0:dd/MM/yyyy HH:mm}}"
+                                        Margin="0,4,0,0"
+                                        Foreground="#94A3B8"
+                                        FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <Border Grid.Column="2"
+                    Background="White"
+                    BorderBrush="#CBD5E1"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="txtTieuDe"
+                               Text="Chọn một thông báo"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#0F172A"
+                               TextWrapping="Wrap"/>
+
+                    <TextBlock x:Name="txtThongTin"
+                               Grid.Row="1"
+                               Margin="0,10,0,16"
+                               Foreground="#64748B"
+                               TextWrapping="Wrap"/>
+
+                    <TextBox x:Name="txtNotification"
+                             Grid.Row="2"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             BorderThickness="0"
+                             Background="White"
+                             Foreground="#334155"
+                             FontSize="13"
+                             Padding="0,8,0,0"/>
+                </Grid>
+            </Border>
+        </Grid>
 
         <TextBlock x:Name="txtStatus"
-                   Grid.Row="1"
-                   Foreground="#B45309"
-                   TextWrapping="Wrap"
-                   Margin="0,0,0,12"/>
-
-        <DataGrid x:Name="notificationsGrid"
-                  Grid.Row="2"
-                  SelectionChanged="Notification_SelectionChanged">
-
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Đã đọc"
-                                       Binding="{Binding DaDoc}"
-                                       Width="65"/>
-
-                <DataGridTextColumn Header="Tiêu đề"
-                                    Binding="{Binding TieuDe}"
-                                    Width="*"/>
-
-                <DataGridTextColumn Header="Người gửi"
-                                    Binding="{Binding NguoiGui}"
-                                    Width="180"/>
-
-                <DataGridTextColumn Header="Thời điểm"
-                                    Binding="{Binding NgayGui,
-                                        StringFormat={}{0:dd/MM/yyyy HH:mm}}"
-                                    Width="150"/>
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <TextBox x:Name="txtNotification"
-                 Grid.Row="3"
-                 IsReadOnly="True"
-                 TextWrapping="Wrap"
-                 VerticalScrollBarVisibility="Auto"
-                 Padding="12"
-                 Background="White"
-                 BorderBrush="#D1D7E0"
-                 Margin="0,12,0,0"/>
+                   Grid.Row="2"
+                   Margin="0,12,0,0"
+                   Foreground="#64748B"
+                   TextWrapping="Wrap"/>
     </Grid>
 </UserControl>

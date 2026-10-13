@@ -45,14 +45,33 @@ public partial class ThongBaoKhachThueView : UserControl
         if (row == null)
         {
             _selectedId = null;
+
+            txtTieuDe.Text = "Chọn một thông báo";
+            txtThongTin.Text = "";
             txtNotification.Clear();
+
             return;
         }
 
-        _selectedId = (string)row["MaThongBao"];
+        _selectedId =
+            Convert.ToString(row["MaThongBao"]) ?? "";
+
+        txtTieuDe.Text =
+            Convert.ToString(row["TieuDe"]) ?? "";
 
         txtNotification.Text =
-            row["TieuDe"] + "\n\n" + row["NoiDung"];
+            Convert.ToString(row["NoiDung"]) ?? "";
+
+        string nguoiGui =
+            Convert.ToString(row["NguoiGui"]) ?? "";
+
+        string ngayGui = row["NgayGui"] == DBNull.Value
+            ? ""
+            : Convert.ToDateTime(row["NgayGui"])
+                .ToString("dd/MM/yyyy HH:mm");
+
+        txtThongTin.Text =
+            $"Người gửi: {nguoiGui}\nNgày gửi: {ngayGui}";
     }
 
     private async void View_Loaded(
@@ -114,9 +133,7 @@ public partial class ThongBaoKhachThueView : UserControl
 
             UpdateUnreadCount();
 
-            txtStatus.Text = table.Rows.Count == 0
-                ? "Bạn chưa có thông báo."
-                : "";
+            UpdateStatusSummary();
         }
         catch (SqlException)
         {
@@ -136,6 +153,23 @@ public partial class ThongBaoKhachThueView : UserControl
         {
             SetBusy(false);
         }
+    }
+
+    private void UpdateStatusSummary()
+    {
+        if (_notifications == null)
+        {
+            txtStatus.Text = "";
+            return;
+        }
+
+        int unread = _notifications.AsEnumerable()
+            .Count(row => !row.Field<bool>("DaDoc"));
+
+        txtStatus.Text = _notifications.Rows.Count == 0
+            ? "Bạn chưa có thông báo."
+            : $"{_notifications.Rows.Count} thông báo — "
+              + $"{unread} chưa đọc.";
     }
 
     private async void Notification_SelectionChanged(
@@ -176,7 +210,7 @@ public partial class ThongBaoKhachThueView : UserControl
 
             UpdateUnreadCount();
 
-            txtStatus.Text = "";
+            UpdateStatusSummary();
         }
         catch (SqlException)
         {

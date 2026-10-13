@@ -221,10 +221,10 @@
 
                             <Grid Width="32" Height="28">
                                 <TextBlock Text="🔔"
-           FontFamily="Segoe UI Emoji"
-           FontSize="20"
-           HorizontalAlignment="Center"
-           VerticalAlignment="Center"/>
+                                        FontFamily="Segoe UI Emoji"
+                                        FontSize="20"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
 
                                 <Border x:Name="badgeThongBao"
                                         Background="#DC2626"

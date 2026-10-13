@@ -112,7 +112,7 @@
                                    Margin="10,6,0,6"/>
 
                         <Button x:Name="btnOverview"
-                                Content="▣   Tổng quan"
+                                Content="Tổng quan"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="Overview_Click"/>
 
@@ -126,22 +126,22 @@
                                    Margin="10,0,0,6"/>
 
                         <Button x:Name="btnDayTro"
-                                Content="▤   Dãy trọ"
+                                Content="Dãy trọ"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="DayTro_Click"/>
 
                         <Button x:Name="btnNhanVien"
-                                Content="♙   Nhân viên"
+                                Content="Nhân viên"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="NhanVien_Click"/>
 
                         <Button x:Name="btnPhanCong"
-                                Content="▧   Phân công quản lý"
+                                Content="Phân công quản lý"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="PhanCong_Click"/>
 
                         <Button x:Name="btnHopDong"
-                                Content="▦   Hợp đồng &amp; hóa đơn"
+                                Content="Hợp đồng &amp; hóa đơn"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="HopDong_Click"/>
 
@@ -155,7 +155,7 @@
                                    Margin="10,0,0,6"/>
 
                         <Button x:Name="btnBaoCao"
-                                Content="▥   Báo cáo"
+                                Content="Báo cáo"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="BaoCao_Click"/>
 
@@ -169,12 +169,12 @@
                                    Margin="10,0,0,6"/>
 
                         <Button x:Name="btnProfile"
-                                Content="⚙   Hồ sơ cá nhân"
+                                Content="Hồ sơ cá nhân"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="Profile_Click"/>
 
                         <Button x:Name="btnPassword"
-                                Content="⚿   Đổi mật khẩu"
+                                Content="Đổi mật khẩu"
                                 Style="{StaticResource OwnerMenuStyle}"
                                 Click="Password_Click"/>
                     </StackPanel>

@@ -83,23 +83,20 @@ namespace QuanLyChuoiNhaTro.Services
             }
 
             if (!PasswordSecurity.VerifyPassword(
-                    currentPassword,
-                    stored))
+                currentPassword,
+                stored))
             {
                 throw new InvalidOperationException(
                     "Mật khẩu hiện tại không chính xác.");
             }
 
             if (PasswordSecurity.VerifyPassword(
-                    newPassword,
-                    stored))
+                newPassword,
+                stored))
             {
                 throw new InvalidOperationException(
                     "Mật khẩu mới không được trùng mật khẩu cũ.");
             }
-
-            string newHash =
-                PasswordSecurity.HashPassword(newPassword);
 
             command.CommandText = @"
                 UPDATE dbo.NguoiDung
@@ -111,7 +108,7 @@ namespace QuanLyChuoiNhaTro.Services
             command.Parameters.Add(
                 "@Password",
                 SqlDbType.VarChar,
-                255).Value = newHash;
+                255).Value = newPassword;
 
             int changed = await command.ExecuteNonQueryAsync();
 

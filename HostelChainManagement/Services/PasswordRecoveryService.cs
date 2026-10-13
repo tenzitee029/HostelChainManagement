@@ -163,10 +163,10 @@ namespace QuanLyChuoiNhaTro.Services
                     SqlDbType.VarChar,
                     15).Value = ticket.Phone;
 
-                string? currentHash =
+                string? currentPassword =
                     await command.ExecuteScalarAsync() as string;
 
-                if (currentHash == null)
+                if (currentPassword == null)
                 {
                     throw new InvalidOperationException(
                         "Không thể xác minh tài khoản. " +
@@ -174,14 +174,12 @@ namespace QuanLyChuoiNhaTro.Services
                 }
 
                 if (PasswordSecurity.VerifyPassword(
-                    newPassword, currentHash))
+                    newPassword,
+                    currentPassword))
                 {
                     throw new InvalidOperationException(
                         "Mật khẩu mới phải khác mật khẩu hiện tại.");
                 }
-
-                string passwordHash =
-                    PasswordSecurity.HashPassword(newPassword);
 
                 command.CommandText = @"
                     UPDATE dbo.NguoiDung
@@ -194,7 +192,7 @@ namespace QuanLyChuoiNhaTro.Services
                 command.Parameters.Add(
                     "@Password",
                     SqlDbType.VarChar,
-                    255).Value = passwordHash;
+                    255).Value = newPassword;
 
                 int changed = await command.ExecuteNonQueryAsync();
 

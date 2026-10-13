@@ -11,206 +11,287 @@
         FontFamily="Segoe UI"
         Foreground="#182132">
 
-  <Window.Resources>
-    <Style x:Key="NavButton" TargetType="Button">
-      <Setter Property="Foreground" Value="#CBD5E1"/>
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Padding" Value="12,10"/>
-      <Setter Property="Margin" Value="8,3"/>
-      <Setter Property="HorizontalContentAlignment" Value="Left"/>
-      <Setter Property="Cursor" Value="Hand"/>
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="Button">
-            <Border x:Name="ButtonBorder"
-                    Background="{TemplateBinding Background}"
-                    Padding="{TemplateBinding Padding}"
-                    CornerRadius="3">
-              <ContentPresenter
-                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                  VerticalAlignment="Center"/>
-            </Border>
+    <Window.Resources>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="8,3"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
 
-            <ControlTemplate.Triggers>
-              <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="ButtonBorder"
-                        Property="Opacity"
-                        Value="0.85"/>
-              </Trigger>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="3">
 
-              <Trigger Property="IsEnabled" Value="False">
-                <Setter TargetName="ButtonBorder"
-                        Property="Opacity"
-                        Value="0.5"/>
-              </Trigger>
-            </ControlTemplate.Triggers>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="Center"/>
+                        </Border>
 
-    <Style x:Key="HeaderButton" TargetType="Button">
-      <Setter Property="Padding" Value="10,6"/>
-      <Setter Property="Background" Value="White"/>
-      <Setter Property="Foreground" Value="#475569"/>
-      <Setter Property="BorderBrush" Value="#E1E5EC"/>
-      <Setter Property="Cursor" Value="Hand"/>
-    </Style>
-  </Window.Resources>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.85"/>
+                            </Trigger>
 
-  <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="192"/>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder"
+                                        Property="Opacity"
+                                        Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-    <!-- Menu bên trái -->
-    <Border Grid.Column="0" Background="#1E293B">
-      <DockPanel LastChildFill="True">
-        <Border DockPanel.Dock="Top"
-                Height="60"
-                Background="#0F172A"
-                Padding="15,10">
-          <StackPanel Orientation="Horizontal">
-            <Border Width="34"
-                    Height="34"
-                    Background="#2563EB"
-                    CornerRadius="3">
-              <TextBlock Text="NT"
-                         Foreground="White"
-                         FontWeight="Bold"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"/>
-            </Border>
+        <Style x:Key="BellButton" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#182132"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTip" Value="Thông báo"/>
 
-            <StackPanel Margin="9,0,0,0"
-                        VerticalAlignment="Center">
-              <TextBlock Text="QUẢN LÝ NHÀ TRỌ"
-                         Foreground="White"
-                         FontSize="11"
-                         FontWeight="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BellBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
 
-              <TextBlock Text="Hệ thống quản lý"
-                         Foreground="#94A3B8"
-                         FontSize="9"
-                         Margin="0,3,0,0"/>
-            </StackPanel>
-          </StackPanel>
-        </Border>
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
 
-        <Border DockPanel.Dock="Bottom"
-                BorderBrush="#334155"
-                BorderThickness="0,1,0,0"
-                Padding="0,10">
-          <Button Content="Đăng xuất"
-                  Foreground="#FCA5A5"
-                  Style="{StaticResource NavButton}"
-                  Click="Logout_Click"/>
-        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BellBorder"
+                                        Property="Background"
+                                        Value="#EFF6FF"/>
+                            </Trigger>
 
-        <StackPanel x:Name="navPanel"
-                    Margin="0,18,0,0">
-          <TextBlock Text="CÔNG VIỆC"
-                     Foreground="#94A3B8"
-                     FontSize="9"
-                     FontWeight="SemiBold"
-                     Margin="17,0,0,5"/>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BellBorder"
+                                        Property="Background"
+                                        Value="#DBEAFE"/>
+                            </Trigger>
 
-          <Button x:Name="btnJobs"
-                  Content="Danh sách công việc"
-                  Style="{StaticResource NavButton}"
-                  Click="Jobs_Click"/>
+                            <Trigger Property="IsKeyboardFocused"
+                                     Value="True">
+                                <Setter TargetName="BellBorder"
+                                        Property="BorderBrush"
+                                        Value="#2563EB"/>
+                            </Trigger>
 
-          <Border Height="1"
-                  Background="#334155"
-                  Margin="8,12"/>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="BellBorder"
+                                        Property="Opacity"
+                                        Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-          <TextBlock Text="TÀI KHOẢN"
-                     Foreground="#94A3B8"
-                     FontSize="9"
-                     FontWeight="SemiBold"
-                     Margin="17,0,0,5"/>
-
-          <Button x:Name="btnProfile"
-                  Content="Hồ sơ cá nhân"
-                  Style="{StaticResource NavButton}"
-                  Click="Profile_Click"/>
-
-          <Button x:Name="btnPassword"
-                  Content="Đổi mật khẩu"
-                  Style="{StaticResource NavButton}"
-                  Click="Password_Click"/>
-        </StackPanel>
-      </DockPanel>
-    </Border>
-
-    <Grid Grid.Column="1">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="60"/>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-
-      <!-- Thanh đầu trang -->
-      <Border Grid.Row="0"
-              Background="White"
-              BorderBrush="#E1E5EC"
-              BorderThickness="0,0,0,1"
-              Padding="20,0">
-        <Grid>
-          <Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="192"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>
 
-          <TextBlock x:Name="txtBreadcrumb"
-                     Grid.Column="0"
-                     Foreground="#64748B"
-                     FontSize="11"
-                     VerticalAlignment="Center"
-                     TextTrimming="CharacterEllipsis"
-                     Margin="0,0,15,0"/>
+        <!-- Menu bên trái -->
+        <Border Grid.Column="0"
+                Background="#1E293B">
 
-          <StackPanel Grid.Column="1"
-                      Orientation="Horizontal"
-                      VerticalAlignment="Center">
-            <Button x:Name="btnNotifications"
-                    Content="Thông báo"
-                    Style="{StaticResource HeaderButton}"
-                    Click="Notifications_Click"
-                    Margin="0,0,12,0"/>
+            <DockPanel LastChildFill="True">
+                <Border DockPanel.Dock="Top"
+                        Height="60"
+                        Background="#0F172A"
+                        Padding="15,10">
 
-            <Border Width="30"
-                    Height="30"
-                    Background="#DBEAFE"
-                    CornerRadius="15"
-                    Margin="0,0,8,0">
-              <TextBlock Text="KT"
-                         Foreground="#2563EB"
-                         FontSize="11"
-                         FontWeight="SemiBold"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="34"
+                                Height="34"
+                                Background="#2563EB"
+                                CornerRadius="3">
+
+                            <TextBlock Text="NT"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Margin="9,0,0,0"
+                                    VerticalAlignment="Center">
+
+                            <TextBlock Text="QUẢN LÝ NHÀ TRỌ"
+                                       Foreground="White"
+                                       FontSize="11"
+                                       FontWeight="Bold"/>
+
+                            <TextBlock Text="Hệ thống quản lý"
+                                       Foreground="#94A3B8"
+                                       FontSize="9"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border DockPanel.Dock="Bottom"
+                        BorderBrush="#334155"
+                        BorderThickness="0,1,0,0"
+                        Padding="0,10">
+
+                    <Button Content="Đăng xuất"
+                            Foreground="#FCA5A5"
+                            Style="{StaticResource NavButton}"
+                            Click="Logout_Click"/>
+                </Border>
+
+                <StackPanel x:Name="navPanel"
+                            Margin="0,18,0,0">
+
+                    <TextBlock Text="CÔNG VIỆC"
+                               Foreground="#94A3B8"
+                               FontSize="9"
+                               FontWeight="SemiBold"
+                               Margin="17,0,0,5"/>
+
+                    <Button x:Name="btnJobs"
+                            Content="Danh sách công việc"
+                            Style="{StaticResource NavButton}"
+                            Click="Jobs_Click"/>
+
+                    <Border Height="1"
+                            Background="#334155"
+                            Margin="8,12"/>
+
+                    <TextBlock Text="TÀI KHOẢN"
+                               Foreground="#94A3B8"
+                               FontSize="9"
+                               FontWeight="SemiBold"
+                               Margin="17,0,0,5"/>
+
+                    <Button x:Name="btnProfile"
+                            Content="Hồ sơ cá nhân"
+                            Style="{StaticResource NavButton}"
+                            Click="Profile_Click"/>
+
+                    <Button x:Name="btnPassword"
+                            Content="Đổi mật khẩu"
+                            Style="{StaticResource NavButton}"
+                            Click="Password_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Thanh đầu trang -->
+            <Border Grid.Row="0"
+                    Background="White"
+                    BorderBrush="#E1E5EC"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,0">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="txtBreadcrumb"
+                               Grid.Column="0"
+                               Foreground="#64748B"
+                               FontSize="11"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="0,0,15,0"/>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+
+                        <!-- Icon chuông thông báo -->
+                        <Button x:Name="btnNotifications"
+                                Style="{StaticResource BellButton}"
+                                AutomationProperties.Name="Thông báo"
+                                Click="Notifications_Click"
+                                Margin="0,0,12,0">
+
+                            <Path Width="24"
+                                  Height="26"
+                                  Stretch="Uniform"
+                                  Stroke="#182132"
+                                  StrokeThickness="1.6"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  StrokeLineJoin="Round"
+                                  Fill="Transparent"
+                                  Data="M18,8
+                                        C18,4.686 15.314,2 12,2
+                                        C8.686,2 6,4.686 6,8
+                                        C6,15 3,15 3,17
+                                        L21,17
+                                        C21,15 18,15 18,8
+                                        Z
+                                        M10,21
+                                        C10.8,22.3 13.2,22.3 14,21"/>
+                        </Button>
+
+                        <Border Width="30"
+                                Height="30"
+                                Background="#DBEAFE"
+                                CornerRadius="15"
+                                Margin="0,0,8,0">
+
+                            <TextBlock Text="KT"
+                                       Foreground="#2563EB"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="txtUser"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"/>
+
+                            <TextBlock Text="Nhân viên kỹ thuật"
+                                       FontSize="9"
+                                       Foreground="#94A3B8"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
             </Border>
 
-            <StackPanel VerticalAlignment="Center">
-              <TextBlock x:Name="txtUser"
-                         FontSize="11"
-                         FontWeight="SemiBold"/>
-
-              <TextBlock Text="Nhân viên kỹ thuật"
-                         FontSize="9"
-                         Foreground="#94A3B8"/>
-            </StackPanel>
-          </StackPanel>
+            <!-- Vùng hiển thị UserControl -->
+            <ContentControl x:Name="contentArea"
+                            Grid.Row="1"
+                            Margin="20,18,20,20"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"/>
         </Grid>
-      </Border>
-
-      <!-- Vùng hiển thị UserControl -->
-      <ContentControl x:Name="contentArea"
-                      Grid.Row="1"
-                      Margin="20,18,20,20"
-                      HorizontalContentAlignment="Stretch"
-                      VerticalContentAlignment="Stretch"/>
     </Grid>
-  </Grid>
 </Window>

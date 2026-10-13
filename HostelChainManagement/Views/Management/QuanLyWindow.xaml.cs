@@ -13,6 +13,18 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyWindow : Window
     {
+        private void HienThiChiTietHopDong(string maHopDong)
+        {
+            var view = new ChiTietHopDongView(maHopDong);
+
+            view.QuayLai += HienThiHopDong;
+
+            ShowView(
+                view,
+                "Hợp đồng / Chi tiết hợp đồng",
+                btnContracts);
+        }
+
         private async System.Threading.Tasks.Task CapNhatChuôngAsync()
         {
             var user = UserSession.CurrentUser;
@@ -162,8 +174,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         // Khách thuê.
-        private void Tenants_Click(
-            object sender, RoutedEventArgs e)
+        private void Tenants_Click(object sender, RoutedEventArgs e)
         {
             HienThiKhachThue();
         }
@@ -174,7 +185,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             view.MoForm += HienThiFormKhachThue;
 
-            ShowView(view, "Khách thuê", btnTenants);
+            ShowView(
+                view,
+                "Khách thuê",
+                btnTenants);
         }
 
         private void HienThiFormKhachThue(DataRowView? khach)
@@ -207,7 +221,13 @@ namespace QuanLyChuoiNhaTro.Views.Management
             view.MoGiaHan += HienThiGiaHanHopDong;
             view.MoThanhLy += HienThiThanhLyHopDong;
 
-            ShowView(view, "Hợp đồng", btnContracts);
+            // Nối nút Xem.
+            view.MoXemHopDong += HienThiChiTietHopDong;
+
+            ShowView(
+                view,
+                "Hợp đồng",
+                btnContracts);
         }
 
         private void HienThiLapHopDong()

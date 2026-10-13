@@ -10,6 +10,24 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyHopDongView : UserControl
     {
+        public event Action<string>? MoXemHopDong;
+        private void Xem_Click(object sender, RoutedEventArgs e)
+        {
+            var user = UserSession.CurrentUser;
+
+            if (_dangTai || user == null ||
+                user.VaiTro != "Nhân viên quản lý")
+                return;
+
+            if (dgHopDong.SelectedItem is not DataRowView hopDong)
+                return;
+
+            string maHopDong =
+                Convert.ToString(hopDong["MaHopDong"]) ?? "";
+
+            if (!string.IsNullOrWhiteSpace(maHopDong))
+                MoXemHopDong?.Invoke(maHopDong);
+        }
         public event Action<string>? MoThanhLy;
 
         private void ThanhLy_Click(object sender, RoutedEventArgs e)
@@ -36,19 +54,38 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private void ChonHopDong_Changed(
             object sender, SelectionChangedEventArgs e)
         {
-            if (btnGiaHan == null || btnThanhLy == null)
+            CapNhatNut();
+        }
+
+        private void CapNhatNut()
+        {
+            // Tránh lỗi khi XAML đang khởi tạo.
+            if (btnXem == null || btnGiaHan == null || btnThanhLy == null)
                 return;
 
+            var user = UserSession.CurrentUser;
+
+            bool coQuyen =
+                user != null &&
+                user.VaiTro == "Nhân viên quản lý";
+
             bool daChon =
-                !_dangTai && dgHopDong.SelectedItem is DataRowView;
+                coQuyen &&
+                !_dangTai &&
+                dgHopDong.SelectedItem is DataRowView;
 
-            string trangThai = dgHopDong.SelectedItem is DataRowView dong
-                ? Convert.ToString(dong["TrangThai"]) ?? ""
-                : "";
+            string trangThai =
+                dgHopDong.SelectedItem is DataRowView dong
+                    ? Convert.ToString(dong["TrangThai"]) ?? ""
+                    : "";
 
-            btnGiaHan.IsEnabled = daChon && trangThai == "Hiệu lực";
+            btnXem.IsEnabled = daChon;
 
-            btnThanhLy.IsEnabled = daChon &&
+            btnGiaHan.IsEnabled =
+                daChon && trangThai == "Hiệu lực";
+
+            btnThanhLy.IsEnabled =
+                daChon &&
                 (trangThai == "Hiệu lực" || trangThai == "Hết hạn");
         }
 
@@ -207,6 +244,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 _dangTai = false;
                 txtTimKiem.IsEnabled = true;
                 btnTimKiem.IsEnabled = _duLieu != null;
+
+                CapNhatNut();
             }
         }
 
@@ -254,6 +293,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
 
             dgHopDong.ItemsSource = ketQua.DefaultView;
+            CapNhatNut();
         }
     }
 }

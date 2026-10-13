@@ -22,29 +22,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
         public QuanLyKhachThueView()
         {
             InitializeComponent();
-
-            // Nối sự kiện; bỏ đăng ký cùng hàm trước để tránh chạy hai lần.
-            Loaded -= View_Loaded;
-            Loaded += View_Loaded;
-
-            btnThemKhach.Click -= Them_Click;
-            btnThemKhach.Click += Them_Click;
-
-            btnCapNhat.Click -= CapNhat_Click;
-            btnCapNhat.Click += CapNhat_Click;
-
-            btnXoaKhach.Click -= Xoa_Click;
-            btnXoaKhach.Click += Xoa_Click;
-
-            btnTimKiem.Click -= TimKiem_Click;
-            btnTimKiem.Click += TimKiem_Click;
-
-            txtTimKiem.KeyDown -= TimKiem_KeyDown;
-            txtTimKiem.KeyDown += TimKiem_KeyDown;
-
-            dgKhachThue.SelectionChanged -= ChonKhach_Changed;
-            dgKhachThue.SelectionChanged += ChonKhach_Changed;
-
             CapNhatNut();
         }
 
@@ -68,7 +45,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (!_coQuyen)
             {
                 HienThiLoi("Bạn không có quyền xem khách thuê.");
-                CapNhatNut();
                 return;
             }
 
@@ -90,6 +66,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 command.CommandText = @"
                     SELECT
                         k.MaKhachThue,
+                        CAST(N'Người đứng tên hợp đồng' AS NVARCHAR(50))
+                            AS LoaiHoSo,
                         k.MaNguoiDung,
                         k.MaDayTro,
                         n.HoTen,
@@ -101,21 +79,19 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                         CASE
                             WHEN hd.DangHieuLuc = 1
-                                THEN hd.TenDayTro + N' - ' + hd.SoPhong
+                            THEN hd.TenDayTro + N' - ' + hd.SoPhong
                             ELSE N'—'
                         END AS PhongDangThue,
 
                         CASE
-                            WHEN hd.DangHieuLuc = 1
-                                THEN N'Đang thuê'
-                            WHEN hd.MaHopDong IS NULL
-                                THEN N'Chưa có hợp đồng'
+                            WHEN hd.DangHieuLuc = 1 THEN N'Đang thuê'
+                            WHEN hd.MaHopDong IS NULL THEN N'Chưa có hợp đồng'
                             ELSE N'Không có hợp đồng hiệu lực'
                         END AS TrangThai
 
                     FROM dbo.KhachThue k
                     JOIN dbo.NguoiDung n
-                        ON n.MaNguoiDung = k.MaNguoiDung
+                      ON n.MaNguoiDung = k.MaNguoiDung
 
                     OUTER APPLY (
                         SELECT TOP (1)
@@ -128,15 +104,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
                                 WHEN h.TrangThai = N'Hiệu lực'
                                  AND h.NgayBatDau <= CAST(GETDATE() AS DATE)
                                  AND h.NgayKetThuc >= CAST(GETDATE() AS DATE)
-                                    THEN 1
-                                ELSE 0
+                                THEN 1 ELSE 0
                             END AS DangHieuLuc
 
                         FROM dbo.HopDongThue h
-                        JOIN dbo.PhongTro p
-                            ON p.MaPhong = h.MaPhong
-                        JOIN dbo.DayTro d
-                            ON d.MaDayTro = p.MaDayTro
+                        JOIN dbo.PhongTro p ON p.MaPhong = h.MaPhong
+                        JOIN dbo.DayTro d ON d.MaDayTro = p.MaDayTro
 
                         WHERE h.MaKhachThue = k.MaKhachThue
                           AND EXISTS (
@@ -153,8 +126,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                                 WHEN h.TrangThai = N'Hiệu lực'
                                  AND h.NgayBatDau <= CAST(GETDATE() AS DATE)
                                  AND h.NgayKetThuc >= CAST(GETDATE() AS DATE)
-                                    THEN 0
-                                ELSE 1
+                                THEN 0 ELSE 1
                             END,
                             h.NgayBatDau DESC,
                             h.MaHopDong
@@ -170,7 +142,55 @@ namespace QuanLyChuoiNhaTro.Views.Management
                              AND nv.TrangThaiLamViec = N'Đang làm'
                        )
 
-                    ORDER BY n.HoTen, k.MaKhachThue;";
+                    UNION ALL
+
+                    SELECT
+                        tv.MaThanhVien AS MaKhachThue,
+                        CAST(N'Thành viên ở cùng' AS NVARCHAR(50))
+                            AS LoaiHoSo,
+                        CAST(NULL AS VARCHAR(20)) AS MaNguoiDung,
+                        p.MaDayTro,
+                        tv.HoTen,
+                        tv.CCCD,
+                        tv.SoDienThoai,
+                        CAST(NULL AS NVARCHAR(255)) AS DiaChi,
+                        p.MaPhong,
+                        h.MaHopDong,
+
+                        CASE
+                            WHEN tv.TrangThai = N'Đang ở'
+                             AND h.TrangThai = N'Hiệu lực'
+                             AND h.NgayBatDau <= CAST(GETDATE() AS DATE)
+                             AND h.NgayKetThuc >= CAST(GETDATE() AS DATE)
+                            THEN d.TenDayTro + N' - ' + p.SoPhong
+                            ELSE N'—'
+                        END AS PhongDangThue,
+
+                        CASE
+                            WHEN tv.TrangThai = N'Đang ở'
+                             AND h.TrangThai = N'Hiệu lực'
+                             AND h.NgayBatDau <= CAST(GETDATE() AS DATE)
+                             AND h.NgayKetThuc >= CAST(GETDATE() AS DATE)
+                            THEN N'Đang ở cùng'
+                            ELSE N'Không ở hiện tại'
+                        END AS TrangThai
+
+                    FROM dbo.ThanhVienO tv
+                    JOIN dbo.HopDongThue h
+                      ON h.MaHopDong = tv.MaHopDong
+                    JOIN dbo.PhongTro p ON p.MaPhong = h.MaPhong
+                    JOIN dbo.DayTro d ON d.MaDayTro = p.MaDayTro
+
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM dbo.NhanVien nv
+                        WHERE nv.MaDayTro = p.MaDayTro
+                          AND nv.MaNguoiDung = @MaNguoiDung
+                          AND nv.ChucVu = N'Quản lý'
+                          AND nv.TrangThaiLamViec = N'Đang làm'
+                    )
+
+                    ORDER BY HoTen, MaKhachThue;";
 
                 command.Parameters.Add(
                     "@MaNguoiDung", SqlDbType.VarChar, 20)
@@ -183,18 +203,16 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 var table = new DataTable();
                 table.Load(reader);
 
+                if (!IsLoaded)
+                    return;
+
                 _duLieu = table;
                 HienThiKetQua();
             }
             catch (Exception ex)
             {
-                HienThiLoi("Không tải được danh sách khách thuê.");
-
-                MessageBox.Show(
-                    "Chi tiết lỗi:\n" + ex.Message,
-                    "Lỗi tải khách thuê",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                HienThiLoi(
+                    "Không tải được danh sách khách thuê: " + ex.Message);
             }
             finally
             {
@@ -203,34 +221,37 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
         }
 
+        private static bool LaNguoiDungTen(DataRowView khach)
+        {
+            return Convert.ToString(khach["LoaiHoSo"])
+                == "Người đứng tên hợp đồng";
+        }
+
         private void CapNhatNut()
         {
-            // Có thể được gọi lúc XAML còn đang khởi tạo.
             if (btnCapNhat == null || btnXoaKhach == null ||
                 btnThemKhach == null || btnTimKiem == null)
-            {
                 return;
-            }
 
             bool sanSang =
-                _coQuyen &&
-                !_dangTai &&
-                !_dangXoa &&
-                _duLieu != null;
+                _coQuyen && !_dangTai &&
+                !_dangXoa && _duLieu != null;
 
-            bool daChon =
+            bool chonNguoiDungTen =
                 sanSang &&
-                dgKhachThue.SelectedItem is DataRowView;
+                dgKhachThue.SelectedItem is DataRowView khach &&
+                LaNguoiDungTen(khach);
 
             btnThemKhach.IsEnabled = sanSang;
             btnTimKiem.IsEnabled = sanSang;
             txtTimKiem.IsEnabled = sanSang;
 
-            btnCapNhat.IsEnabled = daChon;
-            btnXoaKhach.IsEnabled = daChon;
+            btnCapNhat.IsEnabled = chonNguoiDungTen;
+            btnXoaKhach.IsEnabled = chonNguoiDungTen;
         }
 
-        private void Them_Click(object sender, RoutedEventArgs e)
+        private void Them_Click(
+            object sender, RoutedEventArgs e)
         {
             if (!_coQuyen || _dangTai || _dangXoa || _duLieu == null)
                 return;
@@ -242,25 +263,45 @@ namespace QuanLyChuoiNhaTro.Views.Management
             object sender, SelectionChangedEventArgs e)
         {
             CapNhatNut();
+
+            if (_duLieu == null || _dangTai)
+                return;
+
+            if (dgKhachThue.SelectedItem is DataRowView khach &&
+                !LaNguoiDungTen(khach))
+            {
+                txtTrangThai.Text =
+                    "Đây là thành viên ở cùng được lưu trong hợp đồng. "
+                    + "Bản này chưa hỗ trợ cập nhật hoặc xóa thành viên.";
+            }
+            else
+            {
+                txtTrangThai.Text =
+                    $"Tổng số hồ sơ đã tải: {_duLieu.Rows.Count}.";
+            }
         }
 
-        private void CapNhat_Click(object sender, RoutedEventArgs e)
+        private void CapNhat_Click(
+            object sender, RoutedEventArgs e)
         {
             if (!_coQuyen || _dangTai || _dangXoa)
                 return;
 
-            if (dgKhachThue.SelectedItem is DataRowView khach)
+            if (dgKhachThue.SelectedItem is DataRowView khach &&
+                LaNguoiDungTen(khach))
             {
                 MoForm?.Invoke(khach);
             }
         }
 
-        private async void Xoa_Click(object sender, RoutedEventArgs e)
+        private async void Xoa_Click(
+            object sender, RoutedEventArgs e)
         {
             if (!_coQuyen || _dangTai || _dangXoa)
                 return;
 
-            if (dgKhachThue.SelectedItem is not DataRowView khach)
+            if (dgKhachThue.SelectedItem is not DataRowView khach ||
+                !LaNguoiDungTen(khach))
                 return;
 
             var user = UserSession.CurrentUser;
@@ -271,14 +312,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 return;
             }
 
-            string maKhach =
-                Convert.ToString(khach["MaKhachThue"]) ?? "";
-
-            string hoTen =
-                Convert.ToString(khach["HoTen"]) ?? "";
+            string maKhach = Convert.ToString(khach["MaKhachThue"]) ?? "";
+            string hoTen = Convert.ToString(khach["HoTen"]) ?? "";
 
             var xacNhan = MessageBox.Show(
-                $"Bạn có chắc muốn xóa hồ sơ khách thuê “{hoTen}”?\n\n"
+                $"Bạn có chắc muốn xóa hồ sơ “{hoTen}”?\n\n"
                 + "Chỉ xóa khách chưa có hợp đồng. "
                 + "Tài khoản đăng nhập được giữ lại.",
                 "Xác nhận xóa",
@@ -297,7 +335,13 @@ namespace QuanLyChuoiNhaTro.Views.Management
             try
             {
                 using var connection = Database.CreateConnection();
+                await connection.OpenAsync();
+
+                using var transaction =
+                    connection.BeginTransaction(IsolationLevel.Serializable);
+
                 using var command = connection.CreateCommand();
+                command.Transaction = transaction;
 
                 command.CommandText = @"
                     DECLARE @DaXoa TABLE (MaKhachThue VARCHAR(20));
@@ -323,25 +367,21 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     SELECT COUNT(*) FROM @DaXoa;";
 
                 command.Parameters.Add(
-                    "@MaKhach", SqlDbType.VarChar, 20)
-                    .Value = maKhach;
-
+                    "@MaKhach", SqlDbType.VarChar, 20).Value = maKhach;
                 command.Parameters.Add(
                     "@NguoiQuanLy", SqlDbType.VarChar, 20)
                     .Value = user.MaNguoiDung;
 
-                await connection.OpenAsync();
-
                 object? ketQua = await command.ExecuteScalarAsync();
+                daXoa = ketQua != null && Convert.ToInt32(ketQua) == 1;
 
-                daXoa = ketQua != null &&
-                    Convert.ToInt32(ketQua) == 1;
+                transaction.Commit();
 
                 MessageBox.Show(
                     daXoa
                         ? "Xóa hồ sơ khách thuê thành công."
                         : "Không thể xóa: khách đã có hợp đồng, "
-                          + "hồ sơ đã bị xóa hoặc bạn không còn quyền quản lý.",
+                          + "hồ sơ không tồn tại hoặc bạn không còn quyền.",
                     "Thông báo",
                     MessageBoxButton.OK,
                     daXoa
@@ -351,18 +391,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
             catch (SqlException ex) when (ex.Number == 547)
             {
                 MessageBox.Show(
-                    "Không thể xóa hồ sơ vì còn dữ liệu liên quan.",
-                    "Không thể xóa",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    "Không thể xóa vì hồ sơ còn dữ liệu liên quan.");
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Không xóa được hồ sơ:\n" + ex.Message,
-                    "Lỗi xóa",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    "Không xóa được hồ sơ:\n" + ex.Message);
             }
             finally
             {
@@ -372,34 +406,20 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
 
             if (daXoa)
-            {
                 await TaiDanhSachAsync();
-            }
         }
 
-        private void HienThiLoi(string thongBao)
+        private void TimKiem_Click(
+            object sender, RoutedEventArgs e)
         {
-            _duLieu = null;
-            dgKhachThue.ItemsSource = null;
-
-            txtDanhSachTrong.Text = thongBao;
-            txtDanhSachTrong.Visibility = Visibility.Visible;
-            txtTrangThai.Text = "Chưa tải được dữ liệu.";
-
-            CapNhatNut();
-        }
-
-        private void TimKiem_Click(object sender, RoutedEventArgs e)
-        {
-            if (_coQuyen && !_dangTai && !_dangXoa)
+            if (!_dangTai && !_dangXoa)
                 HienThiKetQua();
         }
 
         private void TimKiem_KeyDown(
             object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter &&
-                _coQuyen && !_dangTai && !_dangXoa)
+            if (e.Key == Key.Enter && !_dangTai && !_dangXoa)
             {
                 HienThiKetQua();
                 e.Handled = true;
@@ -420,15 +440,14 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                 foreach (string cot in new[]
                 {
-                    "HoTen", "CCCD", "SoDienThoai"
+                    "HoTen", "CCCD", "SoDienThoai",
+                    "PhongDangThue", "LoaiHoSo", "TrangThai"
                 })
                 {
-                    string noiDung =
-                        Convert.ToString(dong[cot]) ?? "";
+                    string noiDung = Convert.ToString(dong[cot]) ?? "";
 
                     if (noiDung.IndexOf(
-                        tuKhoa,
-                        StringComparison.OrdinalIgnoreCase) >= 0)
+                        tuKhoa, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         phuHop = true;
                         break;
@@ -443,14 +462,26 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             txtDanhSachTrong.Text = _duLieu.Rows.Count == 0
                 ? "Chưa có khách thuê thuộc phạm vi quản lý."
-                : "Không có khách thuê phù hợp với nội dung tìm kiếm.";
+                : "Không có hồ sơ phù hợp với nội dung tìm kiếm.";
 
             txtDanhSachTrong.Visibility = ketQua.Rows.Count == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
             txtTrangThai.Text =
-                $"Hiển thị {ketQua.Rows.Count} / {_duLieu.Rows.Count} khách thuê.";
+                $"Hiển thị {ketQua.Rows.Count} / {_duLieu.Rows.Count} hồ sơ.";
+
+            CapNhatNut();
+        }
+
+        private void HienThiLoi(string thongBao)
+        {
+            _duLieu = null;
+            dgKhachThue.ItemsSource = null;
+
+            txtDanhSachTrong.Text = thongBao;
+            txtDanhSachTrong.Visibility = Visibility.Visible;
+            txtTrangThai.Text = "Chưa tải được dữ liệu.";
 
             CapNhatNut();
         }

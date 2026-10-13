@@ -1,0 +1,204 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Management.ChiTietHopDongView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="View_Loaded"
+             Background="#F8FAFC"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="GiaTri" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,5,0,16"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled" Height="487" Width="906">
+        <StackPanel Margin="24">
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Chi tiết hợp đồng thuê"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="#0F172A"/>
+                    <TextBlock Text="Thông tin hợp đồng và thành viên ở cùng."
+                               Margin="0,6,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="← Quay lại"
+                        Padding="16,9"
+                        VerticalAlignment="Center"
+                        Background="#2563EB"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="QuayLai_Click"/>
+            </Grid>
+
+            <TextBlock x:Name="txtThongBao"
+                       Foreground="#DC2626"
+                       Margin="0,0,0,12"/>
+
+            <StackPanel x:Name="pnlChiTiet" Visibility="Collapsed">
+                <Border Background="White"
+                        BorderBrush="#CBD5E1"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Thông tin hợp đồng"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="#0F172A"
+                                   Margin="0,0,0,18"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Mã hợp đồng"/>
+                                <TextBlock Text="{Binding MaHopDong}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Người đứng tên"/>
+                                <TextBlock Text="{Binding TenKhachThue}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="CCCD"/>
+                                <TextBlock Text="{Binding CCCD}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Số điện thoại"/>
+                                <TextBlock Text="{Binding SoDienThoai}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Dãy trọ / Phòng"/>
+                                <TextBlock Text="{Binding TenPhong}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Loại phòng"/>
+                                <TextBlock Text="{Binding LoaiPhong}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Đại diện bên cho thuê"/>
+                                <TextBlock Text="{Binding DaiDienBenChoThue}"
+                                           Style="{StaticResource GiaTri}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Trạng thái hợp đồng"/>
+                                <TextBlock Text="{Binding TrangThai}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Ngày ký"/>
+                                <TextBlock Text="{Binding NgayKy, StringFormat={}{0:dd/MM/yyyy}}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Ngày bắt đầu"/>
+                                <TextBlock Text="{Binding NgayBatDau, StringFormat={}{0:dd/MM/yyyy}}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Ngày kết thúc"/>
+                                <TextBlock Text="{Binding NgayKetThuc, StringFormat={}{0:dd/MM/yyyy}}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Giá thuê (VNĐ/tháng)"/>
+                                <TextBlock Text="{Binding GiaThue, StringFormat={}{0:N0}}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Tiền cọc (VNĐ)"/>
+                                <TextBlock Text="{Binding TienCoc, StringFormat={}{0:N0}}"
+                                           Style="{StaticResource GiaTri}"/>
+
+                                <TextBlock Text="Ngày thanh toán trong tháng"/>
+                                <TextBlock Text="{Binding KyThanhToan}"
+                                           Style="{StaticResource GiaTri}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Điều khoản"
+                                   FontWeight="SemiBold"
+                                   Margin="0,8,0,8"/>
+
+                        <TextBox Text="{Binding DieuKhoan, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="90"
+                                 MaxHeight="250"
+                                 VerticalScrollBarVisibility="Auto"
+                                 Padding="10"
+                                 Background="#F8FAFC"
+                                 BorderBrush="#CBD5E1"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White"
+                        BorderBrush="#CBD5E1"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="20"
+                        Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Thành viên ở cùng"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="#0F172A"
+                                   Margin="0,0,0,14"/>
+
+                        <DataGrid x:Name="dgThanhVien"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  HeadersVisibility="Column"
+                                  RowHeight="38"
+                                  MinHeight="80"
+                                  MaxHeight="240"
+                                  BorderBrush="#E2E8F0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Họ tên"
+                                                    Binding="{Binding HoTen}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="CCCD"
+                                                    Binding="{Binding CCCD}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="Điện thoại"
+                                                    Binding="{Binding SoDienThoai}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="Quan hệ"
+                                                    Binding="{Binding QuanHe}"
+                                                    Width="*"/>
+                                <DataGridTextColumn Header="Trạng thái"
+                                                    Binding="{Binding TrangThai}"
+                                                    Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock x:Name="txtThanhVienTrong"
+                                   Text="Hợp đồng chưa có thành viên ở cùng."
+                                   Margin="0,10,0,0"
+                                   Foreground="#64748B"
+                                   Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

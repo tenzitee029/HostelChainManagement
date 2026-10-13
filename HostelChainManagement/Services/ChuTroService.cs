@@ -400,6 +400,7 @@ namespace QuanLyChuoiNhaTro.Services
                     SqlDbType.NVarChar,
                     30).Value = trangThai;
 
+
                 int soDong = await command.ExecuteNonQueryAsync();
 
                 if (soDong != 1)
@@ -408,7 +409,53 @@ namespace QuanLyChuoiNhaTro.Services
                         "Không thể lưu thông tin dãy trọ.");
                 }
 
+                if (!themMoi && trangThai != "Đang hoạt động")
+                {
+                    bool coBangLienKet =
+                        await SoDoChuTroService.CoBangLienKetAsync(
+                            connection, transaction);
+
+                    if (!coBangLienKet &&
+                        !await SoDoChuTroService.LaChuTroDuyNhatAsync(
+                            connection, user.MaNguoiDung, transaction))
+                    {
+                        throw new InvalidOperationException(
+                            "Không thể tự động hủy phân công khi database " +
+                            "có nhiều Chủ trọ mà thiếu bảng ChuTroNhanVien.");
+                    }
+
+                    using var huyPhanCong = connection.CreateCommand();
+                    huyPhanCong.Transaction = transaction;
+
+                    huyPhanCong.CommandText = @"
+        UPDATE nv
+        SET MaDayTro = NULL
+        FROM dbo.NhanVien AS nv
+        INNER JOIN dbo.DayTro AS d
+            ON d.MaDayTro = nv.MaDayTro
+        WHERE d.MaDayTro = @MaDayTro
+          AND d.MaChuTro = @MaChuTro
+          AND d.TrangThai IN
+          (
+              N'Tạm ngưng',
+              N'Ngừng hoạt động'
+          );";
+
+                    huyPhanCong.Parameters.Add(
+                        "@MaDayTro",
+                        SqlDbType.VarChar,
+                        20).Value = maDay;
+
+                    huyPhanCong.Parameters.Add(
+                        "@MaChuTro",
+                        SqlDbType.VarChar,
+                        20).Value = user.MaNguoiDung;
+
+                    await huyPhanCong.ExecuteNonQueryAsync();
+                }
+
                 transaction.Commit();
+
 
                 return maDay;
             }

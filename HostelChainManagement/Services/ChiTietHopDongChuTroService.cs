@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
@@ -37,7 +36,21 @@ namespace QuanLyChuoiNhaTro.Services
                     d.TenDayTro,
                     h.GiaThue,
                     h.NgayBatDau,
-                    h.NgayKetThuc
+                    h.NgayKetThuc,
+                    h.NgayKy,
+                    h.DaiDienBenChoThue,
+                    h.CCCDBenChoThue,
+                    h.TienCoc,
+                    h.KyThanhToan,
+                    h.DieuKhoan,
+                    nd.CCCD AS CCCDKhachThue,
+                    nd.SoDienThoai AS SoDienThoaiKhachThue,
+                    nd.DiaChi AS DiaChiKhachThue,
+                    d.DiaChi AS DiaChiDayTro,
+                    d.QuyDinh,
+                    chu.HoTen AS TenChuTro,
+                    chu.SoDienThoai AS SoDienThoaiChuTro,
+                    chu.DiaChi AS DiaChiChuTro
                 FROM dbo.HopDongThue AS h
                 INNER JOIN dbo.PhongTro AS p
                     ON p.MaPhong = h.MaPhong
@@ -47,6 +60,8 @@ namespace QuanLyChuoiNhaTro.Services
                     ON k.MaKhachThue = h.MaKhachThue
                 INNER JOIN dbo.NguoiDung AS nd
                     ON nd.MaNguoiDung = k.MaNguoiDung
+                INNER JOIN dbo.NguoiDung AS chu
+                    ON chu.MaNguoiDung = d.MaChuTro
                 WHERE h.MaHopDong = @MaHopDong
                   AND d.MaChuTro = @MaChuTro;";
 

@@ -1,13 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
 using QuanLyChuoiNhaTro.Services;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
@@ -16,6 +16,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
     {
         private readonly string _maHopDong;
         private DataRow? _chiTiet;
+        private bool _dangTaiPdf;
 
         public event Action? QuayLaiRequested;
 
@@ -26,9 +27,8 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             _maHopDong = maHopDong;
 
             btnTaiPdf.IsEnabled = false;
-
             btnTaiPdf.ToolTip =
-                "In hợp đồng hoặc chọn Microsoft Print to PDF để lưu PDF.";
+                "Tải hợp đồng thuê phòng dưới dạng PDF.";
 
             btnTaiPdf.Click += TaiPdf_Click;
 
@@ -57,6 +57,9 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                 DataTable table =
                     await ChiTietHopDongChuTroService
                         .LayChiTietAsync(_maHopDong);
+
+                if (!IsLoaded)
+                    return;
 
                 if (table.Rows.Count == 0)
                 {
@@ -115,7 +118,6 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                 }
 
                 _chiTiet = row;
-
                 btnTaiPdf.IsEnabled = true;
 
                 txtThongBao.Visibility = Visibility.Collapsed;
@@ -124,11 +126,11 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             {
                 HienThiLoi(ex.Message);
             }
-            catch (SqlException ex)
+            catch (SqlException)
             {
                 HienThiLoi(
-                    "Không thể tải hợp đồng từ SQL Server: "
-                    + ex.Message);
+                    "Không thể tải hợp đồng từ SQL Server. "
+                    + "Vui lòng kiểm tra kết nối.");
             }
             catch (Exception ex)
             {
@@ -190,14 +192,17 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                 CultureInfo.GetCultureInfo("vi-VN")) + " đ";
         }
 
-        private void TaiPdf_Click(
+        private async void TaiPdf_Click(
             object sender,
             RoutedEventArgs e)
         {
+            if (_dangTaiPdf)
+                return;
+
             if (_chiTiet == null)
             {
                 MessageBox.Show(
-                    "Chưa có dữ liệu hợp đồng để in.",
+                    "Chưa có dữ liệu hợp đồng để tải PDF.",
                     "Thông báo",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -205,214 +210,131 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                 return;
             }
 
+            var dialog = new SaveFileDialog
+            {
+                Title = "Lưu bản PDF hợp đồng thuê",
+                FileName = TaoTenFileMacDinh(_maHopDong),
+                Filter = "Tệp PDF (*.pdf)|*.pdf",
+                DefaultExt = ".pdf",
+                AddExtension = true,
+                OverwritePrompt = true,
+                CheckPathExists = true
+            };
+
+            Window? window = Window.GetWindow(this);
+
+            bool? accepted = window != null
+                ? dialog.ShowDialog(window)
+                : dialog.ShowDialog();
+
+            if (accepted != true)
+                return;
+
+            _dangTaiPdf = true;
+            btnTaiPdf.IsEnabled = false;
+
+            txtThongBao.Text = "Đang tạo bản PDF...";
+            txtThongBao.Foreground =
+                new SolidColorBrush(
+                    Color.FromRgb(107, 114, 128));
+
+            txtThongBao.Visibility = Visibility.Visible;
+
             try
             {
-                var printDialog = new PrintDialog();
+                byte[] pdf =
+                    await HopDongChuTroPdfService
+                        .TaoPdfAsync(_maHopDong);
 
-                if (printDialog.ShowDialog() != true)
+                if (!IsLoaded)
                     return;
 
-                FlowDocument taiLieu =
-                    TaoTaiLieuIn(_chiTiet);
+                await File.WriteAllBytesAsync(
+                    dialog.FileName,
+                    pdf);
 
-                double chieuRong =
-                    printDialog.PrintableAreaWidth > 200
-                        ? printDialog.PrintableAreaWidth
-                        : 793;
+                if (!IsLoaded)
+                    return;
 
-                double chieuCao =
-                    printDialog.PrintableAreaHeight > 200
-                        ? printDialog.PrintableAreaHeight
-                        : 1122;
+                txtThongBao.Text =
+                    "Đã lưu bản PDF tại: " + dialog.FileName;
 
-                taiLieu.PageWidth = chieuRong;
-                taiLieu.PageHeight = chieuCao;
-                taiLieu.PagePadding = new Thickness(38);
-                taiLieu.ColumnWidth = chieuRong - 76;
-                taiLieu.ColumnGap = 0;
+                txtThongBao.Foreground =
+                    new SolidColorBrush(
+                        Color.FromRgb(21, 128, 61));
 
-                var paginator =
-                    ((IDocumentPaginatorSource)taiLieu)
-                        .DocumentPaginator;
-
-                printDialog.PrintDocument(
-                    paginator,
-                    "Thông tin hợp đồng " + _maHopDong);
+                MessageBox.Show(
+                    window,
+                    "Đã lưu bản PDF thành công.\n\n"
+                    + dialog.FileName,
+                    "Thông báo",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (InvalidOperationException ex)
+            {
+                HienThiLoiTaiPdf(ex.Message);
+            }
+            catch (SqlException)
+            {
+                HienThiLoiTaiPdf(
+                    "Không lấy được thông tin hợp đồng. "
+                    + "Vui lòng kiểm tra kết nối SQL Server.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                HienThiLoiTaiPdf(
+                    "Không có quyền lưu file tại vị trí đã chọn. "
+                    + "Vui lòng chọn thư mục khác.");
+            }
+            catch (IOException)
+            {
+                HienThiLoiTaiPdf(
+                    "Không thể lưu file PDF. "
+                    + "File có thể đang được mở hoặc thư mục "
+                    + "không còn truy cập được.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Không thể thực hiện lệnh in: "
-                    + ex.Message,
-                    "Lỗi in hợp đồng",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                HienThiLoiTaiPdf(
+                    "Không xuất được PDF: " + ex.Message);
+            }
+            finally
+            {
+                _dangTaiPdf = false;
+                btnTaiPdf.IsEnabled = _chiTiet != null;
             }
         }
 
-        private static FlowDocument TaoTaiLieuIn(
-            DataRow hopDong)
+        private void HienThiLoiTaiPdf(string noiDung)
         {
-            var taiLieu = new FlowDocument
-            {
-                FontFamily = new FontFamily("Segoe UI"),
-                FontSize = 12,
-                Foreground = Brushes.Black,
-                TextAlignment = TextAlignment.Left
-            };
+            txtThongBao.Text = noiDung;
 
-            var tieuDe = new Paragraph(
-                new Run("THÔNG TIN HỢP ĐỒNG THUÊ PHÒNG"))
-            {
-                FontSize = 19,
-                FontWeight = FontWeights.Bold,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 5, 0, 8)
-            };
+            txtThongBao.Foreground =
+                new SolidColorBrush(
+                    Color.FromRgb(220, 38, 38));
 
-            taiLieu.Blocks.Add(tieuDe);
+            txtThongBao.Visibility = Visibility.Visible;
 
-            var phuDe = new Paragraph(
-                new Run("HỆ THỐNG QUẢN LÝ NHÀ TRỌ"))
-            {
-                FontSize = 11,
-                Foreground = Brushes.DimGray,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 0, 0, 24)
-            };
-
-            taiLieu.Blocks.Add(phuDe);
-
-            var bang = new Table
-            {
-                CellSpacing = 0
-            };
-
-            bang.Columns.Add(
-                new TableColumn
-                {
-                    Width = new GridLength(185)
-                });
-
-            bang.Columns.Add(
-                new TableColumn
-                {
-                    Width = new GridLength(1, GridUnitType.Star)
-                });
-
-            var nhomDong = new TableRowGroup();
-
-            ThemDong(
-                nhomDong,
-                "Mã hợp đồng",
-                LayChuoi(hopDong, "MaHopDong"));
-
-            ThemDong(
-                nhomDong,
-                "Trạng thái",
-                LayChuoi(hopDong, "TrangThai"));
-
-            ThemDong(
-                nhomDong,
-                "Khách thuê",
-                LayChuoi(hopDong, "KhachThue"));
-
-            ThemDong(
-                nhomDong,
-                "Dãy trọ",
-                LayChuoi(hopDong, "TenDayTro"));
-
-            ThemDong(
-                nhomDong,
-                "Số phòng",
-                LayChuoi(hopDong, "SoPhong"));
-
-            ThemDong(
-                nhomDong,
-                "Giá thuê",
-                DinhDangTien(hopDong, "GiaThue"));
-
-            ThemDong(
-                nhomDong,
-                "Ngày bắt đầu",
-                DinhDangNgay(hopDong, "NgayBatDau"));
-
-            ThemDong(
-                nhomDong,
-                "Ngày kết thúc",
-                DinhDangNgay(hopDong, "NgayKetThuc"));
-
-            bang.RowGroups.Add(nhomDong);
-
-            taiLieu.Blocks.Add(bang);
-
-            var ngayIn = new Paragraph(
-                new Run(
-                    "Ngày in: "
-                    + DateTime.Now.ToString("dd/MM/yyyy HH:mm")))
-            {
-                TextAlignment = TextAlignment.Right,
-                FontSize = 11,
-                Margin = new Thickness(0, 25, 0, 15)
-            };
-
-            taiLieu.Blocks.Add(ngayIn);
-
-            var ghiChu = new Paragraph(
-                new Run(
-                    "Đây là bản tóm tắt thông tin hợp đồng "
-                    + "được trích xuất từ hệ thống quản lý nhà trọ. "
-                    + "Tài liệu không thay thế hợp đồng gốc có chữ ký."))
-            {
-                FontSize = 10,
-                FontStyle = FontStyles.Italic,
-                Foreground = Brushes.DimGray,
-                Margin = new Thickness(0, 15, 0, 0)
-            };
-
-            taiLieu.Blocks.Add(ghiChu);
-
-            return taiLieu;
+            MessageBox.Show(
+                Window.GetWindow(this),
+                noiDung,
+                "Tải PDF",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
 
-        private static void ThemDong(
-            TableRowGroup nhomDong,
-            string nhan,
-            string giaTri)
+        private static string TaoTenFileMacDinh(
+            string maHopDong)
         {
-            var dong = new TableRow();
+            string tenFile = "HopDong_" + maHopDong;
 
-            var vanBanNhan = new Paragraph(
-                new Run(nhan))
+            foreach (char kyTu in Path.GetInvalidFileNameChars())
             {
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0)
-            };
+                tenFile = tenFile.Replace(kyTu, '_');
+            }
 
-            var vanBanGiaTri = new Paragraph(
-                new Run(giaTri))
-            {
-                Margin = new Thickness(0)
-            };
-
-            var oNhan = new TableCell(vanBanNhan)
-            {
-                Padding = new Thickness(10),
-                BorderBrush = Brushes.LightGray,
-                BorderThickness = new Thickness(0, 0, 0, 1)
-            };
-
-            var oGiaTri = new TableCell(vanBanGiaTri)
-            {
-                Padding = new Thickness(10),
-                BorderBrush = Brushes.LightGray,
-                BorderThickness = new Thickness(0, 0, 0, 1)
-            };
-
-            dong.Cells.Add(oNhan);
-            dong.Cells.Add(oGiaTri);
-
-            nhomDong.Rows.Add(dong);
+            return tenFile + ".pdf";
         }
 
         private void HienThiLoi(string noiDung)
@@ -421,6 +343,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             btnTaiPdf.IsEnabled = false;
 
             txtThongBao.Text = noiDung;
+
             txtThongBao.Foreground =
                 new SolidColorBrush(
                     Color.FromRgb(220, 38, 38));

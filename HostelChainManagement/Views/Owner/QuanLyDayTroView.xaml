@@ -1,0 +1,334 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Owner.QuanLyDayTroView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F9FAFB"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinHeight" Value="34"/>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderBrush" Value="#BFDBFE"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,11"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EFF6FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#DBEAFE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Margin="24,18,24,20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        VerticalAlignment="Center">
+
+                <TextBlock Text="Quản lý các dãy trọ"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"/>
+
+                <TextBlock Text="Quản lý thông tin các dãy trọ thuộc quyền của Chủ nhà trọ."
+                           FontSize="11"
+                           Foreground="#6B7280"
+                           Margin="0,5,0,0"/>
+
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="+ Thêm dãy trọ mới"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    VerticalAlignment="Center"
+                    Click="ThemDayTro_Click"/>
+
+        </Grid>
+
+        <Border Grid.Row="1"
+                Background="White"
+                BorderBrush="#D1D5DB"
+                BorderThickness="1"
+                CornerRadius="4">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="#FAFAFA"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,12">
+
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+
+                            <TextBlock Text="Danh sách dãy trọ"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="#111827"/>
+
+                            <TextBlock Text="Các cơ sở / dãy trọ hiện có trong hệ thống."
+                                       FontSize="10"
+                                       Foreground="#6B7280"
+                                       Margin="0,4,0,0"/>
+
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+
+                            <Border Background="#DCFCE7"
+                                    CornerRadius="3"
+                                    Padding="8,5"
+                                    Margin="0,0,6,0">
+
+                                <TextBlock Text="ĐANG HOẠT ĐỘNG"
+                                           FontSize="9"
+                                           FontWeight="SemiBold"
+                                           Foreground="#15803D"/>
+
+                            </Border>
+
+                            <Border Background="#FEF3C7"
+                                    CornerRadius="3"
+                                    Padding="8,5"
+                                    Margin="0,0,6,0">
+
+                                <TextBlock Text="TẠM NGƯNG"
+                                           FontSize="9"
+                                           FontWeight="SemiBold"
+                                           Foreground="#B45309"/>
+
+                            </Border>
+
+                            <Border Background="#F3F4F6"
+                                    CornerRadius="3"
+                                    Padding="8,5">
+
+                                <TextBlock Text="NGỪNG HOẠT ĐỘNG"
+                                           FontSize="9"
+                                           FontWeight="SemiBold"
+                                           Foreground="#4B5563"/>
+
+                            </Border>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                </Border>
+
+                <Grid Grid.Row="1">
+
+                    <DataGrid x:Name="dgvDayTro"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E5E7EB"
+                              BorderThickness="0"
+                              RowHeaderWidth="0"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              Background="White"
+                              FontSize="11"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="Mã dãy"
+                                                Binding="{Binding MaDayTro}"
+                                                Width="110"/>
+
+                            <DataGridTextColumn Header="Tên dãy"
+                                                Binding="{Binding TenDayTro}"
+                                                Width="1.5*"/>
+
+                            <DataGridTextColumn Header="Địa chỉ"
+                                                Binding="{Binding DiaChi}"
+                                                Width="2.2*"/>
+
+                            <DataGridTextColumn Header="Số phòng"
+                                                Binding="{Binding SoPhong}"
+                                                Width="90"/>
+
+                            <DataGridTemplateColumn Header="Tình trạng hoạt động"
+                                                    Width="170">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <Border x:Name="StatusBadge"
+                                                Background="#F3F4F6"
+                                                CornerRadius="3"
+                                                Padding="8,5"
+                                                HorizontalAlignment="Left">
+
+                                            <TextBlock x:Name="StatusText"
+                                                       Text="{Binding TrangThai}"
+                                                       Foreground="#4B5563"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"/>
+
+                                        </Border>
+
+                                        <DataTemplate.Triggers>
+
+                                            <DataTrigger Binding="{Binding TrangThai}"
+                                                         Value="Đang hoạt động">
+
+                                                <Setter TargetName="StatusBadge"
+                                                        Property="Background"
+                                                        Value="#DCFCE7"/>
+
+                                                <Setter TargetName="StatusText"
+                                                        Property="Foreground"
+                                                        Value="#15803D"/>
+
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding TrangThai}"
+                                                         Value="Tạm ngưng">
+
+                                                <Setter TargetName="StatusBadge"
+                                                        Property="Background"
+                                                        Value="#FEF3C7"/>
+
+                                                <Setter TargetName="StatusText"
+                                                        Property="Foreground"
+                                                        Value="#B45309"/>
+
+                                            </DataTrigger>
+
+                                        </DataTemplate.Triggers>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Thao tác"
+                                                    Width="105">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <Button Content="Sửa"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                HorizontalAlignment="Center"
+                                                Click="SuaDayTro_Click"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                    <TextBlock x:Name="txtEmptyState"
+                               Text="Chưa có dữ liệu dãy trọ để hiển thị"
+                               FontSize="11"
+                               Foreground="#9CA3AF"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+
+                </Grid>
+
+            </Grid>
+
+        </Border>
+
+        <Border Grid.Row="2"
+                Background="#FEF3C7"
+                BorderBrush="#FDE68A"
+                BorderThickness="1"
+                CornerRadius="3"
+                Padding="13,11"
+                Margin="0,14,0,0">
+
+            <TextBlock Text="Dãy trọ đang có phòng hoạt động và phát sinh hợp đồng không thể xóa tùy tiện. Dãy chỉ được chuyển sang trạng thái ngừng hoạt động khi tất cả phòng trong dãy không còn hợp đồng hiệu lực."
+                       FontSize="11"
+                       Foreground="#92400E"
+                       TextWrapping="Wrap"/>
+
+        </Border>
+
+    </Grid>
+
+</UserControl>

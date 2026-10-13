@@ -1,0 +1,268 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Owner.ChiTietHopDongView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F9FAFB"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+
+        <Style x:Key="FieldLabelStyle"
+               TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
+        </Style>
+
+        <Style x:Key="ReadOnlyFieldStyle"
+               TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Margin="24,18,24,20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0"
+              Margin="0,0,0,16">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+
+                <TextBlock Text="Chi tiết hợp đồng"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="#111827"/>
+
+                <TextBlock Text="Thông tin hợp đồng thuê phòng."
+                           FontSize="11"
+                           Foreground="#6B7280"
+                           Margin="0,5,0,0"/>
+
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+
+                <Button Content="← Quay lại"
+                        Height="36"
+                        MinWidth="100"
+                        Padding="13,7"
+                        Background="White"
+                        Foreground="#374151"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        Cursor="Hand"
+                        Click="QuayLai_Click"
+                        Margin="0,0,10,0"/>
+
+                <Button x:Name="btnTaiPdf"
+                        Content="Tải PDF/In"
+                        Height="36"
+                        MinWidth="110"
+                        Padding="13,7"
+                        Background="#2563EB"
+                        Foreground="White"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        BorderThickness="0"
+                        IsEnabled="False"
+                        ToolTip="Chức năng xuất PDF sẽ được triển khai sau"/>
+
+            </StackPanel>
+
+        </Grid>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+
+            <StackPanel>
+
+                <Border Background="White"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="1"
+                        CornerRadius="4">
+
+                    <StackPanel>
+
+                        <Border Background="#FAFAFA"
+                                BorderBrush="#E5E7EB"
+                                BorderThickness="0,0,0,1"
+                                Padding="16,13">
+
+                            <TextBlock Text="Thông tin hợp đồng thuê"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="#111827"/>
+
+                        </Border>
+
+                        <Grid Margin="18,17,18,19">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="0"
+                                        Margin="0,0,0,16">
+
+                                <TextBlock Text="Mã hợp đồng"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtMaHopDong"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0"
+                                        Grid.Column="2"
+                                        Margin="0,0,0,16">
+
+                                <TextBlock Text="Trạng thái"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <Border Height="38"
+                                        Background="#F9FAFB"
+                                        BorderBrush="#D1D5DB"
+                                        BorderThickness="1"
+                                        Padding="10,8">
+
+                                    <TextBlock x:Name="txtTrangThai"
+                                               Text="—"
+                                               Foreground="#6B7280"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center"/>
+
+                                </Border>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="0,0,0,16">
+
+                                <TextBlock Text="Khách thuê"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtKhachThue"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="0,0,0,16">
+
+                                <TextBlock Text="Phòng"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtPhong"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="0"
+                                        Margin="0,0,0,16">
+
+                                <TextBlock Text="Dãy trọ"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtDayTro"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2"
+                                        Grid.Column="2"
+                                        Margin="0,0,0,16">
+
+                                <TextBlock Text="Giá thuê"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtGiaThue"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="3"
+                                        Grid.Column="0">
+
+                                <TextBlock Text="Ngày bắt đầu"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtNgayBatDau"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="3"
+                                        Grid.Column="2">
+
+                                <TextBlock Text="Ngày kết thúc"
+                                           Style="{StaticResource FieldLabelStyle}"/>
+
+                                <TextBox x:Name="txtNgayKetThuc"
+                                         Text="—"
+                                         Style="{StaticResource ReadOnlyFieldStyle}"/>
+
+                            </StackPanel>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </Border>
+
+                <TextBlock x:Name="txtThongBao"
+                           Text="Đang tải chi tiết hợp đồng..."
+                           FontSize="11"
+                           Foreground="#6B7280"
+                           TextWrapping="Wrap"
+                           Margin="0,12,0,0"/>
+
+            </StackPanel>
+
+        </ScrollViewer>
+
+    </Grid>
+
+</UserControl>

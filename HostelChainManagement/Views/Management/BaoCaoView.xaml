@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="QuanLyChuoiNhaTro.Views.Management.BaoCaoView"
              Loaded="View_Loaded"
-             Background="#F8FAFC" d:DesignWidth="1031.327" d:DesignHeight="700.555">
+             Background="#F8FAFC" d:DesignWidth="1205.62" d:DesignHeight="727.63">
 
     <UserControl.Resources>
         <Style TargetType="{x:Type TextBlock}">
@@ -187,25 +187,30 @@
             <Border Grid.Column="2" Background="White"
                     BorderBrush="#CBD5E1" BorderThickness="1"
                     CornerRadius="4" Padding="16">
-                <StackPanel>
-                    <TextBlock Text="Thông tin báo cáo"
-                               FontSize="16" FontWeight="SemiBold"
-                               Margin="0,0,0,16"/>
-                    <TextBlock Text="Người lập"/>
-                    <TextBox x:Name="txtNguoiLap"
-                             IsReadOnly="True" Background="#F1F5F9"/>
-                    <TextBlock Text="Thời gian"/>
-                    <TextBox x:Name="txtThoiGian"
-                             IsReadOnly="True" Background="#F1F5F9"/>
-                    <TextBlock Text="Nội dung"/>
-                    <TextBox x:Name="txtNoiDung"
-                             IsReadOnly="True" Background="#F1F5F9"
-                             TextWrapping="Wrap"/>
-                    <TextBlock Text="Ghi chú / Nhận xét vận hành"/>
-                    <TextBox x:Name="txtGhiChu"
-                             Height="110" AcceptsReturn="True"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              PanningMode="VerticalOnly">
+                    <StackPanel Margin="0,0,8,0">
+                        <TextBlock Text="Thông tin báo cáo"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Margin="0,0,0,16"/>
+                        <TextBlock Text="Người lập"/>
+                        <TextBox x:Name="txtNguoiLap"
+                                 IsReadOnly="True" Background="#F1F5F9"/>
+                        <TextBlock Text="Thời gian"/>
+                        <TextBox x:Name="txtThoiGian"
+                                 IsReadOnly="True" Background="#F1F5F9"/>
+                        <TextBlock Text="Nội dung"/>
+                        <TextBox x:Name="txtNoiDung"
+                                 IsReadOnly="True" Background="#F1F5F9"
+                                 TextWrapping="Wrap"/>
+                        <TextBlock Text="Ghi chú / Nhận xét vận hành"/>
+                        <TextBox x:Name="txtGhiChu"
+                                 Height="110" AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
 

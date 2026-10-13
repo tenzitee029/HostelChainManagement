@@ -18,17 +18,18 @@ namespace QuanLyChuoiNhaTro.Views.Auth
         public LoginWindow()
         {
             InitializeComponent();
-
             Loaded += (_, _) => txtAccount.Focus();
         }
 
-        private async void Login_Click(object sender, RoutedEventArgs e)
+        private async void Login_Click(
+            object sender,
+            RoutedEventArgs e)
         {
             string account = txtAccount.Text.Trim();
             string password = GetPassword();
 
-            if (string.IsNullOrWhiteSpace(account)
-                || string.IsNullOrEmpty(password))
+            if (string.IsNullOrWhiteSpace(account) ||
+                string.IsNullOrEmpty(password))
             {
                 txtMessage.Text =
                     "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.";
@@ -96,20 +97,15 @@ namespace QuanLyChuoiNhaTro.Views.Auth
         {
             return role switch
             {
-                "Admin" =>
-                    new AdminWindow(),
+                "Admin" => new AdminWindow(),
 
-                "Chủ nhà trọ" =>
-                    new ChuTroWindow(),
+                "Chủ nhà trọ" => new ChuTroWindow(),
 
-                "Nhân viên quản lý" =>
-                    new QuanLyWindow(),
+                "Nhân viên quản lý" => new QuanLyWindow(),
 
-                "Khách thuê" =>
-                    new KhachThueWindow(),
+                "Khách thuê" => new KhachThueWindow(),
 
-                "Nhân viên kỹ thuật" =>
-                    new KyThuatWindow(),
+                "Nhân viên kỹ thuật" => new KyThuatWindow(),
 
                 _ => throw new InvalidOperationException(
                     "Vai trò tài khoản không hợp lệ.")
@@ -149,7 +145,9 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             txtVisiblePassword.Clear();
         }
 
-        private void TogglePassword_Click(object sender, RoutedEventArgs e)
+        private void TogglePassword_Click(
+            object sender,
+            RoutedEventArgs e)
         {
             if (!_isPasswordVisible)
             {
@@ -179,18 +177,20 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             _isPasswordVisible = !_isPasswordVisible;
         }
 
-        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
+        private void ForgotPassword_Click(
+            object sender,
+            RoutedEventArgs e)
         {
             ShowForgotPassword();
         }
 
-        private void ShowForgotPassword(string email = "")
+        private void ShowForgotPassword()
         {
-            var view = new ForgotPasswordView(email);
+            var view = new ForgotPasswordView();
 
-            view.SendCodeRequested += submittedEmail =>
+            view.IdentityVerified += ticket =>
             {
-                ShowVerifyOtp(submittedEmail);
+                ShowResetPassword(ticket);
             };
 
             view.BackToLoginRequested += ShowLoginForm;
@@ -198,14 +198,12 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             ShowAuthView(view);
         }
 
-        private void ShowVerifyOtp(string email)
+        private void ShowResetPassword(
+            PasswordRecoveryService.RecoveryTicket ticket)
         {
-            var view = new VerifyOtpView(email);
+            var view = new ResetPasswordView(ticket);
 
-            view.BackToEmailRequested += () =>
-            {
-                ShowForgotPassword(email);
-            };
+            view.BackToIdentityRequested += ShowForgotPassword;
 
             view.BackToLoginRequested += ShowLoginForm;
 
@@ -228,6 +226,7 @@ namespace QuanLyChuoiNhaTro.Views.Auth
             LoginFormBorder.Visibility = Visibility.Visible;
 
             txtMessage.Text = string.Empty;
+            ClearPassword();
             txtAccount.Focus();
         }
     }

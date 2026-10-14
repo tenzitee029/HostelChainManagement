@@ -41,7 +41,10 @@ public sealed class VatTuKyThuat : INotifyPropertyChanged
         }
     }
 
-    public decimal ThanhTien => SoLuong * DonGia;
+    public decimal ThanhTien => decimal.Round(
+        SoLuong * DonGia,
+        0,
+        MidpointRounding.AwayFromZero);
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

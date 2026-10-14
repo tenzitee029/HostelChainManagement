@@ -442,6 +442,51 @@ public static class KyThuatService
             }
         }
 
+        if (complete && total > 0)
+        {
+            using var billingCommand = connection.CreateCommand();
+
+            billingCommand.Transaction = transaction;
+
+            billingCommand.CommandText = @"
+                DECLARE @HopDong TABLE
+                (
+                    MaHopDong VARCHAR(20) PRIMARY KEY
+                );
+
+                INSERT INTO @HopDong(MaHopDong)
+                SELECT h.MaHopDong
+                FROM dbo.ChiTietSuaChua ct
+                JOIN dbo.PhieuSuCo s
+                  ON s.MaSuCo = ct.MaSuCo
+                JOIN dbo.KhachThue k
+                  ON k.MaNguoiDung = s.MaNguoiGui
+                JOIN dbo.HopDongThue h
+                  ON h.MaKhachThue = k.MaKhachThue
+                 AND h.MaPhong = s.MaPhong
+                WHERE ct.MaChiTietSuaChua = @Id
+                  AND h.NgayBatDau <= CAST(s.NgayGui AS DATE)
+                  AND h.NgayKetThuc >= CAST(s.NgayGui AS DATE);
+
+                IF (SELECT COUNT(*) FROM @HopDong) <> 1
+                    THROW 50001,
+                        N'Không xác định được một hợp đồng chịu phí. Kiểm tra người báo sự cố và ngày thuê.',
+                        1;
+
+                UPDATE v
+                SET MaHopDongTinhPhi =
+                    (SELECT MaHopDong FROM @HopDong)
+                FROM dbo.VatTuSuaChua v
+                WHERE v.MaChiTietSuaChua = @Id;";
+
+            billingCommand.Parameters.Add(
+                "@Id",
+                SqlDbType.VarChar,
+                20).Value = id;
+
+            await billingCommand.ExecuteNonQueryAsync();
+        }
+
         await NotifyAsync(
             connection,
             transaction,

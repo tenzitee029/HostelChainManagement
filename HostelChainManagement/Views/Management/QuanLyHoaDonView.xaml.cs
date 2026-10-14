@@ -14,6 +14,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
     {
         public event Action<string>? MoThanhToan;
         public event Action? MoTaoHoaDon;
+        public event Action<string>? MoChiTietHoaDon;
 
         private DataTable? _duLieu;
         private bool _dangXuLy;
@@ -367,195 +368,25 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
         }
 
-        // Đọc lại thông tin từ SQL trước khi xem chi tiết.
-        private async void XemChiTiet_Click(
-            object sender, RoutedEventArgs e)
+        private void XemChiTiet_Click(
+            object sender,
+            RoutedEventArgs e)
         {
-            if (_dangXuLy ||
-                dgHoaDon.SelectedItem is not DataRowView dong)
+            if (_dangXuLy
+                || UserSession.CurrentUser?.VaiTro != "Nhân viên quản lý")
             {
                 return;
             }
 
-            var user = UserSession.CurrentUser;
-
-            if (user == null || user.VaiTro != "Nhân viên quản lý")
+            if (dgHoaDon.SelectedItem is not DataRowView row)
                 return;
 
             string maHoaDon =
-                Convert.ToString(dong["MaHoaDon"]) ?? "";
+                Convert.ToString(row["MaHoaDon"]) ?? "";
 
-            _dangXuLy = true;
-            CapNhatNut();
-
-            try
+            if (!string.IsNullOrWhiteSpace(maHoaDon))
             {
-                using var connection = Database.CreateConnection();
-                await connection.OpenAsync();
-
-                var noiDung = new StringBuilder();
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT
-                            n.HoTen,
-                            d.TenDayTro + N' - ' + p.SoPhong AS TenPhong,
-                            hd.Thang,
-                            hd.Nam,
-                            hd.HanThanhToan,
-                            hd.TongTien,
-                            COALESCE(tt.DaTra, 0) AS DaTra
-                        FROM dbo.HoaDon hd
-                        JOIN dbo.HopDongThue h
-                          ON h.MaHopDong = hd.MaHopDong
-                        JOIN dbo.KhachThue k
-                          ON k.MaKhachThue = h.MaKhachThue
-                        JOIN dbo.NguoiDung n
-                          ON n.MaNguoiDung = k.MaNguoiDung
-                        JOIN dbo.PhongTro p
-                          ON p.MaPhong = hd.MaPhong
-                        JOIN dbo.DayTro d
-                          ON d.MaDayTro = p.MaDayTro
-                        OUTER APPLY (
-                            SELECT SUM(t.SoTien) AS DaTra
-                            FROM dbo.ThanhToan t
-                            WHERE t.MaHoaDon = hd.MaHoaDon
-                        ) tt
-                        WHERE hd.MaHoaDon = @MaHoaDon
-                          AND " + DieuKienQuyen + ";";
-
-                    command.Parameters.Add(
-                        "@MaHoaDon", SqlDbType.VarChar, 20)
-                        .Value = maHoaDon;
-
-                    command.Parameters.Add(
-                        "@QuanLy", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader =
-                        await command.ExecuteReaderAsync();
-
-                    if (!await reader.ReadAsync())
-                    {
-                        MessageBox.Show(
-                            "Hóa đơn không tồn tại hoặc bạn không còn quyền xem.");
-                        return;
-                    }
-
-                    decimal tong = Convert.ToDecimal(reader["TongTien"]);
-                    decimal daTra = Convert.ToDecimal(reader["DaTra"]);
-                    decimal conNo = Math.Max(0, tong - daTra);
-
-                    noiDung.AppendLine("Hóa đơn: " + maHoaDon);
-                    noiDung.AppendLine("Khách: " + reader["HoTen"]);
-                    noiDung.AppendLine("Phòng: " + reader["TenPhong"]);
-                    noiDung.AppendLine(
-                        "Kỳ: " + reader["Thang"] + "/" + reader["Nam"]);
-                    noiDung.AppendLine(
-                        "Hạn thanh toán: "
-                        + Convert.ToDateTime(reader["HanThanhToan"])
-                            .ToString("dd/MM/yyyy"));
-
-                    noiDung.AppendLine();
-                    noiDung.AppendLine("Tổng tiền: " + Tien(tong));
-                    noiDung.AppendLine("Đã trả: " + Tien(daTra));
-                    noiDung.AppendLine("Còn nợ: " + Tien(conNo));
-                    noiDung.AppendLine();
-                    noiDung.AppendLine("CÁC KHOẢN THU:");
-                }
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT ct.LoaiKhoanThu,
-                               ct.SoLuong,
-                               ct.DonGia,
-                               ct.ThanhTien,
-                               ct.GhiChu
-                        FROM dbo.ChiTietHoaDon ct
-                        JOIN dbo.HoaDon hd
-                          ON hd.MaHoaDon = ct.MaHoaDon
-                        JOIN dbo.PhongTro p
-                          ON p.MaPhong = hd.MaPhong
-                        WHERE hd.MaHoaDon = @MaHoaDon
-                          AND " + DieuKienQuyen + @"
-                        ORDER BY ct.LoaiKhoanThu, ct.MaChiTietHoaDon;";
-
-                    command.Parameters.Add(
-                        "@MaHoaDon", SqlDbType.VarChar, 20)
-                        .Value = maHoaDon;
-
-                    command.Parameters.Add(
-                        "@QuanLy", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader =
-                        await command.ExecuteReaderAsync();
-
-                    bool coChiTiet = false;
-
-                    while (await reader.ReadAsync())
-                    {
-                        coChiTiet = true;
-
-                        string ghiChu =
-                            Convert.ToString(reader["GhiChu"]) ?? "";
-
-                        string tenKhoan =
-                            Convert.ToString(reader["LoaiKhoanThu"]) ?? "";
-
-                        if (ghiChu.Length > 0)
-                            tenKhoan += " (" + ghiChu + ")";
-
-                        noiDung.AppendLine(
-                            tenKhoan
-                            + ": " + reader["SoLuong"]
-                            + " × " + Tien(
-                                Convert.ToDecimal(reader["DonGia"]))
-                            + " = " + Tien(
-                                Convert.ToDecimal(reader["ThanhTien"])));
-                    }
-
-                    if (!coChiTiet)
-                        noiDung.AppendLine("Chưa có khoản thu chi tiết.");
-                }
-
-                var cuaSo = new Window
-                {
-                    Title = "Chi tiết hóa đơn",
-                    Width = 650,
-                    Height = 520,
-                    Owner = Window.GetWindow(this),
-                    WindowStartupLocation =
-                        WindowStartupLocation.CenterOwner,
-
-                    Content = new TextBox
-                    {
-                        Text = noiDung.ToString(),
-                        IsReadOnly = true,
-                        TextWrapping = TextWrapping.Wrap,
-                        VerticalScrollBarVisibility =
-                            ScrollBarVisibility.Auto,
-                        Margin = new Thickness(16),
-                        Padding = new Thickness(12)
-                    }
-                };
-
-                cuaSo.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    ex.Message,
-                    "Lỗi xem hóa đơn",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-            finally
-            {
-                _dangXuLy = false;
-                CapNhatNut();
+                MoChiTietHoaDon?.Invoke(maHoaDon);
             }
         }
     }

@@ -326,7 +326,26 @@ namespace QuanLyChuoiNhaTro.Views.Management
             view.MoTaoHoaDon += HienThiTaoHoaDon;
             view.MoThanhToan += HienThiXacNhanThanhToan;
 
-            ShowView(view, "Hóa đơn", btnInvoices);
+            view.MoChiTietHoaDon += HienThiChiTietHoaDon;
+
+            ShowView(
+                view,
+                "Hóa đơn",
+                btnInvoices);
+        }
+
+        private void HienThiChiTietHoaDon(string maHoaDon)
+        {
+            var view = new ChiTietHoaDonQuanLyView(maHoaDon);
+
+            view.BackRequested += HienThiHoaDon;
+
+            view.PaymentRequested += HienThiXacNhanThanhToan;
+
+            ShowView(
+                view,
+                "Hóa đơn / Chi tiết hóa đơn",
+                btnInvoices);
         }
 
         private void HienThiTaoHoaDon()

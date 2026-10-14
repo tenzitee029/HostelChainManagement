@@ -7,7 +7,6 @@ using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using QuanLyChuoiNhaTro.Data;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -38,10 +37,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 using var command = connection.CreateCommand();
 
                 command.CommandText = @"
-            SELECT COUNT(*)
-            FROM dbo.ThongBaoNguoiNhan
-            WHERE MaNguoiNhan = @MaNguoiDung
-              AND DaDoc = 0;";
+                    SELECT COUNT(*)
+                    FROM dbo.ThongBaoNguoiNhan
+                    WHERE MaNguoiNhan = @MaNguoiDung
+                      AND DaDoc = 0;";
 
                 command.Parameters.Add(
                     "@MaNguoiDung", SqlDbType.VarChar, 20)
@@ -149,10 +148,54 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         // Tổng quan.
+        private void Overview_NavigationRequested(string operation)
+        {
+            if (UserSession.CurrentUser?.VaiTro != "Nhân viên quản lý")
+                return;
+
+            switch (operation)
+            {
+                case "Quản lý phòng":
+                    Rooms_Click(btnRooms, new RoutedEventArgs());
+                    break;
+
+                case "Quản lý khách thuê":
+                    Tenants_Click(btnTenants, new RoutedEventArgs());
+                    break;
+
+                case "Lập / Gia hạn / Thanh lý hợp đồng":
+                    Contracts_Click(btnContracts, new RoutedEventArgs());
+                    break;
+
+                case "Tạo hóa đơn hàng tháng":
+                case "Xác nhận thanh toán":
+                    Invoices_Click(btnInvoices, new RoutedEventArgs());
+                    break;
+
+                case "Tiếp nhận / Phân công sửa chữa":
+                    Repairs_Click(btnRepairs, new RoutedEventArgs());
+                    break;
+
+                case "Gửi thông báo":
+                    Notifications_Click(
+                        btnNotifications,
+                        new RoutedEventArgs());
+                    break;
+
+                case "Lập báo cáo tháng / năm":
+                    Reports_Click(btnReports, new RoutedEventArgs());
+                    break;
+            }
+        }
+
         private void ShowOverview()
         {
+            var view = new TongQuanQuanLyView();
+
+            view.NavigationRequested += Overview_NavigationRequested;
+
             ShowView(
-                new TongQuanQuanLyView(),
+                view,
                 "Tổng quan",
                 btnOverview);
         }

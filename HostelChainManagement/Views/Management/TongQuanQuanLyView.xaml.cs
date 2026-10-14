@@ -10,6 +10,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
     {
         private bool _loading;
 
+        public event Action<string>? NavigationRequested;
+
         public TongQuanQuanLyView()
         {
             InitializeComponent();
@@ -115,6 +117,17 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     "Yêu cầu đang chờ hoặc đang xử lý",
                     data?.YeuCauSuaChua)
             };
+        }
+
+        private void Operation_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (sender is Button button
+                && button.DataContext is string operation)
+            {
+                NavigationRequested?.Invoke(operation);
+            }
         }
 
         private static QuanLyMetric Metric(

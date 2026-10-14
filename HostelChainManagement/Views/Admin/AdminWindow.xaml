@@ -237,33 +237,6 @@
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
 
-                        <!-- Icon chuông thông báo -->
-                        <Button x:Name="btnBell"
-                                Style="{StaticResource BellButton}"
-                                AutomationProperties.Name="Thông báo"
-                                Click="Bell_Click"
-                                Margin="0,0,12,0">
-
-                            <Path Width="24"
-                                  Height="26"
-                                  Stretch="Uniform"
-                                  Stroke="#182132"
-                                  StrokeThickness="1.6"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round"
-                                  StrokeLineJoin="Round"
-                                  Fill="Transparent"
-                                  Data="M18,8
-                                        C18,4.686 15.314,2 12,2
-                                        C8.686,2 6,4.686 6,8
-                                        C6,15 3,15 3,17
-                                        L21,17
-                                        C21,15 18,15 18,8
-                                        Z
-                                        M10,21
-                                        C10.8,22.3 13.2,22.3 14,21"/>
-                        </Button>
-
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock x:Name="txtUser"
                                        FontWeight="SemiBold"/>

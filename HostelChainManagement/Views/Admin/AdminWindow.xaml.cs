@@ -135,18 +135,6 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             ShowAccounts();
         }
 
-        private void Bell_Click(
-            object sender,
-            RoutedEventArgs e)
-        {
-            if (!CanNavigate)
-                return;
-
-            ShowView(
-                new (),
-                "Thông báo");
-        }
-
         private void Profile_Click(
             object sender,
             RoutedEventArgs e)

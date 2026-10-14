@@ -99,37 +99,61 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     SELECT
                         hd.MaHoaDon,
                         hd.MaHopDong,
+
                         CAST(hd.Thang AS VARCHAR(2)) + '/'
                             + CAST(hd.Nam AS VARCHAR(4)) AS KyHoaDon,
+
                         d.TenDayTro + N' - ' + p.SoPhong AS TenPhong,
                         n.HoTen AS TenKhachThue,
+
                         hd.TongTien,
                         COALESCE(tt.DaTra, 0) AS DaTra,
-                        hd.TongTien - COALESCE(tt.DaTra, 0) AS ConNo,
+
                         CASE
+                            WHEN hd.TongTien > COALESCE(tt.DaTra, 0)
+                                THEN hd.TongTien - COALESCE(tt.DaTra, 0)
+                            ELSE 0
+                        END AS ConNo,
+
+                        CASE
+                            WHEN COALESCE(tt.DaTra, 0) >= hd.TongTien
+                                THEN N'Đã thanh toán'
                             WHEN COALESCE(tt.DaTra, 0) > 0
                                 THEN N'Còn nợ'
                             ELSE N'Chưa thanh toán'
                         END AS TrangThai
+
                     FROM dbo.HoaDon hd
+
                     JOIN dbo.HopDongThue h
                         ON h.MaHopDong = hd.MaHopDong
+                       AND h.MaPhong = hd.MaPhong
+
                     JOIN dbo.KhachThue k
                         ON k.MaKhachThue = h.MaKhachThue
+
                     JOIN dbo.NguoiDung n
                         ON n.MaNguoiDung = k.MaNguoiDung
+
                     JOIN dbo.PhongTro p
                         ON p.MaPhong = hd.MaPhong
+
                     JOIN dbo.DayTro d
                         ON d.MaDayTro = p.MaDayTro
-                    OUTER APPLY (
+
+                    OUTER APPLY
+                    (
                         SELECT SUM(t.SoTien) AS DaTra
                         FROM dbo.ThanhToan t
                         WHERE t.MaHoaDon = hd.MaHoaDon
                     ) tt
-                    WHERE hd.TongTien > COALESCE(tt.DaTra, 0)
-                      AND " + DieuKienQuyen + @"
-                    ORDER BY hd.Nam DESC, hd.Thang DESC, hd.MaHoaDon;";
+
+                    WHERE " + DieuKienQuyen + @"
+
+                    ORDER BY
+                        hd.Nam DESC,
+                        hd.Thang DESC,
+                        hd.MaHoaDon;";
 
                 command.Parameters.Add(
                     "@QuanLy", SqlDbType.VarChar, 20)
@@ -180,11 +204,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
         private void CapNhatNut()
         {
-            // Tránh lỗi nếu sự kiện XAML chạy trong lúc khởi tạo.
-            if (btnTaoHoaDon == null ||
-                btnTimKiem == null ||
-                btnXemChiTiet == null ||
-                btnXacNhanThanhToan == null)
+            if (btnTaoHoaDon == null
+                || btnTimKiem == null
+                || btnXemChiTiet == null
+                || btnXacNhanThanhToan == null)
             {
                 return;
             }
@@ -195,15 +218,28 @@ namespace QuanLyChuoiNhaTro.Views.Management
             bool sanSang =
                 coQuyen && !_dangXuLy && _duLieu != null;
 
-            bool daChon =
-                sanSang && dgHoaDon.SelectedItem is DataRowView;
+            var selected =
+                dgHoaDon.SelectedItem as DataRowView;
 
-            btnTaoHoaDon.IsEnabled = coQuyen && !_dangXuLy;
+            bool daChon =
+                sanSang && selected != null;
+
+            bool conNo =
+                daChon
+                && selected != null
+                && Convert.ToDecimal(selected["ConNo"]) > 0;
+
+            btnTaoHoaDon.IsEnabled =
+                coQuyen && !_dangXuLy;
+
             txtTimKiem.IsEnabled = sanSang;
             btnTimKiem.IsEnabled = sanSang;
 
+            // Hóa đơn đã thanh toán vẫn xem được.
             btnXemChiTiet.IsEnabled = daChon;
-            btnXacNhanThanhToan.IsEnabled = daChon;
+
+            // Chỉ được xác nhận khi còn tiền phải trả.
+            btnXacNhanThanhToan.IsEnabled = conNo;
         }
 
         private void ChonHoaDon_Changed(
@@ -236,7 +272,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     "MaHoaDon",
                     "TenPhong",
                     "TenKhachThue",
-                    "KyHoaDon"
+                    "KyHoaDon",
+                    "TrangThai"
                 })
                 {
                     string noiDung =
@@ -258,15 +295,28 @@ namespace QuanLyChuoiNhaTro.Views.Management
             dgHoaDon.ItemsSource = ketQua.DefaultView;
 
             txtDanhSachTrong.Text = _duLieu.Rows.Count == 0
-                ? "Không có hóa đơn còn nợ trong phạm vi quản lý."
+                ? "Chưa có hóa đơn trong phạm vi quản lý."
                 : "Không có hóa đơn phù hợp.";
 
             txtDanhSachTrong.Visibility = ketQua.Rows.Count == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
+            int daThanhToan = 0;
+            int chuaThanhToanHet = 0;
+
+            foreach (DataRow row in ketQua.Rows)
+            {
+                if (Convert.ToDecimal(row["ConNo"]) <= 0)
+                    daThanhToan++;
+                else
+                    chuaThanhToanHet++;
+            }
+
             txtTrangThai.Text =
-                $"Hiển thị {ketQua.Rows.Count} hóa đơn còn nợ.";
+                $"Hiển thị {ketQua.Rows.Count} hóa đơn — "
+                + $"{daThanhToan} đã thanh toán, "
+                + $"{chuaThanhToanHet} chưa thanh toán hết.";
 
             CapNhatNut();
         }
@@ -296,6 +346,19 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             if (dgHoaDon.SelectedItem is DataRowView hoaDon)
             {
+                if (Convert.ToDecimal(hoaDon["ConNo"]) <= 0)
+                {
+                    MessageBox.Show(
+                        Window.GetWindow(this),
+                        "Hóa đơn đã được thanh toán hết. "
+                        + "Bạn có thể chọn Xem chi tiết để xem lại.",
+                        "Thông báo",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    return;
+                }
+
                 string maHoaDon =
                     Convert.ToString(hoaDon["MaHoaDon"]) ?? "";
 

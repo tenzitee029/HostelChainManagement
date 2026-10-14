@@ -92,7 +92,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Margin="16">
-                    <TextBlock Text="Danh sách hóa đơn chưa thanh toán / còn nợ"
+                    <TextBlock Text="Danh sách hóa đơn và lịch sử thanh toán"
                                FontSize="16" FontWeight="SemiBold"
                                Foreground="#334155"/>
                     <TextBlock Text="Chọn hóa đơn để xem chi tiết hoặc ghi nhận tiền đã nhận."

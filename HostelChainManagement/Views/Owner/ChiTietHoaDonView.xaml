@@ -59,8 +59,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0"
-              Margin="0,0,0,15">
+        <Grid Grid.Row="0" Margin="0,0,0,15">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -68,7 +67,6 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
-
                 <TextBlock Text="Chi tiết hóa đơn"
                            FontSize="20"
                            FontWeight="SemiBold"
@@ -78,7 +76,6 @@
                            FontSize="11"
                            Foreground="#6B7280"
                            Margin="0,5,0,0"/>
-
             </StackPanel>
 
             <StackPanel Grid.Column="1"
@@ -99,7 +96,8 @@
                         Click="QuayLai_Click"
                         Margin="0,0,10,0"/>
 
-                <Button Content="Tải PDF/In"
+                <Button x:Name="btnTaiPdf"
+                        Content="Tải PDF"
                         Height="36"
                         MinWidth="110"
                         Padding="13,7"
@@ -109,10 +107,28 @@
                         FontWeight="SemiBold"
                         BorderThickness="0"
                         IsEnabled="False"
-                        ToolTip="Chức năng xuất PDF sẽ được triển khai sau"/>
+                        Cursor="Hand"
+                        Margin="0,0,10,0"
+                        Click="TaiPdf_Click"
+                        ToolTip="Lưu hóa đơn đang xem thành tệp PDF"/>
+
+                <Button x:Name="btnInHoaDon"
+                        Content="In hóa đơn"
+                        Height="36"
+                        MinWidth="110"
+                        Padding="13,7"
+                        Background="White"
+                        Foreground="#2563EB"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        BorderBrush="#2563EB"
+                        BorderThickness="1"
+                        IsEnabled="False"
+                        Cursor="Hand"
+                        Click="InHoaDon_Click"
+                        ToolTip="Chọn máy in để in hóa đơn đang xem"/>
 
             </StackPanel>
-
         </Grid>
 
         <ScrollViewer Grid.Row="1"
@@ -138,7 +154,6 @@
                                        FontSize="13"
                                        FontWeight="SemiBold"
                                        Foreground="#111827"/>
-
                         </Border>
 
                         <Grid Margin="18,16,18,18">
@@ -160,20 +175,16 @@
                             <StackPanel Grid.Row="0"
                                         Grid.Column="0"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Mã hóa đơn"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtMaHoaDon"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="0"
                                         Grid.Column="2"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Trạng thái thanh toán"
                                            Style="{StaticResource FieldLabelStyle}"/>
 
@@ -189,117 +200,89 @@
                                                FontWeight="SemiBold"
                                                Foreground="#6B7280"
                                                VerticalAlignment="Center"/>
-
                                 </Border>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="1"
                                         Grid.Column="0"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Khách thuê"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtKhachThue"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="1"
                                         Grid.Column="2"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Phòng"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtPhong"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="2"
                                         Grid.Column="0"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Dãy trọ"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtDayTro"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="2"
                                         Grid.Column="2"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Kỳ thanh toán"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtKyThanhToan"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="3"
                                         Grid.Column="0"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Mã hợp đồng"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtMaHopDong"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="3"
                                         Grid.Column="2"
                                         Margin="0,0,0,13">
-
                                 <TextBlock Text="Ngày lập hóa đơn"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtNgayLap"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="4"
                                         Grid.Column="0">
-
                                 <TextBlock Text="Hạn thanh toán"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtHanThanhToan"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                             <StackPanel Grid.Row="4"
                                         Grid.Column="2">
-
                                 <TextBlock Text="Phương thức thanh toán"
                                            Style="{StaticResource FieldLabelStyle}"/>
-
                                 <TextBox x:Name="txtPhuongThuc"
                                          Text="—"
                                          Style="{StaticResource ReadOnlyFieldStyle}"/>
-
                             </StackPanel>
 
                         </Grid>
-
                     </StackPanel>
-
                 </Border>
 
                 <Border Background="White"
@@ -325,7 +308,6 @@
                                        FontSize="13"
                                        FontWeight="SemiBold"
                                        Foreground="#111827"/>
-
                         </Border>
 
                         <Grid Grid.Row="1">
@@ -384,7 +366,6 @@
                                                         Width="1.2*"/>
 
                                 </DataGrid.Columns>
-
                             </DataGrid>
 
                             <TextBlock x:Name="txtEmptyKhoanThu"
@@ -397,7 +378,6 @@
                                        VerticalAlignment="Center"
                                        Margin="12"
                                        IsHitTestVisible="False"/>
-
                         </Grid>
 
                         <Border Grid.Row="2"
@@ -425,11 +405,9 @@
                                            VerticalAlignment="Center"/>
 
                             </StackPanel>
-
                         </Border>
 
                     </Grid>
-
                 </Border>
 
                 <TextBlock x:Name="txtThongBao"
@@ -440,9 +418,6 @@
                            Margin="0,12,0,0"/>
 
             </StackPanel>
-
         </ScrollViewer>
-
     </Grid>
-
 </UserControl>

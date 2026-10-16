@@ -87,7 +87,26 @@
                         FontWeight="SemiBold"
                         BorderThickness="0"
                         IsEnabled="False"
-                        ToolTip="Tải hợp đồng thuê phòng dưới dạng PDF"/>       
+                        Cursor="Hand"
+                        Margin="0,0,10,0"
+                        Click="TaiPdf_Click"
+                        ToolTip="Lưu hợp đồng đang xem thành tệp PDF"/>
+
+                <Button x:Name="btnInHopDong"
+                        Content="In hợp đồng"
+                        Height="36"
+                        MinWidth="120"
+                        Padding="13,7"
+                        Background="White"
+                        Foreground="#2563EB"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        BorderBrush="#2563EB"
+                        BorderThickness="1"
+                        IsEnabled="False"
+                        Cursor="Hand"
+                        Click="InHopDong_Click"
+                        ToolTip="Chọn máy in để in hợp đồng đang xem"/>
 
             </StackPanel>
 

@@ -3,14 +3,15 @@ using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class ThongBaoCaNhanWindow : UserControl
     {
         public event Action? DaDocThongBao;
+
         private readonly string _maNguoiDung;
         private bool _dangTai;
         private bool _dangDoc;
@@ -76,35 +77,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    SELECT
-                        tb.MaThongBao,
-                        tb.TieuDe,
-                        tb.NgayGui,
-                        n.HoTen AS NguoiGui,
-                        nn.DaDoc
-                    FROM dbo.ThongBaoNguoiNhan nn
-                    JOIN dbo.ThongBao tb
-                      ON tb.MaThongBao = nn.MaThongBao
-                    JOIN dbo.NguoiDung n
-                      ON n.MaNguoiDung = tb.MaNguoiGui
-                    WHERE nn.MaNguoiNhan = @MaNguoiDung
-                    ORDER BY tb.NgayGui DESC, tb.MaThongBao;";
-
-                command.Parameters.Add(
-                    "@MaNguoiDung", SqlDbType.VarChar, 20)
-                    .Value = _maNguoiDung;
-
-                await connection.OpenAsync();
-
-                using var reader =
-                    await command.ExecuteReaderAsync();
-
-                var table = new DataTable();
-                table.Load(reader);
+                var table =
+                    await ThongBaoCaNhanService.LayDanhSachAsync(
+                        _maNguoiDung);
 
                 if (_daDong || !DungTaiKhoan())
                     return;
@@ -166,81 +141,33 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                await connection.OpenAsync();
+                using var service = new ThongBaoCaNhanService();
+                await service.MoKetNoiAsync();
 
-                string tieuDe;
-                string noiDung;
-                string nguoiGui;
-                DateTime ngayGui;
+                var chiTiet = await service.LayChiTietAsync(
+                    maThongBao,
+                    _maNguoiDung);
 
-                using (var command = connection.CreateCommand())
+                if (chiTiet == null)
                 {
-                    command.CommandText = @"
-                        SELECT tb.TieuDe, tb.NoiDung,
-                               tb.NgayGui, n.HoTen AS NguoiGui
-                        FROM dbo.ThongBao tb
-                        JOIN dbo.ThongBaoNguoiNhan nn
-                          ON nn.MaThongBao = tb.MaThongBao
-                        JOIN dbo.NguoiDung n
-                          ON n.MaNguoiDung = tb.MaNguoiGui
-                        WHERE tb.MaThongBao = @MaThongBao
-                          AND nn.MaNguoiNhan = @MaNguoiDung;";
-
-                    command.Parameters.Add(
-                        "@MaThongBao", SqlDbType.VarChar, 20)
-                        .Value = maThongBao;
-
-                    command.Parameters.Add(
-                        "@MaNguoiDung", SqlDbType.VarChar, 20)
-                        .Value = _maNguoiDung;
-
-                    using var reader =
-                        await command.ExecuteReaderAsync();
-
-                    if (!await reader.ReadAsync())
-                    {
-                        txtTieuDe.Text = "Không mở được thông báo";
-                        txtTrangThai.Text =
-                            "Thông báo không còn tồn tại hoặc bạn không có quyền.";
-                        return;
-                    }
-
-                    tieuDe = Convert.ToString(reader["TieuDe"]) ?? "";
-                    noiDung = Convert.ToString(reader["NoiDung"]) ?? "";
-                    nguoiGui = Convert.ToString(reader["NguoiGui"]) ?? "";
-                    ngayGui = Convert.ToDateTime(reader["NgayGui"]);
+                    txtTieuDe.Text = "Không mở được thông báo";
+                    txtTrangThai.Text =
+                        "Thông báo không còn tồn tại hoặc bạn không có quyền.";
+                    return;
                 }
 
                 if (_daDong || !DungTaiKhoan())
                     return;
 
-                txtTieuDe.Text = tieuDe;
-                txtNoiDung.Text = noiDung;
+                txtTieuDe.Text = chiTiet.TieuDe;
+                txtNoiDung.Text = chiTiet.NoiDung;
                 txtThongTin.Text =
-                    $"Người gửi: {nguoiGui}\n"
-                    + $"Ngày gửi: {ngayGui:dd/MM/yyyy HH:mm}";
+                    $"Người gửi: {chiTiet.NguoiGui}\n"
+                    + $"Ngày gửi: {chiTiet.NgayGui:dd/MM/yyyy HH:mm}";
 
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        UPDATE dbo.ThongBaoNguoiNhan
-                        SET DaDoc = 1,
-                            NgayDoc = GETDATE()
-                        WHERE MaThongBao = @MaThongBao
-                          AND MaNguoiNhan = @MaNguoiDung
-                          AND DaDoc = 0;";
-
-                    command.Parameters.Add(
-                        "@MaThongBao", SqlDbType.VarChar, 20)
-                        .Value = maThongBao;
-
-                    command.Parameters.Add(
-                        "@MaNguoiDung", SqlDbType.VarChar, 20)
-                        .Value = _maNguoiDung;
-
-                    await command.ExecuteNonQueryAsync();
-                }
+                await service.DanhDauDaDocAsync(
+                    maThongBao,
+                    _maNguoiDung);
 
                 if (_daDong)
                     return;

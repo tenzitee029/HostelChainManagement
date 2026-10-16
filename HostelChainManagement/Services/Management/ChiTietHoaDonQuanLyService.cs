@@ -3,8 +3,9 @@ using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Data;
+using QuanLyChuoiNhaTro.Services;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Management
 {
     public sealed class ChiTietHoaDonQuanLy
     {

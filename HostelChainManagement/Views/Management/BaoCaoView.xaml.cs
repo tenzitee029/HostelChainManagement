@@ -11,8 +11,8 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Xml;
 using Microsoft.Win32;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -81,30 +81,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    SELECT d.MaDayTro, d.TenDayTro
-                    FROM dbo.DayTro d
-                    WHERE EXISTS (
-                        SELECT 1 FROM dbo.NhanVien nv
-                        WHERE nv.MaDayTro = d.MaDayTro
-                          AND nv.MaNguoiDung = @QuanLy
-                          AND nv.ChucVu = N'Quản lý'
-                          AND nv.TrangThaiLamViec = N'Đang làm'
-                    )
-                    ORDER BY d.TenDayTro;";
-
-                command.Parameters.Add(
-                    "@QuanLy", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-                using var reader = await command.ExecuteReaderAsync();
-
-                var table = new DataTable();
-                table.Load(reader);
+                var table = await BaoCaoService.LayDayTroAsync(
+                    user.MaNguoiDung);
 
                 if (table.Rows.Count == 0)
                 {
@@ -122,7 +100,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text = "Không tải được dãy trọ: " + ex.Message;
+                txtThongBao.Text =
+                    "Không tải được dãy trọ: " + ex.Message;
             }
             finally
             {
@@ -183,7 +162,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 nam < 2000 || nam > 9998 ||
                 cboNoiDung.SelectedIndex < 0)
             {
-                txtThongBao.Text = "Chọn dãy, nội dung và năm từ 2000–9998.";
+                txtThongBao.Text =
+                    "Chọn dãy, nội dung và năm từ 2000–9998.";
                 return;
             }
 
@@ -204,8 +184,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 ? tuNgay.AddMonths(1)
                 : tuNgay.AddYears(1);
 
-            string maDay = Convert.ToString(day["MaDayTro"]) ?? "";
-            string tenDay = Convert.ToString(day["TenDayTro"]) ?? "";
+            string maDay =
+                Convert.ToString(day["MaDayTro"]) ?? "";
+
+            string tenDay =
+                Convert.ToString(day["TenDayTro"]) ?? "";
+
             int loai = cboNoiDung.SelectedIndex;
 
             string noiDung =
@@ -214,7 +198,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 ?? "";
 
             string nguoiLap = user.HoTen;
-            string ky = theoThang ? $"{thang:00}/{nam}" : nam.ToString();
+
+            string ky = theoThang
+                ? $"{thang:00}/{nam}"
+                : nam.ToString();
 
             XoaKetQua();
             _dangXuLy = true;
@@ -232,149 +219,14 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                await connection.OpenAsync();
-
-                using var transaction =
-                    connection.BeginTransaction(IsolationLevel.Serializable);
-
-                using var command = connection.CreateCommand();
-                command.Transaction = transaction;
-
-                command.CommandText = @"
-                    DECLARE @Phong TABLE (
-                        MaPhong VARCHAR(20) PRIMARY KEY,
-                        TrangThai NVARCHAR(30)
-                    );
-
-                    INSERT INTO @Phong
-                    SELECT p.MaPhong, p.TrangThai
-                    FROM dbo.PhongTro p
-                    WHERE (@MaDay = '' OR p.MaDayTro = @MaDay)
-                      AND EXISTS (
-                          SELECT 1 FROM dbo.NhanVien nv
-                          WHERE nv.MaDayTro = p.MaDayTro
-                            AND nv.MaNguoiDung = @QuanLy
-                            AND nv.ChucVu = N'Quản lý'
-                            AND nv.TrangThaiLamViec = N'Đang làm'
-                      );
-
-                    IF @MaDay <> '' AND NOT EXISTS (
-                        SELECT 1 FROM dbo.NhanVien nv
-                        WHERE nv.MaDayTro = @MaDay
-                          AND nv.MaNguoiDung = @QuanLy
-                          AND nv.ChucVu = N'Quản lý'
-                          AND nv.TrangThaiLamViec = N'Đang làm'
-                    )
-                        THROW 50001, N'Bạn không còn quyền với dãy đã chọn.', 1;
-
-                    SELECT
-                        (
-                            SELECT COALESCE(SUM(tt.SoTien), 0)
-                            FROM dbo.ThanhToan tt
-                            JOIN dbo.HoaDon hd ON hd.MaHoaDon = tt.MaHoaDon
-                            JOIN @Phong p ON p.MaPhong = hd.MaPhong
-                            WHERE tt.NgayThanhToan >= @TuNgay
-                              AND tt.NgayThanhToan < @DenNgay
-                        ) AS ThucThu,
-
-                        (
-                            SELECT COUNT(*)
-                            FROM dbo.ThanhToan tt
-                            JOIN dbo.HoaDon hd ON hd.MaHoaDon = tt.MaHoaDon
-                            JOIN @Phong p ON p.MaPhong = hd.MaPhong
-                            WHERE tt.NgayThanhToan >= @TuNgay
-                              AND tt.NgayThanhToan < @DenNgay
-                        ) AS SoLanThu,
-
-                        (
-                            SELECT COUNT(*)
-                            FROM dbo.HoaDon hd
-                            JOIN @Phong p ON p.MaPhong = hd.MaPhong
-                            WHERE hd.Nam = @Nam
-                              AND (@TheoThang = 0 OR hd.Thang = @Thang)
-                        ) AS SoHoaDon,
-
-                        (
-                            SELECT COALESCE(SUM(hd.TongTien), 0)
-                            FROM dbo.HoaDon hd
-                            JOIN @Phong p ON p.MaPhong = hd.MaPhong
-                            WHERE hd.Nam = @Nam
-                              AND (@TheoThang = 0 OR hd.Thang = @Thang)
-                        ) AS TongHoaDon,
-
-                        (
-                            SELECT COALESCE(SUM(
-                                CASE WHEN hd.TongTien > COALESCE(tt.DaTra, 0)
-                                     THEN hd.TongTien - COALESCE(tt.DaTra, 0)
-                                     ELSE 0 END
-                            ), 0)
-                            FROM dbo.HoaDon hd
-                            JOIN @Phong p ON p.MaPhong = hd.MaPhong
-                            OUTER APPLY (
-                                SELECT SUM(t.SoTien) AS DaTra
-                                FROM dbo.ThanhToan t
-                                WHERE t.MaHoaDon = hd.MaHoaDon
-                            ) tt
-                            WHERE hd.Nam = @Nam
-                              AND (@TheoThang = 0 OR hd.Thang = @Thang)
-                        ) AS ConNo,
-
-                        (SELECT COUNT(*) FROM @Phong) AS TongPhong,
-                        (SELECT COUNT(*) FROM @Phong
-                         WHERE TrangThai = N'Trống') AS PhongTrong,
-                        (SELECT COUNT(*) FROM @Phong
-                         WHERE TrangThai = N'Đang thuê') AS DangThue,
-                        (SELECT COUNT(*) FROM @Phong
-                         WHERE TrangThai = N'Đang sửa chữa') AS DangSua,
-
-                        (
-                            SELECT COUNT(*)
-                            FROM dbo.PhieuSuCo s
-                            JOIN @Phong p ON p.MaPhong = s.MaPhong
-                            WHERE s.NgayGui >= @TuNgay AND s.NgayGui < @DenNgay
-                        ) AS TongSuCo,
-
-                        (
-                            SELECT COUNT(*)
-                            FROM dbo.PhieuSuCo s
-                            JOIN @Phong p ON p.MaPhong = s.MaPhong
-                            WHERE s.NgayGui >= @TuNgay AND s.NgayGui < @DenNgay
-                              AND s.TrangThai = N'Đã hoàn thành'
-                        ) AS HoanThanh,
-
-                        (
-                            SELECT COUNT(*)
-                            FROM dbo.PhieuSuCo s
-                            JOIN @Phong p ON p.MaPhong = s.MaPhong
-                            WHERE s.NgayGui >= @TuNgay AND s.NgayGui < @DenNgay
-                              AND s.TrangThai = N'Từ chối'
-                        ) AS TuChoi;";
-
-                command.Parameters.Add(
-                    "@QuanLy", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-                command.Parameters.Add(
-                    "@MaDay", SqlDbType.VarChar, 20).Value = maDay;
-                command.Parameters.Add(
-                    "@Nam", SqlDbType.Int).Value = nam;
-                command.Parameters.Add(
-                    "@Thang", SqlDbType.Int).Value = thang;
-                command.Parameters.Add(
-                    "@TheoThang", SqlDbType.Bit).Value = theoThang;
-                command.Parameters.Add(
-                    "@TuNgay", SqlDbType.Date).Value = tuNgay;
-                command.Parameters.Add(
-                    "@DenNgay", SqlDbType.Date).Value = denNgay;
-
-                var table = new DataTable();
-
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    table.Load(reader);
-                }
-
-                transaction.Commit();
+                var table = await BaoCaoService.TongHopAsync(
+                    user.MaNguoiDung,
+                    maDay,
+                    nam,
+                    thang,
+                    theoThang,
+                    tuNgay,
+                    denNgay);
 
                 var r = table.Rows[0];
 
@@ -401,8 +253,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 {
                     Them("Số hóa đơn của kỳ", V("SoHoaDon"), "hóa đơn");
                     Them("Tổng tiền hóa đơn của kỳ", V("TongHoaDon"), "VNĐ");
-                    Them("Nợ còn lại của hóa đơn kỳ này, tính hiện tại",
-                        V("ConNo"), "VNĐ");
+
+                    Them(
+                        "Nợ còn lại của hóa đơn kỳ này, tính hiện tại",
+                        V("ConNo"),
+                        "VNĐ");
                 }
                 else if (loai == 2)
                 {
@@ -416,7 +271,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     Them("Yêu cầu gửi trong kỳ", V("TongSuCo"), "yêu cầu");
                     Them("Hiện đã hoàn thành", V("HoanThanh"), "yêu cầu");
                     Them("Hiện đã từ chối", V("TuChoi"), "yêu cầu");
-                    Them("Hiện chưa hoàn thành",
+
+                    Them(
+                        "Hiện chưa hoàn thành",
                         V("TongSuCo") - V("HoanThanh") - V("TuChoi"),
                         "yêu cầu");
                 }
@@ -444,7 +301,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text = "Không tổng hợp được: " + ex.Message;
+                txtThongBao.Text =
+                    "Không tổng hợp được: " + ex.Message;
             }
             finally
             {
@@ -468,7 +326,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             {
                 Title = "Lưu báo cáo",
                 Filter = "Báo cáo JSON (*.json)|*.json",
-                FileName = "BaoCao_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"),
+                FileName =
+                    "BaoCao_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"),
                 DefaultExt = ".json",
                 AddExtension = true
             };
@@ -501,8 +360,16 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 return;
 
             var menu = new ContextMenu();
-            var excel = new MenuItem { Header = "Xuất Excel (.xlsx)" };
-            var pdf = new MenuItem { Header = "In / Xuất PDF" };
+
+            var excel = new MenuItem
+            {
+                Header = "Xuất Excel (.xlsx)"
+            };
+
+            var pdf = new MenuItem
+            {
+                Header = "In / Xuất PDF"
+            };
 
             excel.Click += (_, _) => XuatExcel();
             pdf.Click += (_, _) => InBaoCao();
@@ -521,7 +388,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             var dialog = new SaveFileDialog
             {
                 Filter = "Excel (*.xlsx)|*.xlsx",
-                FileName = "BaoCao_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"),
+                FileName =
+                    "BaoCao_" + DateTime.Now.ToString("yyyyMMdd_HHmmss"),
                 DefaultExt = ".xlsx",
                 AddExtension = true
             };
@@ -536,7 +404,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 using var file = File.Create(dialog.FileName);
                 using var zip = new ZipArchive(file, ZipArchiveMode.Create);
 
-                GhiXml(zip, "[Content_Types].xml",
+                GhiXml(
+                    zip,
+                    "[Content_Types].xml",
                     @"<?xml version=""1.0"" encoding=""utf-8""?>
                     <Types xmlns=""http://schemas.openxmlformats.org/package/2006/content-types"">
                       <Default Extension=""rels"" ContentType=""application/vnd.openxmlformats-package.relationships+xml""/>
@@ -545,30 +415,38 @@ namespace QuanLyChuoiNhaTro.Views.Management
                       <Override PartName=""/xl/worksheets/sheet1.xml"" ContentType=""application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml""/>
                     </Types>");
 
-                GhiXml(zip, "_rels/.rels",
+                GhiXml(
+                    zip,
+                    "_rels/.rels",
                     @"<?xml version=""1.0"" encoding=""utf-8""?>
                     <Relationships xmlns=""http://schemas.openxmlformats.org/package/2006/relationships"">
                       <Relationship Id=""rId1"" Type=""http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"" Target=""xl/workbook.xml""/>
                     </Relationships>");
 
-                GhiXml(zip, "xl/workbook.xml",
+                GhiXml(
+                    zip,
+                    "xl/workbook.xml",
                     @"<?xml version=""1.0"" encoding=""utf-8""?>
                     <workbook xmlns=""http://schemas.openxmlformats.org/spreadsheetml/2006/main""
                               xmlns:r=""http://schemas.openxmlformats.org/officeDocument/2006/relationships"">
                       <sheets><sheet name=""Bao cao"" sheetId=""1"" r:id=""rId1""/></sheets>
                     </workbook>");
 
-                GhiXml(zip, "xl/_rels/workbook.xml.rels",
+                GhiXml(
+                    zip,
+                    "xl/_rels/workbook.xml.rels",
                     @"<?xml version=""1.0"" encoding=""utf-8""?>
                     <Relationships xmlns=""http://schemas.openxmlformats.org/package/2006/relationships"">
                       <Relationship Id=""rId1"" Type=""http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"" Target=""worksheets/sheet1.xml""/>
                     </Relationships>");
 
-                var entry = zip.CreateEntry("xl/worksheets/sheet1.xml");
+                var entry =
+                    zip.CreateEntry("xl/worksheets/sheet1.xml");
 
                 using (var stream = entry.Open())
                 using (var writer = XmlWriter.Create(
-                    stream, new XmlWriterSettings
+                    stream,
+                    new XmlWriterSettings
                     {
                         Encoding = new UTF8Encoding(false),
                         Indent = true
@@ -614,8 +492,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     void DongChu(params string[] giaTri)
                     {
                         writer.WriteStartElement("row", ns);
+
                         foreach (string giaTriO in giaTri)
                             OChu(giaTriO);
+
                         writer.WriteEndElement();
                     }
 
@@ -623,7 +503,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     DongChu("Người lập", _baoCao.NguoiLap);
                     DongChu("Dãy trọ", _baoCao.DayTro);
                     DongChu("Kỳ", _baoCao.Ky);
-                    DongChu("Ngày lập", _baoCao.NgayLap.ToString("dd/MM/yyyy HH:mm"));
+
+                    DongChu(
+                        "Ngày lập",
+                        _baoCao.NgayLap.ToString("dd/MM/yyyy HH:mm"));
+
                     DongChu("Nội dung", "Giá trị", "Đơn vị");
 
                     foreach (var ct in _baoCao.ChiTieu)
@@ -633,8 +517,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                         writer.WriteStartElement("c", ns);
                         writer.WriteStartElement("v", ns);
+
                         writer.WriteString(
-                            ct.GiaTri.ToString(CultureInfo.InvariantCulture));
+                            ct.GiaTri.ToString(
+                                CultureInfo.InvariantCulture));
+
                         writer.WriteEndElement();
                         writer.WriteEndElement();
 
@@ -653,17 +540,22 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text = "Không xuất được Excel: " + ex.Message;
+                txtThongBao.Text =
+                    "Không xuất được Excel: " + ex.Message;
             }
         }
 
         private static void GhiXml(
-            ZipArchive zip, string ten, string noiDung)
+            ZipArchive zip,
+            string ten,
+            string noiDung)
         {
             var entry = zip.CreateEntry(ten);
+
             using var stream = entry.Open();
             using var writer = new StreamWriter(
-                stream, new UTF8Encoding(false));
+                stream,
+                new UTF8Encoding(false));
 
             writer.Write(noiDung);
         }
@@ -684,15 +576,18 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 var doc = new FlowDocument
                 {
                     PagePadding = new Thickness(40),
-                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
+                    FontFamily =
+                        new System.Windows.Media.FontFamily("Segoe UI"),
                     FontSize = 12
                 };
 
                 void Dong(string noiDung, bool dam = false)
                 {
                     var paragraph = new Paragraph(new Run(noiDung));
+
                     if (dam)
                         paragraph.FontWeight = FontWeights.Bold;
+
                     doc.Blocks.Add(paragraph);
                 }
 
@@ -700,7 +595,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 Dong("Người lập: " + _baoCao.NguoiLap);
                 Dong("Dãy trọ: " + _baoCao.DayTro);
                 Dong("Kỳ: " + _baoCao.Ky);
-                Dong("Lập lúc: " + _baoCao.NgayLap.ToString("dd/MM/yyyy HH:mm"));
+
+                Dong(
+                    "Lập lúc: "
+                    + _baoCao.NgayLap.ToString("dd/MM/yyyy HH:mm"));
 
                 foreach (var ct in _baoCao.ChiTieu)
                     Dong(ct.NoiDung + ": " + ct.HienThi);

@@ -4,8 +4,8 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -76,35 +76,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                await connection.OpenAsync();
+                using var service = new ThemPhongService();
+                await service.MoKetNoiAsync();
 
-                var danhSachDay = new DataTable();
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT d.MaDayTro, d.TenDayTro
-                        FROM dbo.DayTro AS d
-                        WHERE EXISTS (
-                            SELECT 1
-                            FROM dbo.NhanVien AS nv
-                            WHERE nv.MaDayTro = d.MaDayTro
-                              AND nv.MaNguoiDung = @MaNguoiDung
-                              AND nv.ChucVu = N'Quản lý'
-                              AND nv.TrangThaiLamViec = N'Đang làm'
-                        )
-                        ORDER BY d.TenDayTro;";
-
-                    command.Parameters.Add(
-                        "@MaNguoiDung", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader =
-                        await command.ExecuteReaderAsync();
-
-                    danhSachDay.Load(reader);
-                }
+                var danhSachDay =
+                    await service.LayDanhSachDayAsync(
+                        user.MaNguoiDung);
 
                 if (!IsVisible)
                     return;
@@ -120,34 +97,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
                 if (_laCheDoSua)
                 {
-                    using var command = connection.CreateCommand();
+                    var thongTin = await service.LayPhongAsync(
+                        _maPhong,
+                        user.MaNguoiDung);
 
-                    command.CommandText = @"
-                        SELECT p.MaDayTro, p.SoPhong, p.LoaiPhong,
-                               p.DienTich, p.GiaThue, p.TrangThai
-                        FROM dbo.PhongTro AS p
-                        WHERE p.MaPhong = @MaPhong
-                          AND EXISTS (
-                              SELECT 1
-                              FROM dbo.NhanVien AS nv
-                              WHERE nv.MaDayTro = p.MaDayTro
-                                AND nv.MaNguoiDung = @MaNguoiDung
-                                AND nv.ChucVu = N'Quản lý'
-                                AND nv.TrangThaiLamViec = N'Đang làm'
-                          );";
-
-                    command.Parameters.Add(
-                        "@MaPhong", SqlDbType.VarChar, 20)
-                        .Value = _maPhong;
-
-                    command.Parameters.Add(
-                        "@MaNguoiDung", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader =
-                        await command.ExecuteReaderAsync();
-
-                    if (!await reader.ReadAsync())
+                    if (thongTin == null)
                     {
                         txtStatus.Text =
                             "Phòng không còn tồn tại hoặc bạn không có quyền sửa.";
@@ -158,26 +112,26 @@ namespace QuanLyChuoiNhaTro.Views.Management
                         return;
 
                     _maDayTroCu =
-                        Convert.ToString(reader["MaDayTro"]) ?? "";
+                        Convert.ToString(thongTin.MaDayTro) ?? "";
 
                     cboDayTro.SelectedValue = _maDayTroCu;
 
                     txtSoPhong.Text =
-                        Convert.ToString(reader["SoPhong"]) ?? "";
+                        Convert.ToString(thongTin.SoPhong) ?? "";
 
                     cboLoaiPhong.Text =
-                        Convert.ToString(reader["LoaiPhong"]) ?? "";
+                        Convert.ToString(thongTin.LoaiPhong) ?? "";
 
                     txtDienTich.Text =
-                        Convert.ToDecimal(reader["DienTich"])
+                        Convert.ToDecimal(thongTin.DienTich)
                         .ToString("0.##", CultureInfo.InvariantCulture);
 
                     txtGiaThue.Text =
-                        Convert.ToDecimal(reader["GiaThue"])
+                        Convert.ToDecimal(thongTin.GiaThue)
                         .ToString("0.##", CultureInfo.InvariantCulture);
 
                     string trangThai =
-                        Convert.ToString(reader["TrangThai"]) ?? "";
+                        Convert.ToString(thongTin.TrangThai) ?? "";
 
                     _phongDangThue = trangThai == "Đang thuê";
 
@@ -336,96 +290,17 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
+                int soDong = await ThemPhongService.LuuAsync(
+                    _laCheDoSua,
+                    user.MaNguoiDung,
+                    _maPhong,
+                    maDayTro,
+                    soPhong,
+                    loaiPhong,
+                    dienTich,
+                    giaThue,
+                    trangThai);
 
-                if (_laCheDoSua)
-                {
-                    command.CommandText = @"
-                        UPDATE p
-                        SET p.LoaiPhong = @LoaiPhong,
-                            p.DienTich = @DienTich,
-                            p.GiaThue = @GiaThue,
-                            p.TrangThai = CASE
-                                WHEN p.TrangThai = N'Đang thuê'
-                                     OR @TrangThai = N'Đang thuê'
-                                    THEN p.TrangThai
-                                ELSE @TrangThai
-                            END
-                        FROM dbo.PhongTro AS p
-                        WHERE p.MaPhong = @MaPhong
-                          AND p.MaDayTro = @MaDayTro
-                          AND EXISTS (
-                              SELECT 1
-                              FROM dbo.NhanVien AS nv
-                              WHERE nv.MaDayTro = p.MaDayTro
-                                AND nv.MaNguoiDung = @MaNguoiDung
-                                AND nv.ChucVu = N'Quản lý'
-                                AND nv.TrangThaiLamViec = N'Đang làm'
-                          );";
-                }
-                else
-                {
-                    command.CommandText = @"
-                        INSERT INTO dbo.PhongTro
-                            (MaPhong, MaDayTro, SoPhong, LoaiPhong,
-                             DienTich, GiaThue, TrangThai)
-                        SELECT
-                            @MaPhong, @MaDayTro, @SoPhong, @LoaiPhong,
-                            @DienTich, @GiaThue, @TrangThai
-                        WHERE EXISTS (
-                            SELECT 1
-                            FROM dbo.NhanVien AS nv
-                            WHERE nv.MaNguoiDung = @MaNguoiDung
-                              AND nv.MaDayTro = @MaDayTro
-                              AND nv.ChucVu = N'Quản lý'
-                              AND nv.TrangThaiLamViec = N'Đang làm'
-                        );";
-                }
-
-                command.Parameters.Add(
-                    "@MaNguoiDung", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                command.Parameters.Add(
-                    "@MaPhong", SqlDbType.VarChar, 20)
-                    .Value = _maPhong;
-
-                command.Parameters.Add(
-                    "@MaDayTro", SqlDbType.VarChar, 20)
-                    .Value = maDayTro;
-
-                command.Parameters.Add(
-                    "@SoPhong", SqlDbType.NVarChar, 20)
-                    .Value = soPhong;
-
-                command.Parameters.Add(
-                    "@LoaiPhong", SqlDbType.NVarChar, 50)
-                    .Value = string.IsNullOrWhiteSpace(loaiPhong)
-                        ? (object)DBNull.Value
-                        : loaiPhong;
-
-                var thamSoDienTich = command.Parameters.Add(
-                    "@DienTich", SqlDbType.Decimal);
-
-                thamSoDienTich.Precision = 10;
-                thamSoDienTich.Scale = 2;
-                thamSoDienTich.Value = dienTich;
-
-                var thamSoGiaThue = command.Parameters.Add(
-                    "@GiaThue", SqlDbType.Decimal);
-
-                thamSoGiaThue.Precision = 18;
-                thamSoGiaThue.Scale = 2;
-                thamSoGiaThue.Value = giaThue;
-
-                command.Parameters.Add(
-                    "@TrangThai", SqlDbType.NVarChar, 50)
-                    .Value = trangThai;
-
-                await connection.OpenAsync();
-
-                int soDong = await command.ExecuteNonQueryAsync();
                 thanhCong = soDong == 1;
 
                 if (!thanhCong)
@@ -485,7 +360,5 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (!_dangLuu)
                 YeuCauHuy?.Invoke(this, EventArgs.Empty);
         }
-
-
     }
 }

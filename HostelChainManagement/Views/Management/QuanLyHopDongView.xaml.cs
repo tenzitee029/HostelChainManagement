@@ -3,14 +3,15 @@ using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class QuanLyHopDongView : UserControl
     {
         public event Action<string>? MoXemHopDong;
+
         private void Xem_Click(object sender, RoutedEventArgs e)
         {
             var user = UserSession.CurrentUser;
@@ -28,6 +29,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             if (!string.IsNullOrWhiteSpace(maHopDong))
                 MoXemHopDong?.Invoke(maHopDong);
         }
+
         public event Action<string>? MoThanhLy;
 
         private void ThanhLy_Click(object sender, RoutedEventArgs e)
@@ -49,6 +51,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     MoThanhLy?.Invoke(maHopDong);
             }
         }
+
         public event Action<string>? MoGiaHan;
 
         private void ChonHopDong_Changed(
@@ -89,7 +92,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 (trangThai == "Hiệu lực" || trangThai == "Hết hạn");
         }
 
-
         private void GiaHan_Click(object sender, RoutedEventArgs e)
         {
             if (_dangTai)
@@ -109,6 +111,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     MoGiaHan?.Invoke(maHopDong);
             }
         }
+
         public event Action? MoLapHopDong;
 
         private void LapHopDong_Click(object sender, RoutedEventArgs e)
@@ -123,6 +126,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             MoLapHopDong?.Invoke();
         }
+
         private DataTable? _duLieu;
         private bool _dangTai;
 
@@ -166,59 +170,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    SELECT
-                        h.MaHopDong,
-                        h.MaKhachThue,
-                        h.MaPhong,
-                        n.HoTen AS TenKhachThue,
-                        n.CCCD,
-                        n.SoDienThoai,
-                        p.SoPhong,
-                        d.MaDayTro,
-                        d.TenDayTro,
-                        h.NgayKy,
-                        h.NgayBatDau,
-                        h.NgayKetThuc,
-                        h.TienCoc,
-                        h.GiaThue,
-                        h.KyThanhToan,
-                        h.DaiDienBenChoThue,
-                        h.DieuKhoan,
-                        h.TrangThai
-                    FROM dbo.HopDongThue AS h
-                    INNER JOIN dbo.KhachThue AS k
-                        ON k.MaKhachThue = h.MaKhachThue
-                    INNER JOIN dbo.NguoiDung AS n
-                        ON n.MaNguoiDung = k.MaNguoiDung
-                    INNER JOIN dbo.PhongTro AS p
-                        ON p.MaPhong = h.MaPhong
-                    INNER JOIN dbo.DayTro AS d
-                        ON d.MaDayTro = p.MaDayTro
-                    WHERE EXISTS (
-                        SELECT 1
-                        FROM dbo.NhanVien AS nv
-                        WHERE nv.MaDayTro = p.MaDayTro
-                          AND nv.MaNguoiDung = @MaNguoiDung
-                          AND nv.ChucVu = N'Quản lý'
-                          AND nv.TrangThaiLamViec = N'Đang làm'
-                    )
-                    ORDER BY h.NgayBatDau DESC, h.MaHopDong;";
-
-                command.Parameters.Add(
-                    "@MaNguoiDung", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-
-                using var reader =
-                    await command.ExecuteReaderAsync();
-
-                var table = new DataTable();
-                table.Load(reader);
+                var table =
+                    await QuanLyHopDongService.LayDanhSachAsync(
+                        user.MaNguoiDung);
 
                 _duLieu = table;
                 HienThiKetQua();

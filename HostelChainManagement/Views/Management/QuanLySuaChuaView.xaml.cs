@@ -3,8 +3,8 @@ using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -15,16 +15,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private DataTable? _duLieu;
         private bool _dangXuLy;
         private string _boLoc = "";
-
-        private const string DieuKienQuyen = @"
-            EXISTS (
-                SELECT 1
-                FROM dbo.NhanVien nv
-                WHERE nv.MaDayTro = p.MaDayTro
-                  AND nv.MaNguoiDung = @QuanLy
-                  AND nv.ChucVu = N'Quản lý'
-                  AND nv.TrangThaiLamViec = N'Đang làm'
-            )";
 
         public QuanLySuaChuaView()
         {
@@ -103,47 +93,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    SELECT
-                        s.MaSuCo,
-                        s.MaPhong,
-                        d.TenDayTro + N' - ' + p.SoPhong AS TenPhong,
-                        n.HoTen AS TenNguoiGui,
-                        s.NgayGui,
-                        s.NoiDungSuCo,
-                        s.MucDoUuTien,
-                        s.TrangThai
-                    FROM dbo.PhieuSuCo s
-                    JOIN dbo.PhongTro p
-                        ON p.MaPhong = s.MaPhong
-                    JOIN dbo.DayTro d
-                        ON d.MaDayTro = p.MaDayTro
-                    JOIN dbo.NguoiDung n
-                        ON n.MaNguoiDung = s.MaNguoiGui
-                    WHERE " + DieuKienQuyen + @"
-                    ORDER BY
-                        CASE
-                            WHEN s.MucDoUuTien = N'Khẩn cấp'
-                                THEN 0
-                            ELSE 1
-                        END,
-                        s.NgayGui DESC,
-                        s.MaSuCo;";
-
-                command.Parameters.Add(
-                    "@QuanLy", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-
-                using var reader =
-                    await command.ExecuteReaderAsync();
-
-                var table = new DataTable();
-                table.Load(reader);
+                var table =
+                    await QuanLySuaChuaService.LayDanhSachAsync(
+                        user.MaNguoiDung);
 
                 if (!IsLoaded)
                     return;

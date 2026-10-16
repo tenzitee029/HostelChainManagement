@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Data;
 using System.Windows;
 using System.Windows.Controls;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -42,106 +41,20 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                await connection.OpenAsync();
+                var duLieu =
+                    await ChiTietHopDongService.LayChiTietAsync(
+                        _maHopDong,
+                        user.MaNguoiDung);
 
-                var hopDong = new DataTable();
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT
-                            h.MaHopDong,
-                            n.HoTen AS TenKhachThue,
-                            n.CCCD,
-                            n.SoDienThoai,
-                            d.TenDayTro + N' - ' + p.SoPhong AS TenPhong,
-                            p.LoaiPhong,
-                            h.DaiDienBenChoThue,
-                            h.NgayKy,
-                            h.NgayBatDau,
-                            h.NgayKetThuc,
-                            h.GiaThue,
-                            h.TienCoc,
-                            h.KyThanhToan,
-                            h.DieuKhoan,
-                            h.TrangThai
-                        FROM dbo.HopDongThue h
-                        JOIN dbo.KhachThue k
-                          ON k.MaKhachThue = h.MaKhachThue
-                        JOIN dbo.NguoiDung n
-                          ON n.MaNguoiDung = k.MaNguoiDung
-                        JOIN dbo.PhongTro p
-                          ON p.MaPhong = h.MaPhong
-                        JOIN dbo.DayTro d
-                          ON d.MaDayTro = p.MaDayTro
-                        WHERE h.MaHopDong = @MaHopDong
-                          AND EXISTS (
-                              SELECT 1
-                              FROM dbo.NhanVien nv
-                              WHERE nv.MaDayTro = p.MaDayTro
-                                AND nv.MaNguoiDung = @NguoiQuanLy
-                                AND nv.ChucVu = N'Quản lý'
-                                AND nv.TrangThaiLamViec = N'Đang làm'
-                          );";
-
-                    command.Parameters.Add(
-                        "@MaHopDong", SqlDbType.VarChar, 20)
-                        .Value = _maHopDong;
-
-                    command.Parameters.Add(
-                        "@NguoiQuanLy", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    hopDong.Load(reader);
-                }
-
-                if (hopDong.Rows.Count == 0)
+                if (duLieu == null)
                 {
                     txtThongBao.Text =
                         "Hợp đồng không tồn tại hoặc bạn không có quyền xem.";
                     return;
                 }
 
-                var thanhVien = new DataTable();
-
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                        SELECT
-                            tv.HoTen,
-                            tv.CCCD,
-                            tv.SoDienThoai,
-                            tv.QuanHe,
-                            tv.TrangThai
-                        FROM dbo.ThanhVienO tv
-                        JOIN dbo.HopDongThue h
-                          ON h.MaHopDong = tv.MaHopDong
-                        JOIN dbo.PhongTro p
-                          ON p.MaPhong = h.MaPhong
-                        WHERE tv.MaHopDong = @MaHopDong
-                          AND EXISTS (
-                              SELECT 1
-                              FROM dbo.NhanVien nv
-                              WHERE nv.MaDayTro = p.MaDayTro
-                                AND nv.MaNguoiDung = @NguoiQuanLy
-                                AND nv.ChucVu = N'Quản lý'
-                                AND nv.TrangThaiLamViec = N'Đang làm'
-                          )
-                        ORDER BY tv.HoTen, tv.MaThanhVien;";
-
-                    command.Parameters.Add(
-                        "@MaHopDong", SqlDbType.VarChar, 20)
-                        .Value = _maHopDong;
-
-                    command.Parameters.Add(
-                        "@NguoiQuanLy", SqlDbType.VarChar, 20)
-                        .Value = user.MaNguoiDung;
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    thanhVien.Load(reader);
-                }
+                var hopDong = duLieu.HopDong;
+                var thanhVien = duLieu.ThanhVien;
 
                 if (!IsLoaded)
                     return;

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -43,8 +43,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                var data = await QuanLyService.GetTongQuanAsync();
-
+                var data = await TongQuanQuanLyService.GetTongQuanAsync();  
                 if (!IsLoaded)
                     return;
 

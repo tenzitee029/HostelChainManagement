@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -7,8 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -23,7 +22,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 MoPhanCong?.Invoke(_maSuCo);
             }
         }
+
         public event Action<string>? MoPhanCong;
+
         private readonly string _maSuCo;
 
         private string _trangThai = "";
@@ -72,47 +73,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
+                var duLieu =
+                    await ChiTietYeuCauService.LayThongTinAsync(
+                        _maSuCo,
+                        user.MaNguoiDung);
 
-                command.CommandText = @"
-                    SELECT
-                        s.NgayGui,
-                        s.NoiDungSuCo,
-                        s.MucDoUuTien,
-                        s.ThoiGianMongMuon,
-                        s.TrangThai,
-                        s.NgayTiepNhan,
-                        s.LyDoTuChoi,
-                        s.TepDinhKem,
-                        n.HoTen,
-                        d.TenDayTro + N' - Phòng ' + p.SoPhong AS TenPhong
-                    FROM dbo.PhieuSuCo s
-                    JOIN dbo.PhongTro p ON p.MaPhong = s.MaPhong
-                    JOIN dbo.DayTro d ON d.MaDayTro = p.MaDayTro
-                    JOIN dbo.NguoiDung n ON n.MaNguoiDung = s.MaNguoiGui
-                    WHERE s.MaSuCo = @MaSuCo
-                      AND EXISTS (
-                          SELECT 1 FROM dbo.NhanVien nv
-                          WHERE nv.MaDayTro = p.MaDayTro
-                            AND nv.MaNguoiDung = @QuanLy
-                            AND nv.ChucVu = N'Quản lý'
-                            AND nv.TrangThaiLamViec = N'Đang làm'
-                      );";
-
-                command.Parameters.Add(
-                    "@MaSuCo", SqlDbType.VarChar, 20)
-                    .Value = _maSuCo;
-
-                command.Parameters.Add(
-                    "@QuanLy", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-
-                using var reader = await command.ExecuteReaderAsync();
-
-                if (!await reader.ReadAsync())
+                if (duLieu == null)
                 {
                     txtTrangThai.Text = "Không tải được";
                     txtThongBao.Text =
@@ -123,42 +89,57 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 if (!IsLoaded)
                     return;
 
-                _trangThai = Convert.ToString(reader["TrangThai"]) ?? "";
+                _trangThai =
+                    Convert.ToString(duLieu["TrangThai"]) ?? "";
 
                 txtTrangThai.Text = _trangThai;
-                txtNgayGui.Text = Convert.ToDateTime(reader["NgayGui"])
-                    .ToString("dd/MM/yyyy HH:mm");
-                txtNguoiGui.Text = Convert.ToString(reader["HoTen"]);
-                txtPhong.Text = Convert.ToString(reader["TenPhong"]);
-                txtNoiDung.Text = Convert.ToString(reader["NoiDungSuCo"]);
+
+                txtNgayGui.Text =
+                    Convert.ToDateTime(duLieu["NgayGui"])
+                        .ToString("dd/MM/yyyy HH:mm");
+
+                txtNguoiGui.Text =
+                    Convert.ToString(duLieu["HoTen"]);
+
+                txtPhong.Text =
+                    Convert.ToString(duLieu["TenPhong"]);
+
+                txtNoiDung.Text =
+                    Convert.ToString(duLieu["NoiDungSuCo"]);
 
                 var thongTin = new StringBuilder();
 
                 thongTin.AppendLine(
-                    "Mức độ ưu tiên: " + reader["MucDoUuTien"]);
+                    "Mức độ ưu tiên: " + duLieu["MucDoUuTien"]);
 
                 string mongMuon =
-                    Convert.ToString(reader["ThoiGianMongMuon"]) ?? "";
+                    Convert.ToString(duLieu["ThoiGianMongMuon"]) ?? "";
 
                 if (mongMuon.Length > 0)
-                    thongTin.AppendLine("Thời gian mong muốn: " + mongMuon);
+                {
+                    thongTin.AppendLine(
+                        "Thời gian mong muốn: " + mongMuon);
+                }
 
-                if (reader["NgayTiepNhan"] != DBNull.Value)
+                if (duLieu["NgayTiepNhan"] != DBNull.Value)
                 {
                     thongTin.AppendLine(
                         "Ngày tiếp nhận: "
-                        + Convert.ToDateTime(reader["NgayTiepNhan"])
+                        + Convert.ToDateTime(duLieu["NgayTiepNhan"])
                             .ToString("dd/MM/yyyy HH:mm"));
                 }
 
-                string lyDo = Convert.ToString(reader["LyDoTuChoi"]) ?? "";
+                string lyDo =
+                    Convert.ToString(duLieu["LyDoTuChoi"]) ?? "";
 
                 if (lyDo.Length > 0)
                     thongTin.AppendLine("Lý do từ chối: " + lyDo);
 
                 txtThongTinThem.Text = thongTin.ToString();
 
-                _tep = Convert.ToString(reader["TepDinhKem"]) ?? "";
+                _tep =
+                    Convert.ToString(duLieu["TepDinhKem"]) ?? "";
+
                 HienThiTep();
 
                 _daTai = true;
@@ -166,7 +147,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text = "Không tải được yêu cầu: " + ex.Message;
+                txtThongBao.Text =
+                    "Không tải được yêu cầu: " + ex.Message;
             }
             finally
             {
@@ -182,7 +164,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                string duoi = Path.GetExtension(_tep).ToLowerInvariant();
+                string duoi =
+                    Path.GetExtension(_tep).ToLowerInvariant();
 
                 bool dungLoai =
                     duoi == ".png" || duoi == ".jpg" || duoi == ".jpeg"
@@ -219,12 +202,14 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 return;
             }
 
-            string duoi = Path.GetExtension(_tep).ToLowerInvariant();
+            string duoi =
+                Path.GetExtension(_tep).ToLowerInvariant();
 
             if (duoi == ".mp4" || duoi == ".avi"
                 || duoi == ".mov" || duoi == ".wmv")
             {
-                txtKhongCoTep.Text = "Video đính kèm — nhấn Mở tệp để xem.";
+                txtKhongCoTep.Text =
+                    "Video đính kèm — nhấn Mở tệp để xem.";
                 return;
             }
 
@@ -233,6 +218,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 using var stream = File.OpenRead(_tep);
 
                 var anh = new BitmapImage();
+
                 anh.BeginInit();
                 anh.CacheOption = BitmapCacheOption.OnLoad;
                 anh.StreamSource = stream;
@@ -266,7 +252,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text = "Không mở được tệp: " + ex.Message;
+                txtThongBao.Text =
+                    "Không mở được tệp: " + ex.Message;
             }
         }
 
@@ -279,14 +266,19 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private async void TuChoi_Click(
             object sender, RoutedEventArgs e)
         {
-            if (_dangXuLy || !_daTai || _trangThai != "Chờ tiếp nhận")
+            if (_dangXuLy || !_daTai ||
+                _trangThai != "Chờ tiếp nhận")
+            {
                 return;
+            }
 
             if (pnlLyDo.Visibility != Visibility.Visible)
             {
                 pnlLyDo.Visibility = Visibility.Visible;
+
                 txtThongBao.Text =
                     "Nhập lý do, sau đó nhấn Từ chối tiếp nhận lần nữa.";
+
                 txtLyDo.Focus();
                 return;
             }
@@ -296,14 +288,18 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
         private async Task CapNhatYeuCauAsync(bool tuChoi)
         {
-            if (_dangXuLy || !_daTai || _trangThai != "Chờ tiếp nhận")
+            if (_dangXuLy || !_daTai ||
+                _trangThai != "Chờ tiếp nhận")
+            {
                 return;
+            }
 
             var user = UserSession.CurrentUser;
 
             if (user == null || user.VaiTro != "Nhân viên quản lý")
             {
-                txtThongBao.Text = "Bạn không có quyền xử lý yêu cầu.";
+                txtThongBao.Text =
+                    "Bạn không có quyền xử lý yêu cầu.";
                 return;
             }
 
@@ -331,64 +327,19 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             _dangXuLy = true;
             CapNhatNut();
+
             txtThongBao.Text = "Đang cập nhật yêu cầu...";
 
             bool thanhCong = false;
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                // Kiểm tra trạng thái và quyền ngay trong câu cập nhật.
-                command.CommandText = @"
-                    DECLARE @DaCapNhat TABLE (MaSuCo VARCHAR(20));
-
-                    UPDATE s
-                    SET s.TrangThai = CASE
-                            WHEN @TuChoi = 1 THEN N'Từ chối'
-                            ELSE N'Đã tiếp nhận'
-                        END,
-                        s.NgayTiepNhan = CASE
-                            WHEN @TuChoi = 0 THEN GETDATE()
-                            ELSE s.NgayTiepNhan
-                        END,
-                        s.LyDoTuChoi = CASE
-                            WHEN @TuChoi = 1 THEN @LyDo
-                            ELSE NULL
-                        END
-                    OUTPUT INSERTED.MaSuCo INTO @DaCapNhat
-                    FROM dbo.PhieuSuCo s
-                    JOIN dbo.PhongTro p ON p.MaPhong = s.MaPhong
-                    WHERE s.MaSuCo = @MaSuCo
-                      AND s.TrangThai = N'Chờ tiếp nhận'
-                      AND EXISTS (
-                          SELECT 1 FROM dbo.NhanVien nv
-                          WHERE nv.MaDayTro = p.MaDayTro
-                            AND nv.MaNguoiDung = @QuanLy
-                            AND nv.ChucVu = N'Quản lý'
-                            AND nv.TrangThaiLamViec = N'Đang làm'
-                      );
-
-                    SELECT COUNT(*) FROM @DaCapNhat;";
-
-                command.Parameters.Add(
-                    "@MaSuCo", SqlDbType.VarChar, 20)
-                    .Value = _maSuCo;
-                command.Parameters.Add(
-                    "@QuanLy", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-                command.Parameters.Add(
-                    "@TuChoi", SqlDbType.Bit)
-                    .Value = tuChoi;
-                command.Parameters.Add(
-                    "@LyDo", SqlDbType.NVarChar, 255)
-                    .Value = tuChoi ? (object)lyDo : DBNull.Value;
-
-                await connection.OpenAsync();
-
-                int soDong = Convert.ToInt32(
-                    await command.ExecuteScalarAsync());
+                int soDong =
+                    await ChiTietYeuCauService.CapNhatAsync(
+                        _maSuCo,
+                        user.MaNguoiDung,
+                        tuChoi,
+                        lyDo);
 
                 thanhCong = soDong == 1;
 
@@ -421,7 +372,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text = "Không cập nhật được: " + ex.Message;
+                txtThongBao.Text =
+                    "Không cập nhật được: " + ex.Message;
             }
             finally
             {
@@ -458,7 +410,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
             btnTiepNhan.IsEnabled = choTiepNhan;
             btnTuChoi.IsEnabled = choTiepNhan;
             txtLyDo.IsEnabled = choTiepNhan;
-
 
             btnQuayLai.IsEnabled = !_dangXuLy;
 

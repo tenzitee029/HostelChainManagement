@@ -1,12 +1,11 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 
 namespace QuanLyChuoiNhaTro.Views.Management
 {
@@ -27,7 +26,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             await TaiDanhSachPhongAsync();
         }
 
-        // Tải danh sách phòng từ SQL Server
+        // Tải danh sách phòng từ Service.
         private async Task TaiDanhSachPhongAsync()
         {
             if (_loading)
@@ -52,43 +51,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    SELECT
-                        p.MaPhong,
-                        p.MaDayTro,
-                        p.SoPhong,
-                        d.TenDayTro,
-                        p.LoaiPhong,
-                        p.DienTich,
-                        p.GiaThue,
-                        p.TrangThai
-                    FROM dbo.PhongTro AS p
-                    INNER JOIN dbo.DayTro AS d
-                        ON d.MaDayTro = p.MaDayTro
-                    WHERE EXISTS (
-                        SELECT 1
-                        FROM dbo.NhanVien AS nv
-                        WHERE nv.MaDayTro = p.MaDayTro
-                          AND nv.MaNguoiDung = @MaNguoiDung
-                          AND nv.ChucVu = N'Quản lý'
-                          AND nv.TrangThaiLamViec = N'Đang làm'
-                    )
-                    ORDER BY d.TenDayTro, p.SoPhong;";
-
-                command.Parameters.Add(
-                    "@MaNguoiDung", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-
-                using var reader =
-                    await command.ExecuteReaderAsync();
-
-                var table = new DataTable();
-                table.Load(reader);
+                var table =
+                    await PhongTroService.LayDanhSachAsync(
+                        user.MaNguoiDung);
 
                 _rooms = table;
                 ApplySearch();
@@ -108,7 +73,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
         }
 
-        // Hiển thị form Thêm/Sửa trong trang
+        // Hiển thị form Thêm/Sửa trong trang.
         private void HienThiFormPhong(ThemPhongControl control)
         {
             control.YeuCauHuy += (s, e) =>
@@ -129,7 +94,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             NoiDungPhong.Visibility = Visibility.Visible;
         }
 
-        // Quay lại danh sách phòng
+        // Quay lại danh sách phòng.
         private void DongFormPhong()
         {
             NoiDungPhong.Content = null;
@@ -138,7 +103,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             DanhSachPhong.Visibility = Visibility.Visible;
         }
 
-        // Nút thêm phòng
+        // Nút thêm phòng.
         private void AddRoom_Click(
             object sender, RoutedEventArgs e)
         {
@@ -148,7 +113,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             HienThiFormPhong(new ThemPhongControl());
         }
 
-        // Nút tìm kiếm
+        // Nút tìm kiếm.
         private void Search_Click(
             object sender, RoutedEventArgs e)
         {
@@ -158,7 +123,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             ApplySearch();
         }
 
-        // Lọc danh sách phòng
+        // Lọc danh sách phòng.
         private void ApplySearch()
         {
             if (_rooms == null)
@@ -204,14 +169,14 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 : $"Hiển thị {results.Rows.Count} phòng.";
         }
 
-        // Khi chọn một phòng
+        // Khi chọn một phòng.
         private void dgPhong_SelectionChanged(
             object sender, SelectionChangedEventArgs e)
         {
             CapNhatNutThaoTac();
         }
 
-        // Cập nhật trạng thái nút Sửa/Xóa
+        // Cập nhật trạng thái nút Sửa/Xóa.
         private void CapNhatNutThaoTac()
         {
             bool choPhep =
@@ -223,7 +188,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             btnXoa.IsEnabled = choPhep;
         }
 
-        // Nút sửa phòng
+        // Nút sửa phòng.
         private void SuaPhong_Click(
             object sender, RoutedEventArgs e)
         {
@@ -236,7 +201,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             HienThiFormPhong(new ThemPhongControl(phong));
         }
 
-        // Nút xóa phòng
+        // Nút xóa phòng.
         private async void XoaPhong_Click(
             object sender, RoutedEventArgs e)
         {
@@ -292,35 +257,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    DELETE p
-                    FROM dbo.PhongTro AS p
-                    WHERE p.MaPhong = @MaPhong
-                      AND p.TrangThai <> N'Đang thuê'
-                      AND EXISTS (
-                          SELECT 1
-                          FROM dbo.NhanVien AS nv
-                          WHERE nv.MaDayTro = p.MaDayTro
-                            AND nv.MaNguoiDung = @MaNguoiDung
-                            AND nv.ChucVu = N'Quản lý'
-                            AND nv.TrangThaiLamViec = N'Đang làm'
-                      );";
-
-                command.Parameters.Add(
-                    "@MaPhong", SqlDbType.VarChar, 20)
-                    .Value = maPhong;
-
-                command.Parameters.Add(
-                    "@MaNguoiDung", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-
-                int soDong =
-                    await command.ExecuteNonQueryAsync();
+                int soDong = await PhongTroService.XoaAsync(
+                    maPhong,
+                    user.MaNguoiDung);
 
                 daXoa = soDong == 1;
 

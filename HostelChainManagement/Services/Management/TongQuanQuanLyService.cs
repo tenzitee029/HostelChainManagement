@@ -2,8 +2,9 @@
 using System.Data;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
+using QuanLyChuoiNhaTro.Services;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Management
 {
     public sealed class TongQuanQuanLy
     {
@@ -17,7 +18,7 @@ namespace QuanLyChuoiNhaTro.Services
         public int TongHoaDon { get; init; }
     }
 
-    public static class QuanLyService
+    public static class TongQuanQuanLyService
     {
         public static async Task<TongQuanQuanLy> GetTongQuanAsync()
         {

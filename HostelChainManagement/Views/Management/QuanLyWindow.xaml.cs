@@ -1,5 +1,5 @@
-﻿using QuanLyChuoiNhaTro.Data;
-using QuanLyChuoiNhaTro.Services;
+﻿using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Management;
 using QuanLyChuoiNhaTro.Views.Account;
 using QuanLyChuoiNhaTro.Views.Auth;
 using System;
@@ -33,23 +33,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             try
             {
-                using var connection = Database.CreateConnection();
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                    SELECT COUNT(*)
-                    FROM dbo.ThongBaoNguoiNhan
-                    WHERE MaNguoiNhan = @MaNguoiDung
-                      AND DaDoc = 0;";
-
-                command.Parameters.Add(
-                    "@MaNguoiDung", SqlDbType.VarChar, 20)
-                    .Value = user.MaNguoiDung;
-
-                await connection.OpenAsync();
-
-                int soLuong = Convert.ToInt32(
-                    await command.ExecuteScalarAsync());
+                int soLuong =
+                    await ThongBaoCaNhanService.DemChuaDocAsync(
+                        user.MaNguoiDung);
 
                 txtSoThongBao.Text =
                     soLuong > 99 ? "99+" : soLuong.ToString();
@@ -87,7 +73,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 "Thông báo / Thông báo của bạn",
                 btnNotifications);
         }
-        private void Reports_Click(object sender, RoutedEventArgs e)
+
+        private void Reports_Click(
+            object sender, RoutedEventArgs e)
         {
             ShowView(
                 new BaoCaoView(),
@@ -109,6 +97,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             txtUser.Text = user.HoTen;
             ShowOverview();
+
             Loaded += async (_, _) => await CapNhatChuôngAsync();
         }
 
@@ -134,6 +123,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             foreach (var button in buttons)
             {
                 button.Background = Brushes.Transparent;
+
                 button.Foreground = new SolidColorBrush(
                     Color.FromRgb(203, 213, 225));
             }
@@ -217,7 +207,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         // Khách thuê.
-        private void Tenants_Click(object sender, RoutedEventArgs e)
+        private void Tenants_Click(
+            object sender, RoutedEventArgs e)
         {
             HienThiKhachThue();
         }
@@ -325,7 +316,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             view.MoTaoHoaDon += HienThiTaoHoaDon;
             view.MoThanhToan += HienThiXacNhanThanhToan;
-
             view.MoChiTietHoaDon += HienThiChiTietHoaDon;
 
             ShowView(
@@ -339,7 +329,6 @@ namespace QuanLyChuoiNhaTro.Views.Management
             var view = new ChiTietHoaDonQuanLyView(maHoaDon);
 
             view.BackRequested += HienThiHoaDon;
-
             view.PaymentRequested += HienThiXacNhanThanhToan;
 
             ShowView(

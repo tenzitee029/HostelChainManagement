@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Technician;
 
 namespace QuanLyChuoiNhaTro.Views.Technician
 {
@@ -45,7 +46,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
             try
             {
                 var table =
-                    await KyThuatService.GetNotificationsAsync();
+                    await ThongBaoKyThuatService.GetNotificationsAsync();
 
                 if (!IsLoaded
                     || !ReferenceEquals(
@@ -95,7 +96,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
 
             try
             {
-                await KyThuatService.MarkReadAsync(
+                await ThongBaoKyThuatService.MarkReadAsync(
                     row["MaThongBao"].ToString()!);
 
                 row["DaDoc"] = true;

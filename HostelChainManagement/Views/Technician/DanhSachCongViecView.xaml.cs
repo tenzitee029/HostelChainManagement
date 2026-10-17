@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Technician;
 
 namespace QuanLyChuoiNhaTro.Views.Technician
 {
@@ -52,7 +53,8 @@ namespace QuanLyChuoiNhaTro.Views.Technician
 
             try
             {
-                var table = await KyThuatService.GetJobsAsync();
+                var table =
+                    await DanhSachCongViecService.GetJobsAsync();
 
                 if (!IsLoaded
                     || !ReferenceEquals(

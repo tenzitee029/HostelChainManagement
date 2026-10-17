@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Models;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Technician;
 
 namespace QuanLyChuoiNhaTro.Views.Technician
 {
@@ -90,7 +91,8 @@ namespace QuanLyChuoiNhaTro.Views.Technician
 
         private async Task LoadJobAsync()
         {
-            var table = await KyThuatService.GetJobsAsync();
+            var table =
+                await ChiTietCongViecService.GetJobsAsync();
 
             if (!IsLoaded)
                 return;
@@ -190,7 +192,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
 
             await RunAsync(async () =>
             {
-                await KyThuatService.SaveAsync(
+                await ChiTietCongViecService.SaveAsync(
                     id, status, previous, version,
                     progress, note, null,
                     Array.Empty<VatTuKyThuat>());

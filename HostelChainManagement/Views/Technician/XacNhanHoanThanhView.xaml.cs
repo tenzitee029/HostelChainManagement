@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
+using QuanLyChuoiNhaTro.Models;
+using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Technician;
+using System;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
@@ -8,10 +13,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Microsoft.Data.SqlClient;
-using Microsoft.Win32;
-using QuanLyChuoiNhaTro.Models;
-using QuanLyChuoiNhaTro.Services;
 
 namespace QuanLyChuoiNhaTro.Views.Technician
 {
@@ -158,7 +159,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
                         "Công việc không còn được phân công cho bạn.");
 
                 var materials =
-                    await KyThuatService.GetMaterialsAsync(_id);
+                    await XacNhanHoanThanhService.GetMaterialsAsync(_id);
 
                 if (!IsLoaded
                     || !ReferenceEquals(

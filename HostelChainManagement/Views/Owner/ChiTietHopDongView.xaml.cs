@@ -9,7 +9,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Owner;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
 {

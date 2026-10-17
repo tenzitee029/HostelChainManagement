@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Owner;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
 {

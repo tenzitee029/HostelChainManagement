@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Owner;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
 {
@@ -147,7 +147,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                     : null;
 
                 var taiKhoan =
-                    await ChuTroService.LuuNhanVienAsync(
+                    await NhanVienFormService.LuuNhanVienAsync(
                         maNhanVien,
                         hoTen,
                         soDienThoai,

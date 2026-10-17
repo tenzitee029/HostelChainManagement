@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Owner;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
 {
@@ -109,7 +108,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
                     ? txtMaDay.Text.Trim()
                     : null;
 
-                string maDaLuu = await ChuTroService.LuuDayTroAsync(
+                string maDaLuu = await DayTroFormService.LuuDayTroAsync(
                     maDay,
                     tenDay,
                     diaChi,

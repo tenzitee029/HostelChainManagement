@@ -2,8 +2,9 @@
 using System.Data;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
+using QuanLyChuoiNhaTro.Services;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Owner
 {
     public static class ChiTietHopDongChuTroService
     {

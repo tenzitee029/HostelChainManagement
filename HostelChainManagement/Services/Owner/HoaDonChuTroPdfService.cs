@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Owner
 {
     public static class HoaDonChuTroPdfService
     {

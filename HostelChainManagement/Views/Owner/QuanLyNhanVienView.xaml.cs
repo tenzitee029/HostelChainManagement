@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Owner;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
 {
@@ -47,7 +46,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             try
             {
                 DataTable table =
-                    await ChuTroService.GetDanhSachNhanVienAsync();
+                    await QuanLyNhanVienService.GetDanhSachNhanVienAsync();
 
                 dgvNhanVien.ItemsSource = table.DefaultView;
 

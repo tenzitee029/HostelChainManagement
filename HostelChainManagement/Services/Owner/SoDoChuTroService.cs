@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Owner
 {
     internal static class SoDoChuTroService
     {

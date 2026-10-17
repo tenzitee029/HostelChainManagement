@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
+using QuanLyChuoiNhaTro.Services.Owner;
 using PdfDocumentModel = MigraDoc.DocumentObjectModel.Document;
 using Section = MigraDoc.DocumentObjectModel.Section;
 using Paragraph = MigraDoc.DocumentObjectModel.Paragraph;
 using Table = MigraDoc.DocumentObjectModel.Tables.Table;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Owner
 {
     public static class HopDongChuTroPdfService
     {

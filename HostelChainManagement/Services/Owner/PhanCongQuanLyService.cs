@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Data;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Owner
 {
-    public static class PhanCongService
+    public static class PhanCongQuanLyService
     {
         private sealed record ThongTinNhanVien(
             string MaNguoiDung,

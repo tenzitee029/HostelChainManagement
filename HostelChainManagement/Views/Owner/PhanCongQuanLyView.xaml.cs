@@ -9,7 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Data.SqlClient;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Owner;
 
 namespace QuanLyChuoiNhaTro.Views.Owner
 {
@@ -72,10 +72,10 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             try
             {
                 DataTable dayTro =
-                    await PhanCongService.GetDanhSachDayTroAsync();
+                    await PhanCongQuanLyService.GetDanhSachDayTroAsync();
 
                 _nhanVienData =
-                    await PhanCongService.GetNhanVienQuanLyAsync();
+                    await PhanCongQuanLyService.GetNhanVienQuanLyAsync();
 
                 dgvDayTro.ItemsSource = dayTro.DefaultView;
 
@@ -513,7 +513,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             try
             {
                 string? dayChuaCoQuanLy =
-                    await PhanCongService.LuuPhanCongAsync(
+                    await PhanCongQuanLyService.LuuPhanCongAsync(
                         maDay,
                         maNhanVien);
 
@@ -646,7 +646,7 @@ namespace QuanLyChuoiNhaTro.Views.Owner
             try
             {
                 bool khongConQuanLy =
-                    await PhanCongService.HuyPhanCongAsync(
+                    await PhanCongQuanLyService.HuyPhanCongAsync(
                         maDay,
                         maNhanVien);
 

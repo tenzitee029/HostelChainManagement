@@ -4,7 +4,7 @@ using System.Data;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Owner
 {
     public static class ChiTietHoaDonChuTroService
     {

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Auth
 {
     public static class PasswordRecoveryService
     {

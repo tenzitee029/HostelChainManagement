@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Models;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Account
 {
     public static class HoSoService
     {

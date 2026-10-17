@@ -8,6 +8,7 @@ using QuanLyChuoiNhaTro.Views.Owner;
 using QuanLyChuoiNhaTro.Views.Management;
 using QuanLyChuoiNhaTro.Views.Tenant;
 using QuanLyChuoiNhaTro.Views.Technician;
+using QuanLyChuoiNhaTro.Services.Auth;
 
 namespace QuanLyChuoiNhaTro.Views.Auth
 {

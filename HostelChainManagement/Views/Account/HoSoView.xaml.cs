@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 using QuanLyChuoiNhaTro.Models;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Account;
 
 namespace QuanLyChuoiNhaTro.Views.Account
 {

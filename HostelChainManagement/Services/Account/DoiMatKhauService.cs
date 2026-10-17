@@ -3,7 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Account
 {
     public static class DoiMatKhauService
     {

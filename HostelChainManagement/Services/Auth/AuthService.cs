@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Models;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Auth
 {
     public static class AuthService
     {

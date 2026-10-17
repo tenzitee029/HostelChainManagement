@@ -5,11 +5,10 @@ using System.IO;
 using System.Threading.Tasks;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
-
 using PdfDocumentModel =
     MigraDoc.DocumentObjectModel.Document;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Tenant
 {
     public static class HopDongPdfService
     {
@@ -29,7 +28,7 @@ namespace QuanLyChuoiNhaTro.Services
             // Service hiện tại kiểm tra quyền Khách thuê
             // và chỉ trả về hợp đồng thuộc tài khoản đăng nhập.
             DataTable table =
-                await KhachThueService.GetHopDongCuaToiAsync();
+                await HopDongThueService.GetHopDongCuaToiAsync();
 
             DataRow? selected = null;
 

@@ -6,7 +6,7 @@ using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Models;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Tenant
 {
     public sealed class DuLieuSuCoKhachThue
     {

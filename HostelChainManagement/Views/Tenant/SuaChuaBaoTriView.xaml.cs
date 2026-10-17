@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Tenant;
 
 namespace QuanLyChuoiNhaTro.Views.Tenant
 {

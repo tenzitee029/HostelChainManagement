@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Tenant;
 
 namespace QuanLyChuoiNhaTro.Views.Tenant
 {
@@ -52,7 +53,7 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             try
             {
                 var table =
-                    await HoaDonKhachThueService.GetDanhSachAsync();
+                    await HoaDonChiPhiService.GetDanhSachAsync();
 
                 if (!IsLoaded
                     || !ReferenceEquals(

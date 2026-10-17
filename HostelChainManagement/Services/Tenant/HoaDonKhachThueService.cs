@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using QuanLyChuoiNhaTro.Data;
 using QuanLyChuoiNhaTro.Models;
 
-namespace QuanLyChuoiNhaTro.Services
+namespace QuanLyChuoiNhaTro.Services.Tenant
 {
     public sealed class ChiTietHoaDonKhachThue
     {
@@ -80,34 +80,6 @@ namespace QuanLyChuoiNhaTro.Services
             ) AS tt
 
             WHERE k.MaNguoiDung = @MaNguoiDung";
-
-        public static async Task<DataTable> GetDanhSachAsync()
-        {
-            var user = RequireTenant();
-
-            using var connection = Database.CreateConnection();
-            using var command = connection.CreateCommand();
-
-            command.CommandText = HeaderSql + @"
-                ORDER BY
-                    hd.Nam DESC,
-                    hd.Thang DESC,
-                    hd.MaHoaDon;";
-
-            command.Parameters.Add(
-                "@MaNguoiDung",
-                SqlDbType.VarChar,
-                20).Value = user.MaNguoiDung;
-
-            await connection.OpenAsync();
-
-            using var reader = await command.ExecuteReaderAsync();
-
-            var table = new DataTable();
-            table.Load(reader);
-
-            return table;
-        }
 
         public static async Task<ChiTietHoaDonKhachThue>
             GetChiTietAsync(string maHoaDon)

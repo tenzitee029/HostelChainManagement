@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Tenant;
 
 namespace QuanLyChuoiNhaTro.Views.Tenant
 {
@@ -36,7 +37,7 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             try
             {
                 var table =
-                    await KhachThueService.GetHopDongCuaToiAsync();
+                    await HopDongThueService.GetHopDongCuaToiAsync();
 
                 if (!IsLoaded)
                     return;
@@ -73,8 +74,8 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
         }
 
         private async void DownloadPdf_Click(
-    object sender,
-    RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             if (_loading || _downloading)
                 return;

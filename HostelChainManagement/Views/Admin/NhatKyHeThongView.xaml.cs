@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
-using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Admin;
 
 namespace QuanLyChuoiNhaTro.Views.Admin
 {
@@ -67,7 +67,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         {
             await RunAsync(async () =>
             {
-                _logs = await AdminService.GetLogsAsync();
+                _logs = await NhatKyHeThongService.GetLogsAsync();
 
                 if (IsLoaded)
                     ApplyLogFilter();
@@ -112,9 +112,11 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 Filter = excel
                     ? "Excel Workbook|*.xlsx"
                     : "Text file|*.txt",
+
                 FileName =
                     "NhatKy_"
                     + DateTime.Now.ToString("yyyyMMdd_HHmmss"),
+
                 AddExtension = true
             };
 
@@ -123,7 +125,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
             await RunAsync(async () =>
             {
-                _logs = await AdminService.GetLogsAsync();
+                _logs = await NhatKyHeThongService.GetLogsAsync();
                 ApplyLogFilter();
 
                 var rows =
@@ -141,7 +143,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
                 try
                 {
-                    AdminService.ExportLogs(
+                    NhatKyHeThongService.ExportLogs(
                         filtered, temporary, excel);
 
                     File.Move(temporary, dialog.FileName, true);

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Admin;
 
 namespace QuanLyChuoiNhaTro.Views.Admin
 {
@@ -167,7 +168,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                     return;
 
                 await RunAsync(
-                    () => AdminService.BackupAsync(path),
+                    () => BaoTriHeThongService.BackupAsync(path),
                     "Sao lưu dữ liệu thành công: " + path);
 
                 return;
@@ -199,7 +200,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 await RunAsync(async () =>
                 {
                     string safety =
-                        await AdminService.RestoreAsync(path);
+                        await BaoTriHeThongService.RestoreAsync(path);
 
                     MessageBox.Show(
                         Window.GetWindow(this),
@@ -229,7 +230,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 await RunAsync(async () =>
                 {
                     int count =
-                        await AdminService.CleanCacheAsync();
+                        await BaoTriHeThongService.CleanCacheAsync();
 
                     txtStatus.Text = $"Đã dọn {count} tệp tạm.";
                 });

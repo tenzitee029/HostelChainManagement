@@ -140,7 +140,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
             await RunAsync(async () =>
             {
                 var table =
-                    await KyThuatService.GetJobsAsync();
+                    await XacNhanHoanThanhService.GetJobsAsync();
 
                 if (!IsLoaded
                     || !ReferenceEquals(
@@ -437,7 +437,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
 
                 try
                 {
-                    await KyThuatService.SaveAsync(
+                    await XacNhanHoanThanhService.SaveAsync(
                         id,
                         status,
                         previous,

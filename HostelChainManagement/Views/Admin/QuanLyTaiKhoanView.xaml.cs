@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Admin;
 
 namespace QuanLyChuoiNhaTro.Views.Admin
 {
@@ -28,7 +29,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
             cboRoleFilter.ItemsSource =
                 new[] { "Tất cả vai trò" }
-                    .Concat(AdminService.Roles)
+                    .Concat(QuanLyTaiKhoanService.Roles)
                     .ToArray();
 
             cboRoleFilter.SelectedIndex = 0;
@@ -103,7 +104,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             var session = UserSession.CurrentUser;
 
             var accounts =
-                await AdminService.GetAccountsAsync();
+                await QuanLyTaiKhoanService.GetAccountsAsync();
 
             if (!IsLoaded
                 || !ReferenceEquals(
@@ -250,11 +251,10 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             await RunAsync(
                 async () =>
                 {
-                    await AdminService.DeleteAccountAsync(
+                    await QuanLyTaiKhoanService.DeleteAccountAsync(
                         id,
                         status);
 
-                    // Đúng tên hàm của file hiện tại.
                     await LoadAccountsAsync();
                 },
                 $"Đã xóa vĩnh viễn tài khoản {login}.");
@@ -311,7 +311,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             await RunAsync(
                 async () =>
                 {
-                    await AdminService.SetStatusAsync(
+                    await QuanLyTaiKhoanService.SetStatusAsync(
                         id,
                         oldStatus,
                         nextStatus);
@@ -332,7 +332,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
             var roles = new ComboBox
             {
-                ItemsSource = AdminService.Roles,
+                ItemsSource = QuanLyTaiKhoanService.Roles,
                 SelectedItem = currentRole,
                 MinHeight = 34,
                 Margin = new Thickness(0, 6, 0, 12)
@@ -449,7 +449,8 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
             await RunAsync(async () =>
             {
-                var days = await AdminService.GetDaysAsync();
+                var days =
+                    await QuanLyTaiKhoanService.GetDaysAsync();
 
                 var selection = PromptRole(days, oldRole);
 
@@ -462,8 +463,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                     return;
                 }
 
-                // Service bạn gửi nhận 4 tham số.
-                await AdminService.SetRoleAsync(
+                await QuanLyTaiKhoanService.SetRoleAsync(
                     id,
                     oldRole,
                     selection.Role,

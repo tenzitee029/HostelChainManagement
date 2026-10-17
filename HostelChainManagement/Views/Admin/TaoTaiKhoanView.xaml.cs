@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using QuanLyChuoiNhaTro.Services;
+using QuanLyChuoiNhaTro.Services.Admin;
 
 namespace QuanLyChuoiNhaTro.Views.Admin
 {
@@ -22,7 +23,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         {
             InitializeComponent();
 
-            cboNewRole.ItemsSource = AdminService.Roles;
+            cboNewRole.ItemsSource = TaoTaiKhoanService.Roles;
             cboNewRole.SelectedIndex = -1;
 
             UpdateControls();
@@ -111,7 +112,8 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             {
                 var session = UserSession.CurrentUser;
 
-                var days = await AdminService.GetDaysAsync();
+                var days =
+                    await TaoTaiKhoanService.GetDaysAsync();
 
                 if (!IsLoaded
                     || !ReferenceEquals(
@@ -229,7 +231,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 return false;
             }
 
-            if (!AdminService.Roles.Contains(role))
+            if (!TaoTaiKhoanService.Roles.Contains(role))
             {
                 txtStatus.Text = "Vui lòng chọn vai trò.";
                 cboNewRole.Focus();
@@ -327,15 +329,15 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
             await RunAsync(async () =>
             {
-                // Đúng 7 tham số của Service hiện tại.
-                var result = await AdminService.CreateAccountAsync(
-                    login,
-                    email,
-                    phone,
-                    role,
-                    fullName,
-                    cccd,
-                    day);
+                var result =
+                    await TaoTaiKhoanService.CreateAccountAsync(
+                        login,
+                        email,
+                        phone,
+                        role,
+                        fullName,
+                        cccd,
+                        day);
 
                 if (result.InitialPassword != null)
                 {
@@ -392,7 +394,7 @@ namespace QuanLyChuoiNhaTro.Views.Admin
 
             await RunAsync(async () =>
             {
-                await AdminService.ResendEmailAsync(id);
+                await TaoTaiKhoanService.ResendEmailAsync(id);
 
                 _pendingEmailId = null;
                 ClearForm();

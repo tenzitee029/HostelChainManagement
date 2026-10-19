@@ -60,7 +60,7 @@
                        TextAlignment="Center"
                        Margin="0,20,0,0"/>
 
-            <TextBlock Text="Mở ứng dụng MoMo để quét mã thanh toán"
+            <TextBlock Text="Quét mã thanh toán bên dưới"
                        Foreground="#64748B"
                        TextAlignment="Center"
                        Margin="0,6,0,20"/>

@@ -149,7 +149,12 @@
             <DataGridTextColumn Header="Nội dung nhật ký"
                                 Binding="{Binding NoiDung}"
                                 Width="*"/>
-          </DataGrid.Columns>
+            <DataGridTextColumn
+                                Header="Thời gian ghi nhận"
+                                Binding="{Binding ThoiGian, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"
+                                Width="180"
+                                SortMemberPath="ThoiGian"/>
+                    </DataGrid.Columns>
         </DataGrid>
 
         <TextBlock x:Name="txtNoLogs"

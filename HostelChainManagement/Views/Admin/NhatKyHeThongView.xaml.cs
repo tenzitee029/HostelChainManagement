@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
+using QuanLyChuoiNhaTro.Services;
 using QuanLyChuoiNhaTro.Services.Admin;
 
 namespace QuanLyChuoiNhaTro.Views.Admin
@@ -43,7 +43,15 @@ namespace QuanLyChuoiNhaTro.Views.Admin
             try
             {
                 await action();
-                txtStatus.Text = success ?? "";
+
+                if (success != null)
+                {
+                    txtStatus.Text = success;
+                }
+                else if (txtStatus.Text == "Đang xử lý...")
+                {
+                    txtStatus.Text = "";
+                }
             }
             catch (SqlException ex)
             {
@@ -63,41 +71,71 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         }
 
         private async void View_Loaded(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             await RunAsync(async () =>
             {
-                _logs = await NhatKyHeThongService.GetLogsAsync();
+                var session = UserSession.CurrentUser;
 
-                if (IsLoaded)
-                    ApplyLogFilter();
+                var logs =
+                    await NhatKyHeThongService.GetLogsAsync();
+
+                if (!IsLoaded
+                    || !ReferenceEquals(
+                        session,
+                        UserSession.CurrentUser))
+                {
+                    return;
+                }
+
+                _logs = logs;
+                ApplyLogFilter();
             });
+        }
+
+        private string SelectedLogType()
+        {
+            return (cboLogType.SelectedItem as ComboBoxItem)?
+                .Content.ToString() ?? "Tất cả";
+        }
+
+        private static DataRowView[] FilterRows(
+            DataTable table,
+            string type)
+        {
+            return table.DefaultView
+                .Cast<DataRowView>()
+                .Where(row =>
+                    type == "Tất cả"
+                    || row["LoaiNhatKy"].ToString() == type)
+                .ToArray();
         }
 
         private void ApplyLogFilter()
         {
-            if (_logs == null || cboLogType == null)
+            if (_logs == null
+                || cboLogType == null
+                || logsGrid == null
+                || txtNoLogs == null)
+            {
                 return;
+            }
 
-            string type =
-                (cboLogType.SelectedItem as ComboBoxItem)?
-                    .Content.ToString() ?? "Tất cả";
-
-            var rows = _logs.DefaultView.Cast<DataRowView>()
-                .Where(row =>
-                    type == "Tất cả"
-                    || row["LoaiNhatKy"].ToString() == type)
-                .ToList();
+            var rows = FilterRows(
+                _logs,
+                SelectedLogType());
 
             logsGrid.ItemsSource = rows;
 
-            txtNoLogs.Visibility = rows.Count == 0
+            txtNoLogs.Visibility = rows.Length == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
 
         private void LogFilter_Changed(
-            object sender, SelectionChangedEventArgs e)
+            object sender,
+            SelectionChangedEventArgs e)
         {
             ApplyLogFilter();
         }
@@ -120,22 +158,46 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 AddExtension = true
             };
 
-            if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+            var owner = Window.GetWindow(this);
+
+            bool? accepted = owner != null
+                ? dialog.ShowDialog(owner)
+                : dialog.ShowDialog();
+
+            if (accepted != true)
                 return;
+
+            // Xuất theo bộ lọc đang chọn.
+            string type = SelectedLogType();
 
             await RunAsync(async () =>
             {
-                _logs = await NhatKyHeThongService.GetLogsAsync();
+                var session = UserSession.CurrentUser;
+
+                var logs =
+                    await NhatKyHeThongService.GetLogsAsync();
+
+                if (!IsLoaded
+                    || !ReferenceEquals(
+                        session,
+                        UserSession.CurrentUser))
+                {
+                    txtStatus.Text =
+                        "Đã hủy xuất vì giao diện hoặc phiên đăng nhập thay đổi.";
+
+                    return;
+                }
+
+                _logs = logs;
                 ApplyLogFilter();
 
-                var rows =
-                    ((IEnumerable<DataRowView>)logsGrid.ItemsSource)
-                    .Select(row => row.Row)
-                    .ToArray();
+                // Clone giữ đủ cột, kể cả khi không có dòng dữ liệu.
+                var filtered = logs.Clone();
 
-                var filtered = rows.Length > 0
-                    ? rows.CopyToDataTable()
-                    : _logs.Clone();
+                foreach (var row in FilterRows(logs, type))
+                {
+                    filtered.ImportRow(row.Row);
+                }
 
                 string temporary = Path.Combine(
                     Path.GetDirectoryName(dialog.FileName)!,
@@ -144,26 +206,38 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 try
                 {
                     NhatKyHeThongService.ExportLogs(
-                        filtered, temporary, excel);
+                        filtered,
+                        temporary,
+                        excel);
 
-                    File.Move(temporary, dialog.FileName, true);
+                    File.Move(
+                        temporary,
+                        dialog.FileName,
+                        true);
                 }
                 finally
                 {
                     if (File.Exists(temporary))
+                    {
                         File.Delete(temporary);
+                    }
                 }
-            }, "Đã xuất nhật ký: " + dialog.FileName);
+
+                txtStatus.Text =
+                    "Đã xuất nhật ký: " + dialog.FileName;
+            });
         }
 
         private async void ExportText_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             await ExportAsync(false);
         }
 
         private async void ExportExcel_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             await ExportAsync(true);
         }

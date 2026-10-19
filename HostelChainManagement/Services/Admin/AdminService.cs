@@ -102,6 +102,24 @@ public static class AdminService
             transaction);
     }
 
+    public static Task<DataTable> GetLogsAsync()
+    {
+        return QueryAsync(@"
+        SELECT
+            MaNhatKy,
+            HanhDong,
+            NoiDung,
+            ThoiGian,
+            CASE
+                WHEN HanhDong = N'Log truy cập'
+                    THEN N'Log truy cập'
+                WHEN HanhDong = N'Log lỗi runtime'
+                    THEN N'Log lỗi runtime'
+                ELSE N'Quản trị'
+            END AS LoaiNhatKy
+        FROM dbo.NhatKyHeThong
+        ORDER BY ThoiGian DESC, MaNhatKy DESC;");
+    }
     internal static async Task AuditAsync(
         SqlConnection connection,
         SqlTransaction transaction,

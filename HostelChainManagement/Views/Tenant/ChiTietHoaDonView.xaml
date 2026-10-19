@@ -187,15 +187,15 @@
                            Margin="0,8,0,0"
                            Visibility="Collapsed"/>
 
-                <!-- UC26 chưa triển khai: không gắn sự kiện Click. -->
                 <Button x:Name="btnPayOnline"
                         Content="Thanh toán online"
                         HorizontalAlignment="Right"
                         Padding="18,10"
-                        Background="#2563EB"
+                        Background="#A50064"
                         Foreground="White"
                         Margin="0,18,0,0"
-                        Visibility="Collapsed"/>
+                        Visibility="Collapsed"
+                        Click="PayOnline_Click"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

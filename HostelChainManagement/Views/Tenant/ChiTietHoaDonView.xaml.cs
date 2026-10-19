@@ -91,6 +91,23 @@ namespace QuanLyChuoiNhaTro.Views.Tenant
             }
         }
 
+        private void PayOnline_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            var originalContent = Content;
+
+            var paymentView =
+                new ThanhToanOnlineView(_maHoaDon);
+
+            paymentView.BackRequested += () =>
+            {
+                Content = originalContent;
+            };
+
+            Content = paymentView;
+        }
+
         private void Back_Click(
             object sender,
             RoutedEventArgs e)

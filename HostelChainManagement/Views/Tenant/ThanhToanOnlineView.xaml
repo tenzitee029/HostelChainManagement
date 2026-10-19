@@ -1,0 +1,166 @@
+﻿<UserControl x:Class="QuanLyChuoiNhaTro.Views.Tenant.ThanhToanOnlineView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8FAFC"
+             FontFamily="Segoe UI"
+             Loaded="View_Loaded">
+
+    <UserControl.Resources>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="TextWrapping"
+                    Value="Wrap"/>
+
+            <Setter Property="Foreground"
+                    Value="#334155"/>
+        </Style>
+
+        <Style x:Key="LabelStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="Foreground"
+                    Value="#64748B"/>
+
+            <Setter Property="FontSize"
+                    Value="13"/>
+
+            <Setter Property="Margin"
+                    Value="0,16,0,4"/>
+        </Style>
+
+        <Style x:Key="ValueStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="Foreground"
+                    Value="#0F172A"/>
+
+            <Setter Property="FontSize"
+                    Value="16"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <StackPanel Margin="24">
+
+            <Button Content="← Quay lại chi tiết hóa đơn"
+                    HorizontalAlignment="Left"
+                    Padding="16,10"
+                    Cursor="Hand"
+                    Click="Back_Click"/>
+
+            <TextBlock Text="Thanh toán qua MoMo"
+                       FontSize="25"
+                       FontWeight="Bold"
+                       Foreground="#A50064"
+                       TextAlignment="Center"
+                       Margin="0,20,0,0"/>
+
+            <TextBlock Text="Mở ứng dụng MoMo để quét mã thanh toán"
+                       Foreground="#64748B"
+                       TextAlignment="Center"
+                       Margin="0,6,0,20"/>
+
+            <Border Background="White"
+                    BorderBrush="#E2E8F0"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="24"
+                    MaxWidth="560"
+                    HorizontalAlignment="Stretch">
+
+                <StackPanel>
+
+                    <!-- Mã QR MoMo -->
+                    <Border BorderBrush="#A50064"
+                            BorderThickness="2"
+                            CornerRadius="12"
+                            Padding="12"
+                            HorizontalAlignment="Center">
+
+                        <Grid Width="240"
+                              Height="240">
+
+                            <Image x:Name="imgQr"
+                                   Stretch="Uniform"
+                                   Visibility="Collapsed"
+                                   AutomationProperties.Name="Mã QR MoMo nhận tiền"/>
+
+                            <TextBlock x:Name="txtQrMissing"
+                                       Text="Đang tải mã QR MoMo..."
+                                       Foreground="#64748B"
+                                       VerticalAlignment="Center"
+                                       TextAlignment="Center"/>
+                        </Grid>
+
+                    </Border>
+
+                    <!-- Thông tin hóa đơn -->
+                    <TextBlock Text="Số tiền cần thanh toán"
+                               Style="{StaticResource LabelStyle}"
+                               TextAlignment="Center"
+                               Margin="0,20,0,6"/>
+
+                    <TextBlock x:Name="txtAmount"
+                               Text="Đang tải..."
+                               Foreground="#A50064"
+                               FontSize="30"
+                               FontWeight="Bold"
+                               TextAlignment="Center"/>
+
+                    <TextBlock x:Name="txtInvoice"
+                               Foreground="#64748B"
+                               TextAlignment="Center"
+                               Margin="0,8,0,18"/>
+
+                    <Separator Background="#E2E8F0"/>
+
+                    <!-- Thông tin nhận tiền -->
+                    <TextBlock Text="Tên tài khoản nhận"
+                               Style="{StaticResource LabelStyle}"/>
+
+                    <TextBlock x:Name="txtAccountName"
+                               Style="{StaticResource ValueStyle}"/>
+
+                    <Border Background="#FDF2F8"
+                            CornerRadius="8"
+                            Padding="16"
+                            Margin="0,20,0,0">
+
+                        <TextBlock FontSize="14"
+                                   Foreground="#334155"
+                                   LineHeight="24">
+
+                            <Run Text="Vui lòng thanh toán qua mã QR MoMo phía trên."/>
+
+                            <LineBreak/>
+
+                            <Run Text="Nội dung chuyển khoản: Mã hóa đơn - Phòng - Tháng."/>
+
+                            <LineBreak/>
+
+                            <Run Text="Sau khi chuyển tiền, vui lòng chờ quản lý đối soát và xác nhận."/>
+
+                        </TextBlock>
+
+                    </Border>
+
+                    <!-- Thông báo tải dữ liệu hoặc lỗi -->
+                    <TextBlock x:Name="txtStatus"
+                               Foreground="#B45309"
+                               TextAlignment="Center"
+                               Margin="0,16,0,0"
+                               AutomationProperties.LiveSetting="Polite"/>
+
+                </StackPanel>
+
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+</UserControl>

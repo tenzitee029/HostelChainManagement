@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -13,13 +14,18 @@ namespace QuanLyChuoiNhaTro.Views.Management
 {
     public partial class KhachThueFormView : UserControl
     {
-        private const string VaiTroChu = "Người đứng tên hợp đồng";
-        private const string VaiTroThanhVien = "Thành viên ở cùng";
+        private const string VaiTroChu =
+            "Người đứng tên hợp đồng";
+
+        private const string VaiTroThanhVien =
+            "Thành viên ở cùng";
 
         private readonly bool _dangSua;
         private readonly bool _suaThanhVien;
+
         private readonly string _maKhach;
         private readonly string _maThanhVienMoi;
+
         private readonly string _tenDangNhapMoi;
         private readonly string _tenDangNhapThanhVienMoi;
         private readonly string _matKhauMoi;
@@ -28,29 +34,38 @@ namespace QuanLyChuoiNhaTro.Views.Management
         private bool _dangTaiPhong;
         private bool _dangLuu;
         private bool _sanSang;
+
         private int _lanTaiPhong;
 
         public event Action? QuayLai;
         public event Action? DaLuu;
 
         private bool ThemThanhVien =>
-            !_dangSua &&
-            Convert.ToString(cboVaiTro.SelectedItem) == VaiTroThanhVien;
+            !_dangSua
+            && Convert.ToString(cboVaiTro.SelectedItem)
+                == VaiTroThanhVien;
+
+        private bool LaHoSoThanhVien =>
+            _suaThanhVien || ThemThanhVien;
 
         public KhachThueFormView(DataRowView? khach = null)
         {
             InitializeComponent();
 
             _dangSua = khach != null;
-            _suaThanhVien = _dangSua &&
-                Convert.ToString(khach!["LoaiHoSo"]) == VaiTroThanhVien;
+
+            _suaThanhVien = khach != null
+                && Convert.ToString(khach["LoaiHoSo"])
+                    == VaiTroThanhVien;
 
             _maKhach = khach == null
                 ? TaoMa("KT")
                 : Convert.ToString(khach["MaKhachThue"]) ?? "";
 
             _maThanhVienMoi = TaoMa("TV");
-            _tenDangNhapMoi = _maKhach.ToLowerInvariant();
+
+            _tenDangNhapMoi =
+                _maKhach.ToLowerInvariant();
 
             _tenDangNhapThanhVienMoi =
                 _maThanhVienMoi.ToLowerInvariant();
@@ -92,6 +107,28 @@ namespace QuanLyChuoiNhaTro.Views.Management
             return KhachThueFormService.TaoMa(tienTo);
         }
 
+        private static string DocChuoi(
+            Dictionary<string, object> data,
+            string column)
+        {
+            if (!data.TryGetValue(column, out var value)
+                || value == DBNull.Value)
+            {
+                return "";
+            }
+
+            return Convert.ToString(value) ?? "";
+        }
+
+        private static bool DungTaiKhoan(string userId)
+        {
+            var user = UserSession.CurrentUser;
+
+            return user != null
+                && user.MaNguoiDung == userId
+                && user.VaiTro == "Nhân viên quản lý";
+        }
+
         private void HienThiPhongChu(
             string tenPhong,
             string trangThai)
@@ -115,8 +152,10 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 return;
 
             bool choPhep =
-                _sanSang && !_dangTai &&
-                !_dangTaiPhong && !_dangLuu;
+                _sanSang
+                && !_dangTai
+                && !_dangTaiPhong
+                && !_dangLuu;
 
             pnlThongTin.IsEnabled = choPhep;
 
@@ -125,16 +164,20 @@ namespace QuanLyChuoiNhaTro.Views.Management
             cboPhong.IsEnabled = ThemThanhVien;
 
             btnLuu.IsEnabled =
-                choPhep &&
-                (!ThemThanhVien ||
-                 cboPhong.SelectedItem is DataRowView);
+                choPhep
+                && (!ThemThanhVien
+                    || cboPhong.SelectedItem is DataRowView);
 
             btnQuayLai.IsEnabled = !_dangLuu;
-            btnLuu.Content = _dangLuu ? "Đang lưu..." : "Lưu hồ sơ";
+
+            btnLuu.Content = _dangLuu
+                ? "Đang lưu..."
+                : "Lưu hồ sơ";
         }
 
         private async void View_Loaded(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             if (_dangTai || _sanSang)
                 return;
@@ -143,9 +186,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             if (user == null || user.VaiTro != "Nhân viên quản lý")
             {
-                txtThongBao.Text = "Bạn không có quyền quản lý khách thuê.";
+                txtThongBao.Text =
+                    "Bạn không có quyền quản lý khách thuê.";
                 return;
             }
+
+            string userId = user.MaNguoiDung;
 
             _dangTai = true;
             DatTrangThai();
@@ -155,27 +201,33 @@ namespace QuanLyChuoiNhaTro.Views.Management
             try
             {
                 using var service = new KhachThueFormService();
+
                 await service.MoKetNoiAsync();
 
                 var dayTro =
-                    await service.LayDayTroAsync(user.MaNguoiDung);
+                    await service.LayDayTroAsync(userId);
 
-                if (!IsLoaded)
+                if (!IsLoaded || !DungTaiKhoan(userId))
                     return;
 
                 cboDayTro.ItemsSource = dayTro.DefaultView;
 
                 if (dayTro.Rows.Count == 0)
                 {
-                    txtThongBao.Text = "Bạn chưa được phân công dãy trọ.";
+                    txtThongBao.Text =
+                        "Bạn chưa được phân công dãy trọ.";
                     return;
                 }
 
-                if (_dangSua && _suaThanhVien)
+                if (_suaThanhVien)
                 {
-                    var thongTin = await service.LayThanhVienAsync(
-                        _maKhach,
-                        user.MaNguoiDung);
+                    var thongTin =
+                        await service.LayThanhVienAsync(
+                            _maKhach,
+                            userId);
+
+                    if (!IsLoaded || !DungTaiKhoan(userId))
+                        return;
 
                     if (thongTin == null)
                     {
@@ -184,35 +236,37 @@ namespace QuanLyChuoiNhaTro.Views.Management
                         return;
                     }
 
-                    if (!IsLoaded)
-                        return;
-
                     txtHoTen.Text =
-                        Convert.ToString(thongTin["HoTen"]) ?? "";
+                        DocChuoi(thongTin, "HoTen");
 
                     txtCCCD.Text =
-                        Convert.ToString(thongTin["CCCD"]) ?? "";
+                        DocChuoi(thongTin, "CCCD");
 
                     txtSoDienThoai.Text =
-                        Convert.ToString(thongTin["SoDienThoai"]) ?? "";
+                        DocChuoi(thongTin, "SoDienThoai");
 
                     cboDayTro.SelectedValue =
-                        Convert.ToString(thongTin["MaDayTro"]);
+                        DocChuoi(thongTin, "MaDayTro");
 
                     pnlDiaChi.Visibility = Visibility.Collapsed;
 
                     HienThiPhongChu(
-                        Convert.ToString(thongTin["TenPhong"]) ?? "",
-                        Convert.ToString(thongTin["TrangThai"]) ?? "");
+                        DocChuoi(thongTin, "TenPhong"),
+                        DocChuoi(thongTin, "TrangThai"));
 
                     txtHuongDan.Text =
-                        "Cập nhật thông tin thành viên ở cùng. Phòng và hợp đồng được giữ nguyên.";
+                        "Cập nhật thông tin thành viên ở cùng. "
+                        + "Phòng, hợp đồng và mật khẩu được giữ nguyên.";
                 }
                 else if (_dangSua)
                 {
-                    var thongTin = await service.LayKhachAsync(
-                        _maKhach,
-                        user.MaNguoiDung);
+                    var thongTin =
+                        await service.LayKhachAsync(
+                            _maKhach,
+                            userId);
+
+                    if (!IsLoaded || !DungTaiKhoan(userId))
+                        return;
 
                     if (thongTin == null)
                     {
@@ -221,34 +275,35 @@ namespace QuanLyChuoiNhaTro.Views.Management
                         return;
                     }
 
-                    if (!IsLoaded)
-                        return;
-
                     txtHoTen.Text =
-                        Convert.ToString(thongTin["HoTen"]) ?? "";
+                        DocChuoi(thongTin, "HoTen");
 
                     txtCCCD.Text =
-                        Convert.ToString(thongTin["CCCD"]) ?? "";
+                        DocChuoi(thongTin, "CCCD");
 
                     txtSoDienThoai.Text =
-                        Convert.ToString(thongTin["SoDienThoai"]) ?? "";
+                        DocChuoi(thongTin, "SoDienThoai");
 
                     txtDiaChi.Text =
-                        Convert.ToString(thongTin["DiaChi"]) ?? "";
+                        DocChuoi(thongTin, "DiaChi");
 
                     cboDayTro.SelectedValue =
-                        Convert.ToString(thongTin["MaDayTro"]);
+                        DocChuoi(thongTin, "MaDayTro");
 
                     bool dangThue =
-                        thongTin["DangHieuLuc"] != DBNull.Value &&
-                        Convert.ToInt32(thongTin["DangHieuLuc"]) == 1;
+                        thongTin.TryGetValue(
+                            "DangHieuLuc",
+                            out var active)
+                        && active != DBNull.Value
+                        && Convert.ToInt32(active) == 1;
 
                     bool coHopDong =
-                        thongTin["MaHopDong"] != DBNull.Value;
+                        !string.IsNullOrWhiteSpace(
+                            DocChuoi(thongTin, "MaHopDong"));
 
                     HienThiPhongChu(
                         dangThue
-                            ? Convert.ToString(thongTin["TenPhong"]) ?? ""
+                            ? DocChuoi(thongTin, "TenPhong")
                             : "Chưa có phòng đang thuê",
                         dangThue
                             ? "Đang thuê"
@@ -266,8 +321,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                txtThongBao.Text =
-                    "Không tải được thông tin: " + ex.Message;
+                if (IsLoaded && DungTaiKhoan(userId))
+                {
+                    txtThongBao.Text =
+                        "Không tải được thông tin: " + ex.Message;
+                }
             }
             finally
             {
@@ -277,7 +335,8 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         private async void VaiTro_Changed(
-            object sender, SelectionChangedEventArgs e)
+            object sender,
+            SelectionChangedEventArgs e)
         {
             if (!_sanSang || _dangSua)
                 return;
@@ -298,8 +357,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     "Chọn phòng đôi đang có người đứng tên hợp đồng. "
                     + "Mỗi phòng tối đa 2 người, gồm người đứng tên "
                     + "và 1 thành viên ở cùng. "
-                    + "Thành viên được lưu vào hợp đồng đang có "
-                    + "và được cấp tài khoản đăng nhập riêng.";
+                    + "Thành viên được cấp tài khoản đăng nhập riêng.";
 
                 await TaiPhongOChungAsync();
             }
@@ -321,14 +379,18 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         private async void DayTro_Changed(
-            object sender, SelectionChangedEventArgs e)
+            object sender,
+            SelectionChangedEventArgs e)
         {
             if (_sanSang && ThemThanhVien)
+            {
                 await TaiPhongOChungAsync();
+            }
         }
 
         private void Phong_Changed(
-            object sender, SelectionChangedEventArgs e)
+            object sender,
+            SelectionChangedEventArgs e)
         {
             if (!_sanSang || !ThemThanhVien)
                 return;
@@ -346,6 +408,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             int lanTai = ++_lanTaiPhong;
 
             _dangTaiPhong = true;
+
             cboPhong.ItemsSource = null;
 
             txtTrangThai.Text = "Chưa chọn phòng";
@@ -357,22 +420,36 @@ namespace QuanLyChuoiNhaTro.Views.Management
             {
                 var user = UserSession.CurrentUser;
 
-                if (user == null || user.VaiTro != "Nhân viên quản lý")
+                if (user == null
+                    || user.VaiTro != "Nhân viên quản lý")
                 {
                     throw new InvalidOperationException(
                         "Bạn không có quyền quản lý.");
                 }
 
+                string userId = user.MaNguoiDung;
+
                 string maDay =
-                    cboDayTro.SelectedValue?.ToString() ?? "";
+                    Convert.ToString(cboDayTro.SelectedValue) ?? "";
+
+                if (string.IsNullOrWhiteSpace(maDay))
+                {
+                    txtThongBao.Text = "Vui lòng chọn dãy trọ.";
+                    return;
+                }
 
                 var table =
                     await KhachThueFormService.LayPhongOChungAsync(
                         maDay,
-                        user.MaNguoiDung);
+                        userId);
 
-                if (lanTai != _lanTaiPhong || !ThemThanhVien || !IsLoaded)
+                if (lanTai != _lanTaiPhong
+                    || !ThemThanhVien
+                    || !IsLoaded
+                    || !DungTaiKhoan(userId))
+                {
                     return;
+                }
 
                 cboPhong.ItemsSource = table.DefaultView;
 
@@ -391,7 +468,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
             catch (Exception ex)
             {
-                if (lanTai == _lanTaiPhong)
+                if (lanTai == _lanTaiPhong && IsLoaded)
                 {
                     txtThongBao.Text =
                         "Không tải được phòng: " + ex.Message;
@@ -415,13 +492,15 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             if (hoTen.Length == 0 || hoTen.Length > 100)
             {
-                txtThongBao.Text = "Họ tên phải có từ 1 đến 100 ký tự.";
+                txtThongBao.Text =
+                    "Họ tên phải có từ 1 đến 100 ký tự.";
                 return false;
             }
 
             if (!Regex.IsMatch(cccd, @"^[0-9]{12}$"))
             {
-                txtThongBao.Text = "CCCD phải gồm đúng 12 chữ số.";
+                txtThongBao.Text =
+                    "CCCD phải gồm đúng 12 chữ số.";
                 return false;
             }
 
@@ -432,7 +511,9 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 return false;
             }
 
-            if (!ThemThanhVien)
+            // Thành viên ở cùng không bắt buộc nhập địa chỉ,
+            // kể cả khi cập nhật hồ sơ thành viên.
+            if (!LaHoSoThanhVien)
             {
                 string diaChi = txtDiaChi.Text.Trim();
 
@@ -450,10 +531,11 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 return false;
             }
 
-            if (ThemThanhVien &&
-                cboPhong.SelectedItem is not DataRowView)
+            if (ThemThanhVien
+                && cboPhong.SelectedItem is not DataRowView)
             {
-                txtThongBao.Text = "Vui lòng chọn phòng đôi còn chỗ.";
+                txtThongBao.Text =
+                    "Vui lòng chọn phòng đôi còn chỗ.";
                 return false;
             }
 
@@ -461,21 +543,31 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         private async void Luu_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
-            if (!_sanSang || _dangTai || _dangTaiPhong || _dangLuu)
+            if (!_sanSang
+                || _dangTai
+                || _dangTaiPhong
+                || _dangLuu)
+            {
                 return;
+            }
 
             if (!KiemTraThongTin())
                 return;
 
             var user = UserSession.CurrentUser;
 
-            if (user == null || user.VaiTro != "Nhân viên quản lý")
+            if (user == null
+                || user.VaiTro != "Nhân viên quản lý")
             {
-                txtThongBao.Text = "Bạn không có quyền lưu hồ sơ.";
+                txtThongBao.Text =
+                    "Bạn không có quyền lưu hồ sơ.";
                 return;
             }
+
+            string userId = user.MaNguoiDung;
 
             bool laThanhVien = ThemThanhVien;
             bool thanhCong = false;
@@ -488,22 +580,29 @@ namespace QuanLyChuoiNhaTro.Views.Management
             try
             {
                 if (_suaThanhVien)
-                    await CapNhatThanhVienAsync(user.MaNguoiDung);
+                {
+                    await CapNhatThanhVienAsync(userId);
+                }
                 else if (laThanhVien)
-                    await LuuThanhVienAsync(user.MaNguoiDung);
+                {
+                    await LuuThanhVienAsync(userId);
+                }
                 else
-                    await LuuKhachAsync(user.MaNguoiDung);
+                {
+                    await LuuKhachAsync(userId);
+                }
 
                 thanhCong = true;
                 _sanSang = false;
             }
             catch (SqlException ex)
-                when (ex.Number == 2601 || ex.Number == 2627)
+                when (ex.Number is 2601 or 2627)
             {
                 txtThongBao.Text =
                     "CCCD, số điện thoại hoặc tài khoản bị trùng.";
             }
-            catch (SqlException ex) when (ex.Number == 1205)
+            catch (SqlException ex)
+                when (ex.Number == 1205)
             {
                 txtThongBao.Text =
                     "Dữ liệu đang được người khác cập nhật. "
@@ -520,26 +619,33 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 DatTrangThai();
             }
 
-            if (!thanhCong)
+            if (!thanhCong
+                || !IsLoaded
+                || !DungTaiKhoan(userId))
+            {
                 return;
+            }
 
             string thongBao;
 
             if (_suaThanhVien)
             {
-                thongBao = "Cập nhật thành viên ở cùng thành công.";
+                thongBao =
+                    "Cập nhật thành viên ở cùng thành công.";
             }
             else if (laThanhVien)
             {
                 thongBao =
                     "Đã thêm thành viên vào phòng đôi thành công.\n\n"
-                    + "Tên đăng nhập: " + _tenDangNhapThanhVienMoi + "\n"
+                    + "Tên đăng nhập: "
+                    + _tenDangNhapThanhVienMoi + "\n"
                     + "Mật khẩu: " + _matKhauMoi + "\n\n"
                     + "Hãy ghi lại thông tin tài khoản.";
             }
             else if (_dangSua)
             {
-                thongBao = "Cập nhật khách thuê thành công.";
+                thongBao =
+                    "Cập nhật khách thuê thành công.";
             }
             else
             {
@@ -551,6 +657,7 @@ namespace QuanLyChuoiNhaTro.Views.Management
             }
 
             MessageBox.Show(
+                Window.GetWindow(this),
                 thongBao,
                 "Thông báo",
                 MessageBoxButton.OK,
@@ -561,6 +668,20 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
         private async Task LuuKhachAsync(string maQuanLy)
         {
+            string maDayTro = "";
+
+            if (!_dangSua)
+            {
+                maDayTro =
+                    Convert.ToString(cboDayTro.SelectedValue) ?? "";
+
+                if (string.IsNullOrWhiteSpace(maDayTro))
+                {
+                    throw new InvalidOperationException(
+                        "Vui lòng chọn dãy trọ.");
+                }
+            }
+
             await KhachThueFormService.LuuKhachAsync(
                 maQuanLy,
                 _dangSua,
@@ -573,14 +694,12 @@ namespace QuanLyChuoiNhaTro.Views.Management
                     CCCD = txtCCCD.Text.Trim(),
                     SoDienThoai = txtSoDienThoai.Text.Trim(),
                     DiaChi = txtDiaChi.Text.Trim(),
-
-                    MaDayTro = !_dangSua
-                        ? cboDayTro.SelectedValue!.ToString()!
-                        : ""
+                    MaDayTro = maDayTro
                 });
         }
 
-        private async Task CapNhatThanhVienAsync(string maQuanLy)
+        private async Task CapNhatThanhVienAsync(
+            string maQuanLy)
         {
             await KhachThueFormService.CapNhatThanhVienAsync(
                 maQuanLy,
@@ -593,12 +712,13 @@ namespace QuanLyChuoiNhaTro.Views.Management
                 });
         }
 
-        private async Task LuuThanhVienAsync(string maQuanLy)
+        private async Task LuuThanhVienAsync(
+            string maQuanLy)
         {
             if (cboPhong.SelectedItem is not DataRowView phong)
             {
                 throw new InvalidOperationException(
-                    "Chưa chọn phòng.");
+                    "Vui lòng chọn phòng.");
             }
 
             string maPhong =
@@ -606,6 +726,13 @@ namespace QuanLyChuoiNhaTro.Views.Management
 
             string maHopDong =
                 Convert.ToString(phong["MaHopDong"]) ?? "";
+
+            if (string.IsNullOrWhiteSpace(maPhong)
+                || string.IsNullOrWhiteSpace(maHopDong))
+            {
+                throw new InvalidOperationException(
+                    "Thông tin phòng hoặc hợp đồng không hợp lệ.");
+            }
 
             await KhachThueFormService.LuuThanhVienAsync(
                 maQuanLy,
@@ -624,12 +751,14 @@ namespace QuanLyChuoiNhaTro.Views.Management
         }
 
         private void QuayLai_Click(
-            object sender, RoutedEventArgs e)
+            object sender,
+            RoutedEventArgs e)
         {
             if (_dangLuu)
                 return;
 
             _lanTaiPhong++;
+
             QuayLai?.Invoke();
         }
     }

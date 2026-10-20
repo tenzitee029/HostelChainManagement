@@ -71,18 +71,15 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 txtStatus.Text = ex.Number switch
                 {
                     2601 or 2627 =>
-                        "Tên đăng nhập, CCCD hoặc số điện thoại "
-                        + "đã tồn tại.",
+                        "Tên đăng nhập, CCCD, số điện thoại hoặc email đã tồn tại trong hệ thống.",
 
                     50001 => ex.Message,
 
                     547 =>
-                        "Dữ liệu liên kết không hợp lệ. "
-                        + "Vui lòng kiểm tra dãy trọ đã chọn.",
+                        "Dữ liệu liên kết không hợp lệ. Vui lòng kiểm tra dãy trọ đã chọn.",
 
                     _ =>
-                        "Không thực hiện được thao tác. "
-                        + "Vui lòng kiểm tra SQL Server."
+                        $"Lỗi SQL ({ex.Number}): {ex.Message}"
                 };
             }
             catch (SmtpException)
@@ -339,28 +336,11 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                         cccd,
                         day);
 
-                if (result.InitialPassword != null)
+                _pendingEmailId = null;
+                ClearForm();
+
+                if (result.EmailSent)
                 {
-                    _pendingEmailId = null;
-                    ClearForm();
-
-                    txtStatus.Text =
-                        $"Đã tạo tài khoản {login} thành công.";
-
-                    ShowMessage(
-                        "Tài khoản đã được tạo thành công.\n\n"
-                        + $"Tên đăng nhập: {login}\n"
-                        + $"Mật khẩu ban đầu: {result.InitialPassword}\n\n"
-                        + "Vui lòng ghi lại và chuyển thông tin cho người dùng. "
-                        + "Yêu cầu đổi mật khẩu sau khi đăng nhập.",
-                        "Tạo tài khoản thành công",
-                        MessageBoxImage.Information);
-                }
-                else if (result.EmailSent)
-                {
-                    _pendingEmailId = null;
-                    ClearForm();
-
                     txtStatus.Text =
                         $"Đã tạo tài khoản {login} thành công. "
                         + $"Thông tin đăng nhập đã gửi đến {email}.";
@@ -370,15 +350,30 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                         "Tạo tài khoản thành công",
                         MessageBoxImage.Information);
                 }
+                else if (result.InitialPassword != null)
+                {
+                    string thongBao = string.IsNullOrWhiteSpace(email)
+                        ? "Tài khoản đã được tạo thành công.\n\n"
+                        : "Tài khoản đã được tạo thành công trên CSDL (chưa gửi được email).\n\n";
+
+                    txtStatus.Text = $"Đã tạo tài khoản {login} thành công.";
+
+                    ShowMessage(
+                        thongBao
+                        + $"Tên đăng nhập: {login}\n"
+                        + $"Mật khẩu ban đầu: {result.InitialPassword}\n\n"
+                        + "Vui lòng ghi lại và chuyển thông tin cho người dùng. "
+                        + "Yêu cầu đổi mật khẩu sau khi đăng nhập.",
+                        "Tạo tài khoản thành công",
+                        MessageBoxImage.Information);
+                }
                 else
                 {
                     _pendingEmailId = result.Id;
 
                     txtStatus.Text =
-                        $"Đã tạo tài khoản {login}, "
-                        + "nhưng email chưa gửi được. "
-                        + "Kiểm tra SMTP rồi bấm Gửi lại email. "
-                        + "Không tạo lại tài khoản.";
+                        $"Đã tạo tài khoản {login}, nhưng email chưa gửi được. "
+                        + "Kiểm tra SMTP rồi bấm Gửi lại email.";
                 }
             });
         }

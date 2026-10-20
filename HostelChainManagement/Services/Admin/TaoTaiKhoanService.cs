@@ -50,13 +50,13 @@ namespace QuanLyChuoiNhaTro.Services.Admin
         }
 
         public static async Task<CreatedAccount> CreateAccountAsync(
-            string login,
-            string email,
-            string phone,
-            string role,
-            string fullName,
-            string cccd,
-            string? day)
+                    string login,
+                    string email,
+                    string phone,
+                    string role,
+                    string fullName,
+                    string cccd,
+                    string? day)
         {
             login = login.Trim();
             email = email.Trim();
@@ -140,13 +140,6 @@ namespace QuanLyChuoiNhaTro.Services.Admin
 
             string adminId = AdminService.UserId();
 
-            // Email trống thì không đọc cấu hình SMTP.
-            string from = "";
-
-            using SmtpClient? smtp = hasEmail
-                ? CreateSmtp(out from)
-                : null;
-
             string password =
                 Convert.ToBase64String(
                     RandomNumberGenerator.GetBytes(12))
@@ -154,6 +147,7 @@ namespace QuanLyChuoiNhaTro.Services.Admin
 
             string id = AdminService.NewId("ND");
 
+            // 1. Lưu thông tin tài khoản vào CSDL trước
             using (var connection = Database.CreateConnection())
             {
                 await connection.OpenAsync();
@@ -191,7 +185,20 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                 using var command = connection.CreateCommand();
                 command.Transaction = transaction;
 
+                // Kiểm tra trùng lặp thông tin và Email trước khi INSERT
                 command.CommandText = @"
+                    IF EXISTS (SELECT 1 FROM dbo.NguoiDung WHERE TenDangNhap = @Login)
+                        THROW 50001, N'Tên đăng nhập đã tồn tại trong hệ thống.', 1;
+
+                    IF EXISTS (SELECT 1 FROM dbo.NguoiDung WHERE CCCD = @CCCD)
+                        THROW 50001, N'Số CCCD đã tồn tại trong hệ thống.', 1;
+
+                    IF EXISTS (SELECT 1 FROM dbo.NguoiDung WHERE SoDienThoai = @Phone)
+                        THROW 50001, N'Số điện thoại đã tồn tại trong hệ thống.', 1;
+
+                    IF @Email IS NOT NULL AND EXISTS (SELECT 1 FROM dbo.NguoiDung WHERE Email = @Email)
+                        THROW 50001, N'Email này đã được sử dụng bởi một tài khoản khác.', 1;
+
                     INSERT dbo.NguoiDung
                     (
                         MaNguoiDung,
@@ -201,7 +208,8 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                         CCCD,
                         Email,
                         SoDienThoai,
-                        VaiTro
+                        VaiTro,
+                        TrangThai
                     )
                     VALUES
                     (
@@ -212,7 +220,8 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                         @CCCD,
                         @Email,
                         @Phone,
-                        @Role
+                        @Role,
+                        N'Hoạt động'
                     );";
 
                 command.Parameters.Add(
@@ -264,8 +273,10 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                 return new CreatedAccount(id, false, password);
             }
 
+            // 2. Thử gửi email sau khi CSDL đã lưu thành công
             try
             {
+                using var smtp = CreateSmtp(out string from);
                 using var mail = new MailMessage(
                     from,
                     email,
@@ -277,19 +288,19 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                     + $"Vai trò: {role}\n\n"
                     + "Vui lòng đổi mật khẩu sau khi đăng nhập.");
 
-                await smtp!.SendMailAsync(mail);
+                await smtp.SendMailAsync(mail);
 
                 return new CreatedAccount(id, true);
             }
-            catch
+            catch (Exception ex)
             {
                 await SystemLogService.TryWriteAsync(
                     adminId,
                     "Log lỗi runtime",
-                    $"Đã tạo tài khoản {id} "
-                    + "nhưng chưa gửi được email thông tin đăng nhập.");
+                    $"Đã tạo tài khoản {id} nhưng chưa gửi được email: {ex.Message}");
 
-                return new CreatedAccount(id, false);
+                // Trả về kèm InitialPassword để Admin vẫn có thông tin bàn giao cho người dùng
+                return new CreatedAccount(id, false, password);
             }
         }
 

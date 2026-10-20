@@ -30,6 +30,7 @@ namespace QuanLyChuoiNhaTro.Data
             {
                 string configPath = Path.Combine(
                     AppContext.BaseDirectory,
+                    "Data",
                     "database.json");
 
                 if (!File.Exists(configPath))

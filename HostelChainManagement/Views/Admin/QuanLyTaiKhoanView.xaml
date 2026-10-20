@@ -210,18 +210,18 @@
                         </DataGridTemplateColumn>
 
                         <DataGridTemplateColumn Header="Xóa"
-                            Width="85">
+                                                Width="85">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Content="Xóa"
-                        Padding="10,4"
-                        Margin="4"
-                        Foreground="#DC2626"
-                        Background="#FEF2F2"
-                        BorderBrush="#FECACA"
-                        Cursor="Hand"
-                        ToolTip="Xóa vĩnh viễn tài khoản khỏi database"
-                        Click="DeleteAccount_Click"/>
+                                            Padding="10,4"
+                                            Margin="4"
+                                            Foreground="#DC2626"
+                                            Background="#FEF2F2"
+                                            BorderBrush="#FECACA"
+                                            Cursor="Hand"
+                                            ToolTip="Chấm dứt quyền sử dụng tài khoản, giữ nguyên dữ liệu nghiệp vụ"
+                                            Click="DeleteAccount_Click"/>           
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

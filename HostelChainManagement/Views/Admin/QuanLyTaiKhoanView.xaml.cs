@@ -212,8 +212,8 @@ namespace QuanLyChuoiNhaTro.Views.Admin
         }
 
         private async void DeleteAccount_Click(
-            object sender,
-            RoutedEventArgs e)
+    object sender,
+    RoutedEventArgs e)
         {
             if (_busy
                 || sender is not Button button
@@ -222,9 +222,14 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 return;
             }
 
-            string id = row["MaNguoiDung"].ToString()!;
-            string login = row["TenDangNhap"].ToString()!;
-            string status = row["TrangThai"].ToString()!;
+            string id =
+                row["MaNguoiDung"].ToString() ?? "";
+
+            string login =
+                row["TenDangNhap"].ToString() ?? "";
+
+            string status =
+                row["TrangThai"].ToString() ?? "";
 
             if (id == UserSession.CurrentUser?.MaNguoiDung)
             {
@@ -234,11 +239,25 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 return;
             }
 
+            if (status is not ("Hoạt động" or "Khóa"))
+            {
+                txtStatus.Text =
+                    "Tài khoản đã ngừng sử dụng. "
+                    + "Vui lòng tải lại danh sách.";
+
+                return;
+            }
+
             string message =
-                $"Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản {login}?\n\n"
-                + "Tài khoản sẽ bị xóa khỏi database. "
-                + "Nếu còn dữ liệu nghiệp vụ liên quan, "
-                + "hệ thống sẽ thông báo và không xóa.";
+                $"Bạn có chắc chắn muốn xóa quyền sử dụng "
+                + $"của tài khoản {login}?\n\n"
+                + "• Tài khoản sẽ chuyển sang Ngừng sử dụng.\n"
+                + "• Không thể đăng nhập lại hoặc mở khóa "
+                + "bằng chức năng Khóa / Mở khóa.\n"
+                + "• Nếu đang đăng nhập, người dùng sẽ được "
+                + "đưa về màn hình đăng nhập sau lần kiểm tra phiên.\n"
+                + "• Hợp đồng, hóa đơn, công việc và lịch sử "
+                + "nghiệp vụ được giữ nguyên.";
 
             if (!Confirm(
                 message,
@@ -248,16 +267,18 @@ namespace QuanLyChuoiNhaTro.Views.Admin
                 return;
             }
 
-            await RunAsync(
-                async () =>
-                {
-                    await QuanLyTaiKhoanService.DeleteAccountAsync(
-                        id,
-                        status);
+            await RunAsync(async () =>
+            {
+                await QuanLyTaiKhoanService.DeleteAccountAsync(
+                    id,
+                    status);
 
-                    await LoadAccountsAsync();
-                },
-                $"Đã xóa vĩnh viễn tài khoản {login}.");
+                await LoadAccountsAsync();
+
+                txtStatus.Text =
+                    $"Đã xóa quyền sử dụng tài khoản {login}. "
+                    + "Dữ liệu nghiệp vụ được giữ nguyên.";
+            });
         }
 
         private async void ToggleStatus_Click(

@@ -8,8 +8,8 @@ namespace QuanLyChuoiNhaTro.Services.Admin
 {
     public static class QuanLyTaiKhoanService
     {
-        // Dùng cùng mảng vai trò hiện có, không tạo bản dữ liệu riêng.
-        public static readonly string[] Roles = AdminService.Roles;
+        public static readonly string[] Roles =
+            AdminService.Roles;
 
         public static Task<DataTable> GetAccountsAsync()
         {
@@ -23,6 +23,7 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                     VaiTro,
                     TrangThai
                 FROM dbo.NguoiDung
+                WHERE TrangThai <> N'Ngừng sử dụng'
                 ORDER BY NgayTao DESC, TenDangNhap;");
         }
 
@@ -36,17 +37,21 @@ namespace QuanLyChuoiNhaTro.Services.Admin
             string expected,
             string next)
         {
-            if (next is not ("Hoạt động" or "Khóa"))
+            // Không cho dùng chức năng này để khôi phục
+            // tài khoản đã Ngừng sử dụng.
+            if (expected is not ("Hoạt động" or "Khóa")
+                || next is not ("Hoạt động" or "Khóa"))
             {
                 throw new InvalidOperationException(
-                    "Trạng thái không hợp lệ.");
+                    "Chỉ được khóa hoặc mở khóa "
+                    + "tài khoản chưa bị xóa quyền sử dụng.");
             }
 
             if (id == AdminService.UserId())
             {
                 throw new InvalidOperationException(
-                    "Không thể tự vô hiệu hóa tài khoản "
-                    + "quản trị đang đăng nhập.");
+                    "Không thể tự thay đổi trạng thái "
+                    + "tài khoản Admin đang đăng nhập.");
             }
 
             using var connection = Database.CreateConnection();
@@ -85,31 +90,40 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                 UPDATE dbo.NguoiDung
                 SET TrangThai = @Next
                 WHERE MaNguoiDung = @Id
-                  AND TrangThai = @Expected;";
+                  AND TrangThai = @Expected
+                  AND TrangThai IN
+                  (
+                      N'Hoạt động',
+                      N'Khóa'
+                  );
+
+                IF @@ROWCOUNT <> 1
+                    THROW 50001,
+                        N'Tài khoản đã thay đổi hoặc đã ngừng sử dụng. Vui lòng tải lại danh sách.',
+                        1;";
 
             command.Parameters.Add(
-                "@Id", SqlDbType.VarChar, 20).Value = id;
+                "@Id",
+                SqlDbType.VarChar,
+                20).Value = id;
 
             command.Parameters.Add(
-                "@Expected", SqlDbType.NVarChar, 30)
-                .Value = expected;
+                "@Expected",
+                SqlDbType.NVarChar,
+                30).Value = expected;
 
             command.Parameters.Add(
-                "@Next", SqlDbType.NVarChar, 30)
-                .Value = next;
+                "@Next",
+                SqlDbType.NVarChar,
+                30).Value = next;
 
-            if (await command.ExecuteNonQueryAsync() != 1)
-            {
-                throw new InvalidOperationException(
-                    "Tài khoản đã thay đổi. "
-                    + "Vui lòng tải lại danh sách.");
-            }
+            await command.ExecuteNonQueryAsync();
 
             await AdminService.AuditAsync(
                 connection,
                 transaction,
                 $"Đổi trạng thái tài khoản {id}: "
-                    + $"{expected} → {next}.");
+                + $"{expected} → {next}.");
 
             transaction.Commit();
         }
@@ -120,10 +134,24 @@ namespace QuanLyChuoiNhaTro.Services.Admin
         {
             string adminId = AdminService.UserId();
 
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new InvalidOperationException(
+                    "Mã tài khoản không hợp lệ.");
+            }
+
             if (id == adminId)
             {
                 throw new InvalidOperationException(
-                    "Không thể xóa tài khoản Admin đang đăng nhập.");
+                    "Không thể xóa tài khoản Admin "
+                    + "đang đăng nhập.");
+            }
+
+            if (expectedStatus is not ("Hoạt động" or "Khóa"))
+            {
+                throw new InvalidOperationException(
+                    "Tài khoản đã ngừng sử dụng "
+                    + "hoặc trạng thái không hợp lệ.");
             }
 
             using var connection = Database.CreateConnection();
@@ -153,7 +181,8 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                 SELECT TenDangNhap
                 FROM dbo.NguoiDung WITH (UPDLOCK, HOLDLOCK)
                 WHERE MaNguoiDung = @Id
-                  AND TrangThai = @ExpectedStatus;";
+                  AND TrangThai = @ExpectedStatus
+                  AND TrangThai <> N'Ngừng sử dụng';";
 
             string? login =
                 await command.ExecuteScalarAsync() as string;
@@ -161,21 +190,23 @@ namespace QuanLyChuoiNhaTro.Services.Admin
             if (login == null)
             {
                 throw new InvalidOperationException(
-                    "Tài khoản đã thay đổi hoặc không còn tồn tại. "
+                    "Tài khoản đã thay đổi hoặc đã ngừng sử dụng. "
                     + "Vui lòng tải lại danh sách.");
             }
 
             command.CommandText = @"
                 IF EXISTS
                 (
-                    SELECT 1 FROM dbo.NguoiDung
+                    SELECT 1
+                    FROM dbo.NguoiDung
                     WHERE MaNguoiDung = @Id
                       AND VaiTro = N'Admin'
                       AND TrangThai = N'Hoạt động'
                 )
                 AND
                 (
-                    SELECT COUNT(*) FROM dbo.NguoiDung
+                    SELECT COUNT(*)
+                    FROM dbo.NguoiDung
                     WHERE VaiTro = N'Admin'
                       AND TrangThai = N'Hoạt động'
                 ) <= 1
@@ -183,101 +214,15 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                         N'Không thể xóa Admin hoạt động cuối cùng.',
                         1;
 
-                IF EXISTS
-                (
-                    SELECT 1 FROM dbo.DayTro
-                    WHERE MaChuTro = @Id
-                )
-                    THROW 50001,
-                        N'Không thể xóa: tài khoản đang liên kết với dãy trọ sở hữu.',
-                        1;
-
-                IF EXISTS
-                (
-                    SELECT 1 FROM dbo.NhanVien
-                    WHERE MaNguoiDung = @Id
-                      AND ChucVu = N'Quản lý'
-                      AND MaDayTro IS NOT NULL
-                      AND TrangThaiLamViec = N'Đang làm'
-                )
-                    THROW 50001,
-                        N'Cần bàn giao dãy trọ đang quản lý trước khi xóa tài khoản.',
-                        1;
-
-                IF EXISTS
-                (
-                    SELECT 1
-                    FROM dbo.HopDongThue hd
-                    JOIN dbo.KhachThue kt
-                        ON kt.MaKhachThue = hd.MaKhachThue
-                    WHERE kt.MaNguoiDung = @Id
-                )
-                    THROW 50001,
-                        N'Không thể xóa: tài khoản có lịch sử hợp đồng thuê.',
-                        1;
-
-                IF EXISTS
-                (
-                    SELECT 1
-                    FROM dbo.ChiTietSuaChua ct
-                    JOIN dbo.NhanVien nv
-                        ON nv.MaNhanVien = ct.MaNhanVien
-                    WHERE nv.MaNguoiDung = @Id
-                )
-                    THROW 50001,
-                        N'Không thể xóa: tài khoản có lịch sử công việc sửa chữa.',
-                        1;
-
-                IF EXISTS
-                (
-                    SELECT 1 FROM dbo.PhieuSuCo
-                    WHERE MaNguoiGui = @Id
-                )
-                    THROW 50001,
-                        N'Không thể xóa: tài khoản đã gửi phiếu sự cố.',
-                        1;
-
-                IF EXISTS
-                (
-                    SELECT 1 FROM dbo.ThanhToan
-                    WHERE MaNguoiXacNhan = @Id
-                )
-                    THROW 50001,
-                        N'Không thể xóa: tài khoản có lịch sử xác nhận thanh toán.',
-                        1;
-
-                IF EXISTS
-                (
-                    SELECT 1 FROM dbo.ThongBao
-                    WHERE MaNguoiGui = @Id
-                )
-                    THROW 50001,
-                        N'Không thể xóa: tài khoản có lịch sử gửi thông báo.',
-                        1;
-
-                DELETE FROM dbo.MaOtp
-                WHERE MaNguoiDung = @Id;
-
-                DELETE FROM dbo.ThongBaoNguoiNhan
-                WHERE MaNguoiNhan = @Id;
-
-                -- Giữ nhật ký, bỏ liên kết đến tài khoản được xóa.
-                UPDATE dbo.NhatKyHeThong
-                SET MaNguoiDung = NULL
-                WHERE MaNguoiDung = @Id;
-
-                DELETE FROM dbo.NhanVien
-                WHERE MaNguoiDung = @Id;
-
-                DELETE FROM dbo.KhachThue
-                WHERE MaNguoiDung = @Id;
-
-                DELETE FROM dbo.NguoiDung
-                WHERE MaNguoiDung = @Id;
+                UPDATE dbo.NguoiDung
+                SET TrangThai = N'Ngừng sử dụng'
+                WHERE MaNguoiDung = @Id
+                  AND TrangThai = @ExpectedStatus
+                  AND TrangThai <> N'Ngừng sử dụng';
 
                 IF @@ROWCOUNT <> 1
                     THROW 50001,
-                        N'Không xóa được tài khoản. Vui lòng tải lại.',
+                        N'Tài khoản đã thay đổi. Vui lòng tải lại danh sách.',
                         1;";
 
             await command.ExecuteNonQueryAsync();
@@ -285,7 +230,9 @@ namespace QuanLyChuoiNhaTro.Services.Admin
             await AdminService.AuditAsync(
                 connection,
                 transaction,
-                $"Xóa vĩnh viễn tài khoản {login}, mã {id}.");
+                $"Xóa quyền sử dụng tài khoản {login}, mã {id}. "
+                + "Chuyển trạng thái sang Ngừng sử dụng; "
+                + "giữ nguyên dữ liệu nghiệp vụ.");
 
             transaction.Commit();
         }
@@ -296,16 +243,19 @@ namespace QuanLyChuoiNhaTro.Services.Admin
             string next,
             string? day)
         {
-            if (!Roles.Contains(next))
+            if (!Roles.Contains(expected)
+                || !Roles.Contains(next))
             {
                 throw new InvalidOperationException(
                     "Vai trò không hợp lệ.");
             }
 
-            if (id == AdminService.UserId() && next != "Admin")
+            if (id == AdminService.UserId()
+                && next != "Admin")
             {
                 throw new InvalidOperationException(
-                    "Không thể tự bỏ quyền Admin đang đăng nhập.");
+                    "Không thể tự bỏ quyền Admin "
+                    + "đang đăng nhập.");
             }
 
             if (expected == next)
@@ -329,6 +279,44 @@ namespace QuanLyChuoiNhaTro.Services.Admin
 
             using var command = connection.CreateCommand();
             command.Transaction = transaction;
+
+            command.Parameters.Add(
+                "@Id",
+                SqlDbType.VarChar,
+                20).Value = id;
+
+            command.Parameters.Add(
+                "@Expected",
+                SqlDbType.NVarChar,
+                50).Value = expected;
+
+            command.Parameters.Add(
+                "@Next",
+                SqlDbType.NVarChar,
+                50).Value = next;
+
+            // Kiểm tra và giữ khóa bản ghi tài khoản
+            // đến khi giao dịch hoàn thành.
+            command.CommandText = @"
+                SELECT COUNT(*)
+                FROM dbo.NguoiDung WITH (UPDLOCK, HOLDLOCK)
+                WHERE MaNguoiDung = @Id
+                  AND VaiTro = @Expected
+                  AND TrangThai IN
+                  (
+                      N'Hoạt động',
+                      N'Khóa'
+                  );";
+
+            int found = Convert.ToInt32(
+                await command.ExecuteScalarAsync());
+
+            if (found != 1)
+            {
+                throw new InvalidOperationException(
+                    "Tài khoản đã thay đổi hoặc đã ngừng sử dụng. "
+                    + "Không thể cập nhật vai trò.");
+            }
 
             command.CommandText = @"
                 IF @Next <> N'Chủ nhà trọ'
@@ -406,25 +394,22 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                 UPDATE dbo.NguoiDung
                 SET VaiTro = @Next
                 WHERE MaNguoiDung = @Id
-                  AND VaiTro = @Expected;";
+                  AND VaiTro = @Expected
+                  AND TrangThai IN
+                  (
+                      N'Hoạt động',
+                      N'Khóa'
+                  );
 
-            command.Parameters.Add(
-                "@Id", SqlDbType.VarChar, 20).Value = id;
+                IF @@ROWCOUNT <> 1
+                    THROW 50001,
+                        N'Tài khoản đã thay đổi. Vui lòng tải lại danh sách.',
+                        1;";
 
-            command.Parameters.Add(
-                "@Expected", SqlDbType.NVarChar, 50)
-                .Value = expected;
+            await command.ExecuteNonQueryAsync();
 
-            command.Parameters.Add(
-                "@Next", SqlDbType.NVarChar, 50)
-                .Value = next;
-
-            if (await command.ExecuteNonQueryAsync() != 1)
-            {
-                throw new InvalidOperationException(
-                    "Tài khoản đã thay đổi. Hãy tải lại.");
-            }
-
+            // Giữ nguyên logic cập nhật hồ sơ khi đổi vai trò
+            // của project hiện tại.
             command.CommandText = @"
                 UPDATE dbo.NhanVien
                 SET TrangThaiLamViec = N'Tạm nghỉ'
@@ -453,7 +438,7 @@ namespace QuanLyChuoiNhaTro.Services.Admin
                 connection,
                 transaction,
                 $"Đổi vai trò tài khoản {id}: "
-                    + $"{expected} → {next}.");
+                + $"{expected} → {next}.");
 
             transaction.Commit();
         }

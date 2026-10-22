@@ -69,12 +69,15 @@ namespace QuanLyChuoiNhaTro.Services.Technician
                     "Nhập ghi chú xử lý từ 1 đến 500 ký tự.");
             }
 
-            if (complete
-                && (string.IsNullOrWhiteSpace(photo)
-                    || photo.Length > 500))
+            // Ảnh nghiệm thu không bắt buộc.
+            photo = string.IsNullOrWhiteSpace(photo)
+                ? null
+                : photo.Trim();
+
+            if (photo != null && photo.Length > 500)
             {
                 throw new InvalidOperationException(
-                    "Vui lòng chọn ảnh nghiệm thu trước khi hoàn tất.");
+                    "Đường dẫn ảnh nghiệm thu không được quá 500 ký tự.");
             }
 
             decimal total = 0;
@@ -192,8 +195,9 @@ namespace QuanLyChuoiNhaTro.Services.Technician
                         WHEN @Complete = 1 THEN GETDATE()
                         ELSE NULL
                     END,
-                    AnhSauSua = CASE
-                        WHEN @Complete = 1 THEN @Photo
+                      AnhSauSua = CASE
+                        WHEN @Complete = 1 AND @Photo IS NOT NULL
+                            THEN @Photo
                         ELSE AnhSauSua
                     END,
                     ChiPhiVatTu = CASE

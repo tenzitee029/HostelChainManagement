@@ -373,7 +373,7 @@ namespace QuanLyChuoiNhaTro.Views.Technician
             if (_busy || !Editable || _selected == null)
                 return;
 
-            // Tránh bỏ sót dòng đang nhập nhưng chưa bấm Thêm.
+            // Tránh bỏ sót linh kiện đang nhập nhưng chưa thêm.
             if (!string.IsNullOrWhiteSpace(txtMaterialName.Text)
                 || txtQuantity.Text.Trim() != "1"
                 || txtCost.Text.Trim() != "0")
@@ -381,27 +381,34 @@ namespace QuanLyChuoiNhaTro.Views.Technician
                 txtStatus.Text =
                     "Bạn còn dòng linh kiện đang nhập. "
                     + "Hãy bấm Thêm linh kiện hoặc xóa nội dung dòng nhập.";
+
+                return;
+            }
+
+            // Cách khắc phục vẫn bắt buộc.
+            if (string.IsNullOrWhiteSpace(txtResolution.Text))
+            {
+                txtStatus.Text = "Vui lòng nhập cách khắc phục.";
                 return;
             }
 
             byte[]? photo = _photoBytes;
             string? extension = _photoExtension;
 
-            if (string.IsNullOrWhiteSpace(txtResolution.Text)
-                || photo == null
-                || extension == null)
+            // Chỉ kiểm tra ảnh khi người dùng đã chọn ảnh.
+            if (photo != null && string.IsNullOrWhiteSpace(extension))
             {
                 txtStatus.Text =
-                    "Vui lòng nhập cách khắc phục và chọn ảnh nghiệm thu.";
+                    "Ảnh đã chọn không hợp lệ. Vui lòng chọn lại.";
+
                 return;
             }
 
-            decimal total =
-                _materials.Sum(x => x.ThanhTien);
+            decimal total = _materials.Sum(x => x.ThanhTien);
 
             if (MessageBox.Show(
                 Window.GetWindow(this),
-                $"Xác nhận hoàn thành công việc?\n"
+                "Xác nhận hoàn thành công việc?\n"
                 + $"Số dòng linh kiện: {_materials.Count}\n"
                 + $"Tổng tiền: {total:N0} VNĐ\n\n"
                 + "Chi phí sẽ được đưa vào hóa đơn của khách thuê.",
@@ -427,16 +434,31 @@ namespace QuanLyChuoiNhaTro.Views.Technician
 
             await RunAsync(async () =>
             {
-                Directory.CreateDirectory(PhotoFolder);
+                // Giữ ảnh hiện có nếu không chọn ảnh mới.
+                string? photoPath =
+                    string.IsNullOrWhiteSpace(Value("AnhSauSua"))
+                        ? null
+                        : Value("AnhSauSua");
 
-                string saved = Path.Combine(
-                    PhotoFolder,
-                    Guid.NewGuid().ToString("N") + extension);
-
-                await File.WriteAllBytesAsync(saved, photo);
+                string? saved = null;
 
                 try
                 {
+                    // Không chọn ảnh thì bỏ qua việc tạo thư mục,
+                    // ghi tệp và vẫn lưu kết quả hoàn thành.
+                    if (photo != null)
+                    {
+                        Directory.CreateDirectory(PhotoFolder);
+
+                        saved = Path.Combine(
+                            PhotoFolder,
+                            Guid.NewGuid().ToString("N") + extension);
+
+                        await File.WriteAllBytesAsync(saved, photo);
+
+                        photoPath = saved;
+                    }
+
                     await XacNhanHoanThanhService.SaveAsync(
                         id,
                         status,
@@ -444,24 +466,30 @@ namespace QuanLyChuoiNhaTro.Views.Technician
                         version,
                         "Hoàn thành",
                         note,
-                        saved,
+                        photoPath,
                         materials);
                 }
                 catch
                 {
-                    try
+                    // Chỉ dọn ảnh mới tạo nếu lưu thất bại.
+                    // Không xóa ảnh cũ của công việc.
+                    if (saved != null)
                     {
-                        File.Delete(saved);
-                    }
-                    catch
-                    {
-                        // Không che mất lỗi lưu SQL ban đầu.
+                        try
+                        {
+                            File.Delete(saved);
+                        }
+                        catch
+                        {
+                            // Giữ lại lỗi lưu ban đầu.
+                        }
                     }
 
                     throw;
                 }
 
                 _photoBytes = null;
+                _photoExtension = null;
 
                 if (IsLoaded
                     && ReferenceEquals(

@@ -293,7 +293,7 @@
                                     Margin="0,0,0,20"/>
 
                                 <!-- Ảnh nghiệm thu -->
-                                <TextBlock Text="Ảnh hiện trường sau khi sửa xong"
+                                <TextBlock Text="Ảnh hiện trường sau khi sửa xong (không bắt buộc)"
                                            Style="{StaticResource Label}"/>
 
                                 <Border BorderBrush="#D1D7E0"
@@ -316,10 +316,12 @@
                                     </DockPanel>
                                 </Border>
 
-                                <TextBlock Text="JPG/PNG, tối đa 10 MB."
-                                           FontSize="11"
-                                           Foreground="#94A3B8"
-                                           Margin="0,6,0,0"/>
+                                <TextBlock
+                                    Text="Có thể hoàn tất khi không chọn ảnh. Nếu đính kèm: JPG/PNG, tối đa 10 MB."
+                                    FontSize="11"
+                                    Foreground="#94A3B8"
+                                    TextWrapping="Wrap"
+                                    Margin="0,6,0,0"/>
                             </StackPanel>
 
                             <!-- Nút hoàn thành -->

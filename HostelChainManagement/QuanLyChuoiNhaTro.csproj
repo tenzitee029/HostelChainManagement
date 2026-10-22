@@ -21,4 +21,10 @@
     <None Update="Assets\Images\momo-qr.jpg" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Update="Data\database.json"
+			  CopyToOutputDirectory="PreserveNewest"
+			  CopyToPublishDirectory="PreserveNewest"/>
+	</ItemGroup>
+
 </Project>
